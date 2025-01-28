@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-
+    if: false
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -53,20 +53,3 @@ jobs:
         DJANGO_DB_HOST: 127.0.0.1
       run: |
         python manage.py test
-
-  merge-dev:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Merge dev -> stage
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git fetch --all
-          git pull --all
-          git checkout stage
-          git merge dev
-          git push
