@@ -65,7 +65,7 @@ LOGGING = {
 # ------------------------------------------------------------------------------
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('DJANGO_DB_PORT'),
+        'ENGINE': os.environ.get('DJANGO_DB_ENGINE'),
         'HOST': os.environ.get('DJANGO_DB_HOST'),
         'PORT': os.environ.get('DJANGO_DB_PORT'),
         'NAME': os.environ.get('DJANGO_DB_NAME'),
