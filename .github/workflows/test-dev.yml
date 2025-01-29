@@ -6,16 +6,16 @@ on:
 
 jobs:
   build:
-    if: false
     runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres
         env:
+          POSTGRES_DB: ddmtestdb
+          POSTGRES_USER: root
           POSTGRES_PASSWORD: password
-          MYSQL_DATABASE: ddmtestdb
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -36,6 +36,8 @@ jobs:
       env:
         DJANGO_SECRET: ${{ secrets.DJANGO_SECRET }}
         DJANGO_SETTINGS_MODULE: config.settings.production
+        DJANGO_DB_ENGINE: django.db.backends.postgresql
+        DJANGO_DB_PORT: 5432
         DJANGO_DB_NAME: ddmtestdb
         DJANGO_DB_USER: root
         DJANGO_DB_PW: password
@@ -47,6 +49,8 @@ jobs:
       env:
         DJANGO_SECRET: ${{ secrets.DJANGO_SECRET }}
         DJANGO_SETTINGS_MODULE: config.settings.production
+        DJANGO_DB_ENGINE: django.db.backends.postgresql
+        DJANGO_DB_PORT: 5432
         DJANGO_DB_NAME: ddmtestdb
         DJANGO_DB_USER: root
         DJANGO_DB_PW: password
