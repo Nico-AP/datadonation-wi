@@ -36,6 +36,7 @@ jobs:
       env:
         DJANGO_SECRET: ${{ secrets.DJANGO_SECRET }}
         DJANGO_SETTINGS_MODULE: config.settings.production
+        ALLOWED_HOSTS: 127.0.0.1
         DJANGO_DB_ENGINE: django.db.backends.postgresql
         DJANGO_DB_PORT: 5432
         DJANGO_DB_NAME: ddmtestdb
@@ -49,6 +50,7 @@ jobs:
       env:
         DJANGO_SECRET: ${{ secrets.DJANGO_SECRET }}
         DJANGO_SETTINGS_MODULE: config.settings.production
+        ALLOWED_HOSTS: 127.0.0.1
         DJANGO_DB_ENGINE: django.db.backends.postgresql
         DJANGO_DB_PORT: 5432
         DJANGO_DB_NAME: ddmtestdb
