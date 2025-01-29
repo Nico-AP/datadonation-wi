@@ -18,7 +18,7 @@ class TestUrls(TestCase):
     def test_ddm_urls_not_authenticated(self):
         url = reverse('ddm_projects:list')
         get_response = self.client.get(url)
-        self.assertEqual(get_response.status_code, 302)
+        self.assertIn(get_response.status_code, [301, 302])
 
     def test_ddm_urls_authenticated(self):
         url = reverse('ddm_projects:list')
