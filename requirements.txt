@@ -1,5 +1,6 @@
 Django>=4.2,<5.0
 django-csp==3.8
 django-ddm==2.0b6
+gunicorn==23.0.0
 psycopg[binary]==3.2.4
 python-dotenv==1.0.1
