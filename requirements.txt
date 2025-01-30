@@ -1,6 +1,5 @@
 Django>=4.2,<5.0
 django-csp==3.8
 django-ddm==2.0b6
-mysqlclient==2.2.7
 psycopg2==2.9.10
 python-dotenv==1.0.1
