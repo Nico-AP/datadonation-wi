@@ -1,10 +1,61 @@
+{% load static i18n %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Dein Feed, Deine Wahl{% endblock %}</title>
+  <meta name="description" content="Dies ist die offizielle Seite des Datenspende-Projekts 'Dein Feed, Deine Wahl'.">
+
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'dd_wi_main/img/favicon/ddm_favicon_black.svg' %}">
+
+  {% block site_css %}
+  <link rel="stylesheet" href="{% static 'dd_wi_main/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'dd_wi_main/css/base.css' %}">
+  {% endblock site_css %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
 </head>
+
 <body>
+<div style="display: flex; flex-direction: column">
+
+  {% block header %}
+  <div id="header">
+    <div class="container">
+      {% block header_content %}
+      {% endblock header_content %}
+    </div>
+  </div>
+  {% endblock header %}
+
+  <div>
+    <div class="container">
+      {% block main_content %}
+      <div>
+        <h1>Heading 1</h1>
+        <p>Lorem ipsum dolor sit amet.</p>
+      </div>
+      {% endblock main_content %}
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        {% block footer_content %}
+        {% endblock footer_content %}
+      </div>
+    </div>
+
+  </div>
+
+  {% block site_js %}
+  <script src="{% static 'dd_wi_main/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  {% endblock site_js %}
 
 </body>
+
 </html>

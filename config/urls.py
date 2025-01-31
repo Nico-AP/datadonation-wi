@@ -6,6 +6,7 @@ from django.urls import path, include
 
 
 urlpatterns = [
+    path('', include('dd_wi_main.urls')),
     path('wi-admin/', admin.site.urls),
     path('ddm/', include('ddm.core.urls')),
     path('ddm/login/', auth_views.LoginView.as_view(template_name='ddm_auth/login.html'), name='ddm_login'),

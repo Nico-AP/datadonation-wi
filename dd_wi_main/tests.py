@@ -38,3 +38,8 @@ class TestUrls(TestCase):
         client.login(**{'username': 'owner', 'password': '123'})
         get_response = client.get(url, follow=True)
         self.assertEqual(get_response.status_code, 200)
+
+    def test_landing_view(self):
+        response = self.client.get(reverse('landing'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'dd_wi_main/landing_page.html')
