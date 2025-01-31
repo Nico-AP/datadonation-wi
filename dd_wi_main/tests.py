@@ -40,6 +40,6 @@ class TestUrls(TestCase):
         self.assertEqual(get_response.status_code, 200)
 
     def test_landing_view(self):
-        response = self.client.get(reverse('landing'))
+        response = self.client.get(reverse('landing'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'dd_wi_main/landing_page.html')
