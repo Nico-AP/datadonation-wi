@@ -14,6 +14,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET')
 INSTALLED_APPS = [
     'dd_wi_main.apps.DDWIMainConfig',
     'reports.apps.DDWIReportsConfig',
+    'scraper.apps.DDWIScraperConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
