@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from rest_framework.test import APITestCase
@@ -18,8 +19,12 @@ User = get_user_model()
 class ScraperPostAPITestCase(APITestCase):
     """ Tests for the ScraperPostAPI. """
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def setUp(self):
         """ Setup test user and authentication token. """
+        self.client.defaults['HTTP_X_FORWARDED_PROTO'] = 'https'
+        self.client.defaults['wsgi.url_scheme'] = 'https'
+
         self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
         self.user = User.objects.create_user(
             **self.credentials, **{'email': 'owner@mail.com'})
@@ -115,8 +120,12 @@ class ScraperPostAPITestCase(APITestCase):
 class TikTokVideoListAPITestCase(APITestCase):
     """ Tests for the TikTokVideoListAPIView. """
 
+    @override_settings(SECURE_SSL_REDIRECT=False)
     def setUp(self):
         """Setup test data for the API."""
+        self.client.defaults['HTTP_X_FORWARDED_PROTO'] = 'https'
+        self.client.defaults['wsgi.url_scheme'] = 'https'
+
         self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
         self.user = User.objects.create_user(
             **self.credentials, **{'email': 'owner@mail.com'})
