@@ -18,10 +18,9 @@ from .utils.plots import (
     create_user_feed_wordcloud,
     create_hashtag_cloud_germany
 )
+from .utils.utils import extract_video_id
 
 
-## for debug
-from collections import Counter
 
 
 utc = pytz.UTC
@@ -83,31 +82,38 @@ class TikTokReport(TemplateView):
             'hashtags__name': 'hashtags'
         })
         
+        #### fuse video with hashtag data - TODO: pack into load_posts_data_fucntion perhaps
         # Group hashtags by video_id since each video can have multiple hashtags
         df_hashtags = df_posts.groupby('video_id')['hashtags'].apply(list).reset_index()
-        
+
         # Remove duplicates from video data (keeping first occurrence)
         df_posts = df_posts.drop('hashtags', axis=1).drop_duplicates(subset=['video_id'])
-        
+
         # Merge hashtags back into main dataframe
         df_posts = df_posts.merge(df_hashtags, on='video_id', how='left')
-        
+
         # Replace NaN with empty lists for videos without hashtags
         df_posts['hashtags'] = df_posts['hashtags'].apply(lambda x: [] if pd.isna(x).any() else x)
 
-        # Augment posts data - TODO: add simply "partei" col to database?
+
+        #### Augment posts data - TODO: add simply "partei" col to database?
         df_posts = augment_posts_data(df_posts)
         # Parse donated data
         df_user_data = load_user_data(donated_data)
 
-        print(df_posts.head(5))
+        #### conduct user feed matching to feed in user feed plots
+        # Get watched video IDs and match with posts
+        watched_video_ids = set(df_user_data['Link'].apply(extract_video_id))
+        matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
+        print(len(matched_videos))
+        print(matched_videos.head())
 
         #### Plots feed related
-        user_consumption_stats = create_user_consumption_stats(df_posts, df_user_data)
-        party_distribution_user_feed = create_party_distribution_user_feed(df_posts, df_user_data)
-        temporal_party_distribution_user_feed = create_temporal_party_distribution_user_feed(df_posts, df_user_data)
-        top_videos_table = create_top_videos_table(df_posts, df_user_data)
-        user_feed_wordcloud = create_user_feed_wordcloud(df_posts, df_user_data)
+        user_consumption_stats = create_user_consumption_stats(matched_videos, df_user_data)
+        party_distribution_user_feed = create_party_distribution_user_feed(matched_videos)
+        temporal_party_distribution_user_feed = create_temporal_party_distribution_user_feed(matched_videos)
+        top_videos_table = create_top_videos_table(matched_videos)
+        user_feed_wordcloud = create_user_feed_wordcloud(matched_videos)
         hashtag_cloud_germany = create_hashtag_cloud_germany(df_posts)
 
         context['user_consumption_stats'] = user_consumption_stats

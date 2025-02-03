@@ -73,47 +73,29 @@ def hex_to_rgba(hex_color, opacity=0.6):
     b = int(hex_color[4:6], 16)
     return f'rgba({r},{g},{b},{opacity})'
 
-def extract_video_id(url):
-    try:
-        return int(url.strip('/').split('/')[-1])
-    except:
-        return None
+
 
 #### 1. User consumption stats
-def create_user_consumption_stats(df_posts, user_data):
+def create_user_consumption_stats(matched_videos, user_data):
     """Create user consumption statistics"""
-    try:
-
-        watched_video_ids = set(user_data['Link'].apply(extract_video_id))
-        print(f"Number of watched videos: {len(watched_video_ids)}")
-        print(f"Sample watched IDs: {list(watched_video_ids)[:5]}")
-        print(f"Sample post IDs: {df_posts['video_id'].head().tolist()}")
-        
-        matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)]
-        print(f"Number of matches: {len(matched_videos)}")
-        
-        return f"""
+    try: return f"""
             <ul class="stats-list">
                 <li>Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{len(user_data):,}</span> Videos auf TikTok angesehen</li>
                 <li>Davon waren <span class="stats-value">{len(matched_videos):,}</span> Videos politisch.</li>
                 <li>Das sind <span class="stats-value">{(len(matched_videos)/len(user_data)*100):.1f}%</span> der Videos, die du gesehen hast.</li>
             </ul>
         """
-        
+    
     except Exception as e:
         print(f"Error processing user data: {str(e)}")
         return "<p>Entschuldigung, deine Nutzungsdaten konnten nicht analysiert werden.</p>"
 
 
 ### 2. Party distribution in user feed
-def create_party_distribution_user_feed(df_posts, browsing_df):
+def create_party_distribution_user_feed(matched_videos):
     """Create party distribution visualization using treemap"""
-    
-    # Get watched video IDs and match with posts
-    watched_video_ids = set(browsing_df['Link'].apply(extract_video_id))
 
-    matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
-    
+
     # Filter out non-party accounts and count videos by party
     party_counts = matched_videos[matched_videos['partei'] != 'Kein offizieller Parteiaccount']['partei'].value_counts()
 
@@ -178,22 +160,12 @@ def create_party_distribution_user_feed(df_posts, browsing_df):
     }
 
 ### 3. Party distribution on feed temporal
-def create_temporal_party_distribution_user_feed(df_posts, browsing_df):
+def create_temporal_party_distribution_user_feed(matched_videos):
     """Create weekly watched videos visualization with stacked area chart"""
     
-    # Get watched video IDs and match with posts
-    watched_video_ids = set(browsing_df['Link'].apply(extract_video_id))
-    matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
-    print("\nDebug temporal plot:")
-    print(f"Number of matched videos: {len(matched_videos)}")
-    print("Sample of create_time values:", matched_videos['create_time'].head())
-
     # Convert timestamp to datetime and filter non-party accounts
     matched_videos['date'] = pd.to_datetime(matched_videos['create_time'])
     matched_videos = matched_videos[matched_videos['partei'] != 'Kein offizieller Parteiaccount']
-    print("\nAfter party filter:")
-    print(f"Number of party videos: {len(matched_videos)}")
-    print("Unique parties:", matched_videos['partei'].unique())
 
     # Set date as index and resample by week
     matched_videos.set_index('date', inplace=True)
@@ -336,11 +308,8 @@ def create_temporal_party_distribution_user_feed(df_posts, browsing_df):
     }
 
 ### 4. Top videos table
-def create_top_videos_table(df_posts, browsing_df):
+def create_top_videos_table(matched_videos):
 
-    watched_video_ids = set(browsing_df['Link'].apply(extract_video_id))
-    matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
-    
     # Get top 5 videos with hashtags
     matched_videos = matched_videos.sort_values('view_count', ascending=False)
     top_5_videos = matched_videos.head(5)[['username', 'view_count', 'video_id', 'partei', 'hashtags']]
@@ -391,13 +360,9 @@ def create_top_videos_table(df_posts, browsing_df):
 
 
 ### 5. User feed wordcloud
-def create_user_feed_wordcloud(df_posts, browsing_df):
+def create_user_feed_wordcloud(matched_videos):
     """Create wordcloud for user's watched political videos"""
 
-    # Get watched video IDs and match with posts
-    watched_video_ids = set(browsing_df['Link'].apply(extract_video_id))
-    matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)]
-    
     # Extract hashtags
     def get_hashtags(matched_videos):
         # Initialize empty list to store all hashtags

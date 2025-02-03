@@ -13,3 +13,10 @@ party_colors = {
 
 candidate_parties = ['SPD', 'CDU/CSU', 'Grüne', 'FDP', 'AfD', 'Linke', 'Sonstige']
 parties_order = ['SPD', 'CDU/CSU', 'Grüne', 'FDP', 'AfD', 'Linke', 'BSW', 'Sonstige', 'Kein offizieller Parteiaccount']
+
+
+def extract_video_id(url):
+    try:
+        return int(url.strip('/').split('/')[-1])
+    except:
+        return None
