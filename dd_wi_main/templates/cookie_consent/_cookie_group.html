@@ -43,16 +43,16 @@
   </p>
 
 
-  <table>
+  <table class="border-bottom">
   {% for cookie in cookie_group.cookie_set.all %}
-   <tr>
-     <th>
+   <tr class="border-top">
+     <th class="pe-3 pb-2 pt-2">
         {{ cookie.name }}
         {% if cookie.domain %}
           ({{ cookie.domain }})
         {% endif %}
      </th>
-     <td>
+     <td class="pb-2 pt-2">
        {% if cookie.description %}
         {{ cookie.description }}
        {% endif %}
@@ -61,4 +61,8 @@
   {% endfor %}
   </table>
 
+</div>
+
+<div class="mt-3">
+  <a href="/">zurück zur Hauptseite</a>
 </div>
