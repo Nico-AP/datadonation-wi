@@ -141,6 +141,13 @@ CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 CKEDITOR_5_UPLOAD_FILE_TYPES = ['jpeg', 'pdf', 'png', 'mp4']
 
+# Django Rest Framework
+# ------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+}
+
 # Report Configuration
 # ------------------------------------------------------------------------------
 # Instagram Report

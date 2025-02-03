@@ -14,6 +14,7 @@ urlpatterns = [
     path('ddm/logout/', auth_views.LogoutView.as_view(), name='ddm_logout'),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('cookies/', include('cookie_consent.urls')),
+    path('scraper/', include('scraper.urls')),
 ]
 
 if settings.DEBUG:
