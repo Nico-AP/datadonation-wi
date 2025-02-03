@@ -105,6 +105,9 @@ class TikTokReport(TemplateView):
         # Get watched video IDs and match with posts
         watched_video_ids = set(df_user_data['Link'].apply(extract_video_id))
         matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
+
+        # TODO: Handle case no matched videos.
+
         print(len(matched_videos))
         print(matched_videos.head())
 
