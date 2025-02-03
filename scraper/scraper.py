@@ -123,6 +123,7 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
 def get_datetime_from_unix_ts(unix_ts):
     return datetime.datetime.fromtimestamp(unix_ts, timezone.utc)
 
+
 def save_videos_to_file(videos, start_date, search_id, cursor):
     """ Save retrieved data to JSON file. """
     file_name = f'{start_date}_{search_id}_{cursor - 100}.json'
