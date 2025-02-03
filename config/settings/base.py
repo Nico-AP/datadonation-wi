@@ -148,6 +148,14 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
 }
 
+# Django CSP
+# ------------------------------------------------------------------------------
+CSP_SCRIPT_SRC = ["'self'", "'unsafe-inline'"]
+CSP_SCRIPT_SRC_ELEM = ["'self'", "'unsafe-inline'"]
+CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
+CSP_STYLE_SRC_ATTR = ["'self'", "'unsafe-inline'"]
+CSP_IMG_SRC = ["'self'", "data:"]
+
 # Report Configuration
 # ------------------------------------------------------------------------------
 # Instagram Report

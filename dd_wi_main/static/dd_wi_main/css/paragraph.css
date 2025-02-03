@@ -1,3 +1,7 @@
 p {
     font-family: Inter;
 }
+
+.heading-p {
+    margin-bottom: -12px !important;
+}

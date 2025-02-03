@@ -1,0 +1,18 @@
+.scroll-dot {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-color: black;
+    border-radius: 50%;
+    margin-left: 6px; /* Adds spacing between text and dot */
+    opacity: 1;
+    animation: scrollingDot 4s infinite;
+}
+
+@keyframes scrollingDot {
+    0% { transform: translateY(0); height: 15px; }
+    5% { height: 15px; }
+    20% { transform: translateY(-20px); height: 12px;  }
+    40% { scaleY(1); height: 15px; }
+    60% { transform: translateY(0); }
+}

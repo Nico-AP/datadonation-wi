@@ -148,7 +148,7 @@ def create_party_distribution_user_feed(matched_videos):
                 '<div style="width: 100%; max-width: 100%; margin: 0 auto;">' +
                 fig_party.to_html(
                     full_html=False, 
-                    include_plotlyjs='cdn',
+                    include_plotlyjs='/static/reports/js/plotly-3.0.0.min.js',
                     config=STATIC_PLOT_CONFIG  # Use standard config that allows hovering
                 ) +
                 '</div>'
@@ -298,7 +298,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             '<div style="width: 100%; max-width: 100%; margin: 0 auto; padding: 0;">' +
             fig.to_html(
                 full_html=False, 
-                include_plotlyjs='cdn',
+                include_plotlyjs='/static/reports/js/plotly-3.0.0.min.js',
                 config=PLOT_CONFIG  # Use standard config that allows hovering
             ) +
             '</div>'

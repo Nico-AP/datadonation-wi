@@ -1,21 +1,23 @@
+function getRandomHeading() {
+    const headings = document.querySelectorAll('.heading-effect');
+    if (headings.length === 0) return null; // Exit if no elements exist
+    const randomIndex = Math.floor(Math.random() * headings.length);
+    return headings[randomIndex];
+}
+
+function getRandomTimeout(min = 2, max = 8) {
+    return Math.random() * (max - min) + min;
+}
+
 function triggerFlicker() {
-    const elements = document.querySelectorAll('.heading-effect');
-
-    // Apply animation
-    elements.forEach(element => {
-        element.style.animation = 'flicker 1s linear';
-    })
-
+    const element = getRandomHeading();
+    element.style.animation = 'flicker 1s infinite linear';
     // Remove animation after 1s to allow delay to reset
     setTimeout(() => {
-        elements.forEach(element => {
-            element.style.animation = 'none';
-        })
-
-        // Randomly set next flicker time (between 5s and 15s)
-        const nextFlickerTime = Math.random() * (10 - 3) + 5;
-        setTimeout(triggerFlicker, nextFlickerTime * 1000);
-    }, 1000);
+        element.style.animation = 'none';
+        // Randomly set next flicker time (between 2s and 8s)
+        setTimeout(triggerFlicker, getRandomTimeout(2, 8) * 1000);
+    }, getRandomTimeout(1, 3) * 500);
 }
 
 triggerFlicker();

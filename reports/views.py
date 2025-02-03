@@ -1,3 +1,5 @@
+import time
+
 import pytz
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
@@ -60,8 +62,12 @@ class TikTokReport(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        start_time = time.time()
+        print(f'Start time: {start_time}')
         participant = self.get_participant()
+        print(f'Time to participants: {time.time() - start_time}')
         donated_data = self.get_donation(participant=participant)
+        print(f'Time to donations: {time.time() - start_time}')
 
         # Get all videos from the database
         videos = TikTokVideo.objects.all().values(
@@ -81,7 +87,7 @@ class TikTokReport(TemplateView):
             'username__name': 'username',
             'hashtags__name': 'hashtags'
         })
-        
+        print(f'Time to df_posts: {time.time() - start_time}')
         #### fuse video with hashtag data - TODO: pack into load_posts_data_fucntion perhaps
         # Group hashtags by video_id since each video can have multiple hashtags
         df_hashtags = df_posts.groupby('video_id')['hashtags'].apply(list).reset_index()
@@ -105,19 +111,22 @@ class TikTokReport(TemplateView):
         # Get watched video IDs and match with posts
         watched_video_ids = set(df_user_data['Link'].apply(extract_video_id))
         matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
-
+        print(f'Time to matched videos: {time.time() - start_time}')
         # TODO: Handle case no matched videos.
-
-        print(len(matched_videos))
-        print(matched_videos.head())
 
         #### Plots feed related
         user_consumption_stats = create_user_consumption_stats(matched_videos, df_user_data)
+        print(f'Time to user_consumption_stats: {time.time() - start_time}')
         party_distribution_user_feed = create_party_distribution_user_feed(matched_videos)
+        print(f'Time to party_distribution_user_feed: {time.time() - start_time}')
         temporal_party_distribution_user_feed = create_temporal_party_distribution_user_feed(matched_videos)
+        print(f'Time to temporal_party_distribution_user_feed: {time.time() - start_time}')
         top_videos_table = create_top_videos_table(matched_videos)
+        print(f'Time to top_videos_table: {time.time() - start_time}')
         user_feed_wordcloud = create_user_feed_wordcloud(matched_videos)
+        print(f'Time to user_feed_wordcloud: {time.time() - start_time}')
         hashtag_cloud_germany = create_hashtag_cloud_germany(df_posts)
+        print(f'Time to hashtag_cloud_germany: {time.time() - start_time}')
 
         context['user_consumption_stats'] = user_consumption_stats
         context['party_distribution_user_feed'] = party_distribution_user_feed
