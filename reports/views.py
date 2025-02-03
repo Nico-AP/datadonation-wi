@@ -46,5 +46,8 @@ class TikTokReport(TemplateView):
         context = super().get_context_data(**kwargs)
         participant = self.get_participant()
         donated_data = self.get_donation(participant=participant)
+
+        # general_stats = ProjectStats.objects.get(project=self.project)
+
         context['donation'] = donated_data
         return context
