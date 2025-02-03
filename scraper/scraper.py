@@ -26,7 +26,7 @@ def configure_logging():
 
 
 def get_username_list():
-    df = pd.read_csv('scraper/df_actors_fused_list.csv')
+    df = pd.read_csv('./reports/static/reports/csv/actor_party_mapping.csv')
     pattern = r"@(.*)"
     usernames = [re.findall(pattern, i)[0] for i in df['SM_TikTokURL']]
     return usernames
@@ -36,7 +36,7 @@ def get_formatted_date():
     """
     Get current date minus 4 days in the format %Y%m%d (e.g., '20241224').
     """
-    current_date = datetime.date.today() - datetime.timedelta(days=4)
+    current_date = datetime.date.today() - datetime.timedelta(days=15)
     formatted_date = current_date.strftime('%Y%m%d')
     return formatted_date
 
@@ -100,7 +100,7 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
         'query': {
             'or': [
                 {'operation': 'IN', 'field_name': 'username', 'field_values': usernames},
-                {'operation': 'IN', 'field_name': 'hashtag_name', 'field_values': hashtags}
+                #{'operation': 'IN', 'field_name': 'hashtag_name', 'field_values': hashtags}
             ],
             'and': [
                 {'operation': 'IN', 'field_name': 'region_code',
@@ -140,7 +140,7 @@ def save_video_to_db(video):
 
     new_video, _ = TikTokVideo.objects.get_or_create(
         video_id=video.get('id'),
-        video_description=video.get('description'),
+        video_description=video.get('video_description'),
         create_time=get_datetime_from_unix_ts(video.get('create_time')),
         username=tt_user,
 

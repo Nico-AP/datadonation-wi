@@ -18,11 +18,48 @@
 {% endblock header_content %}
 
 {% block main_content %}
-<div class="row">
-  <div class="col">
-    {{ donation }}
-  </div>
+    <!-- Main Title -->
+<div class="main-title">
+  Wahlkampf auf TikTok: Dein Feed, Deine Wahl, Dein Report
 </div>
+<div class="scroll-note">
+  <p>Scrolle weiter, um mehr zu erfahren.</p>
+</div>
+<!--hier alle figure-blöcke rein-->
+<h1 id="first">Politik in deinem Feed</h1>
+
+<div class="stats-container">
+  {{ user_consumption_stats|safe }}
+</div>
+
+<h2>Diese <span class="highlight-first">Parteien</span> kamen insgesamt in deinem Feed vor</h2>
+<div class="visualization-container">
+    {{ party_distribution_user_feed.html.party|safe }}
+</div>
+
+<h2>So hat sich das vorkommen der Parteien seit dem Ampel-Aus <span class="highlight-first">ver&auml;ndert</span>.</h2>
+<div class="visualization-container">
+    {{ temporal_party_distribution_user_feed.html | safe }}
+</div>
+
+<h2>Die <span class="highlight-first">viralsten</span> Politik-Videos in deinem Feed</h2>
+<div class="top-videos-container">
+    {{ top_videos_table | safe }}
+</div>
+
+<h2>Welche <span class="highlight-first">Hashtags</span> kamen am h&auml;ufigsten in deinem Politik-Feed vor ... </h2>
+<div class="hashtag-section">
+    {{ user_feed_wordcloud.html | safe }}
+</div>
+
+<h2>... und welche wurden &uuml;ber alle <span class="highlight-first">Politiker:Innen-Accounts</span> hinweg benutzt?</h2>
+<div class="hashtag-section">
+    {{ hashtag_cloud_germany.html | safe }}
+    <div class="description" style="text-align: center;">
+        Je gr&ouml;&szlig;er der Hashtag, je h&auml;ufiger wurde er im Wahlkampf benutzt.
+    </div>
+</div>
+
 {% endblock %}
 
 {% block footer_content %}

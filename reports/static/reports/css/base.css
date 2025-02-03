@@ -1,0 +1,412 @@
+
+    /* Variables */
+    :root {
+    --color-option-1: rgb(255, 195, 127);
+    --color-option-2: rgb(135, 255, 229);
+    --color-option-3: rgba(255, 195, 127, 0.411);
+    --dark-text: #333;
+    --spacing-xl: 120px;
+    --spacing-lg: 80px;
+    --spacing-md: 40px;
+    --spacing-sm: 20px;
+}
+
+/* Base styles */
+body {
+    font-family: 'Source Sans Pro', Arial, sans-serif;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-bottom: var(--spacing-lg);
+}
+
+/* Layout containers */
+.plot-container,
+.visualization-container,
+.weekly-watched-container,
+.plot-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    overflow-x: hidden;  /* Hide horizontal overflow */
+}
+
+/* Force Plotly containers to be responsive */
+.js-plotly-plot,
+.plot-container.plotly,
+.visualization-container > div {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+}
+
+/* Typography */
+h1 {
+    color: var(--dark-text);
+    font-size: 280%;
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-sm);
+    text-align: center;
+}
+
+h2 {
+    color: #666;
+    font-size: 250%;
+    margin-top: var(--spacing-xl);
+    padding: 0 var(--spacing-md) var(--spacing-md);
+    text-align: center;
+}
+
+/* Highlights */
+.highlight-first,
+.highlight-second {
+    padding: 0 5px;
+}
+.highlight-first { background-color: var(--color-option-1); }
+.highlight-second { background-color: var(--color-option-2); }
+
+/* Sections */
+.section {
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+#first { background-color: var(--color-option-1); }
+#second { background-color: var(--color-option-2); }
+#third {
+    background-color: var(--color-option-3);
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    text-align: left;
+}
+
+
+@media screen and (max-width: 768px) {
+    .plot-container,
+    .visualization-container,
+    .plot-wrapper {
+        margin: 0 -10px;  /* Negative margin to allow full width */
+        padding: 0;
+    }
+
+    /* Adjust plot margins on mobile */
+    .js-plotly-plot .plot-container {
+        margin: 0 !important;
+    }
+
+    /* Ensure subplots stay close together */
+    .js-plotly-plot .subplot {
+        margin: 0 !important;
+    }
+
+    /* Remove extra padding around plots */
+    .plotly {
+        padding: 0 !important;
+    }
+
+    /* Ensure text remains readable */
+    .js-plotly-plot .ytick text,
+    .js-plotly-plot .xtick text {
+        font-size: 12px !important;
+    }
+}
+
+.scroll-note {
+    border-bottom: 3px solid #eee;
+    margin-bottom: 80px;
+    padding-top: 40px;
+    padding-bottom: 60px;
+    font-size: 28pt;
+    color: var(--dark-text);
+    text-align: center;
+}
+
+.scroll-note p {
+    animation: wobble 3s 10s infinite;
+}
+.footer {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    z-index: 1000;
+}
+
+.footer img {
+    height: 50px;
+    width: auto;
+    opacity: 0.9;
+    object-fit: contain;
+}
+.stats-container {
+    text-align: center;
+    padding: 40px 100px;
+}
+
+.stats-list {
+    list-style: none;
+    padding: 0;
+    font-size: 30pt;
+    line-height: 2;
+}
+
+.stats-list li {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.stats-value {
+    font-size: 45pt;
+    color: var(--dark-text);
+    font-weight: bold;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: var(--color-option-1);
+}
+
+.top-videos-container {
+    text-align: center;
+    margin: 20px auto;
+}
+
+.top-videos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 25px;
+    margin: 0 auto;
+    background-color: white;
+}
+
+.top-videos-table th,
+.top-videos-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.top-videos-table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+    color: #444;
+}
+
+.account-cell {
+    width: 25%;
+}
+
+.views-cell {
+    width: 20%;
+    text-align: right;
+}
+
+.hashtags-cell {
+    width: 40%;
+}
+
+.link-cell {
+    width: 15%;
+    text-align: center;
+}
+
+.account-name {
+    font-weight: bold;
+    color: #444;
+}
+
+.hashtag {
+    display: inline-block;
+    background-color: #f0f0f0;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 4px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.video-link {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: var(--color-option-1);
+    color: #444;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.video-link:hover {
+    background-color: var(--color-option-2);
+}
+
+@media screen and (max-width: 768px) {
+    .top-videos-table {
+        font-size: 16px;
+    }
+
+    .top-videos-table th,
+    .top-videos-table td {
+        padding: 8px;
+    }
+
+    .hashtag {
+        font-size: 0.8em;
+        padding: 1px 4px;
+    }
+
+    .video-link {
+        padding: 4px 8px;
+    }
+}
+
+#third p {
+    font-size: 22pt;
+    padding-left: 15px;
+}
+
+#third h1 {
+    text-align: left;
+    padding-top: 10px;
+}
+
+@media screen and (min-width: 64em) {
+    body { max-width: 60%; }
+    .stats-list {
+        list-style: none;
+        padding: 0;
+        font-size: 1.6em;
+        line-height: 2.2;
+    }
+
+    .stats-list li {
+        padding-top: 0px;
+        padding-bottom: 10px;
+    }
+
+    .stats-value {
+        font-size: 1.4em;
+        font-weight: bold;
+    }
+    .scroll-note {
+        font-size: 16pt;
+        margin-top: 0;
+        margin-bottom: 80px;
+        padding-top: 0;
+        padding-bottom: 20px;
+    }
+    h1 {
+        font-size: 200%;
+        text-align: left;
+        margin-top: var(--spacing-lg);
+    }
+
+    h2 {
+        font-size: 160%;
+        text-align: left;
+        padding-bottom: 20px;
+        margin-top: var(--spacing-xl);
+    }
+
+    #third p {
+        font-size: 16pt;
+        padding-left: 15px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .footer {
+        position: relative;
+        gap: 20px;
+        padding: 15px 10px;
+    }
+    
+    .footer img {
+        height: 30px;
+        max-width: 40%;
+    }
+}
+
+.weekly-viz-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.week-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-left: 1px solid #eee;
+}
+
+.radio-button {
+    display: block;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.radio-button:hover {
+    background-color: #f5f5f5;
+}
+
+.weekly-watched-container > div {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0;
+}
+
+.plot-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Main title base styles (for all screen sizes) */
+.main-title {
+    text-align: center;
+    font-size: 48pt;  /* Larger base size */
+    margin: 40px auto;  /* Center the block */
+    padding: 30px 20px;  /* More padding for the background */
+    background-color: var(--color-option-1);  /* Orange background */
+    color: var(--dark-text);
+    line-height: 1.2;
+    max-width: 90%;  /* Prevent full width on large screens */
+    border-radius: 8px;  /* Optional: rounded corners */
+}
+
+/* Desktop styles */
+@media screen and (min-width: 64em) {
+    .main-title {
+        font-size: 36pt;  /* Slightly smaller for desktop */
+        margin: 40px auto;
+        padding: 25px 40px;
+        max-width: 80%;
+    }
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .main-title {
+        font-size: 40pt;  /* Medium size for tablets */
+        margin: 30px 15px;
+        padding: 20px 15px;
+        max-width: calc(100% - 30px);  /* Account for margins */
+    }
+}
+
+/* Small mobile styles */
+@media screen and (max-width: 480px) {
+    .main-title {
+        font-size: 40pt;  /* Smaller for phones */
+        margin: 20px 10px;
+        padding: 15px 10px;
+    }
+}
