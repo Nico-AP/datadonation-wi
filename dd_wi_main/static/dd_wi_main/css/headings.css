@@ -1,0 +1,23 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: Rubik;
+    font-weight: bold;
+}
+
+.header-title {
+    font-size: 3rem;
+    font-family: Rubik;
+    font-weight: bold;
+}
+
+.heading-effect {
+    text-shadow: -2px -2px 0 rgba(255, 0, 80, 0.6), 2px 2px 0 rgba(0, 242, 234, 0.6);
+}
+
+.heading-effect-bw {
+    text-shadow: -2px -2px 0 rgba(191, 191, 191, 0.6), 2px 2px 0 rgba(142, 142, 142, 0.6);
+}

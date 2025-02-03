@@ -21,7 +21,6 @@ def configure_logging():
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-    logging.info('test')
     return
 
 
@@ -92,7 +91,6 @@ def get_video_query_url():
     return query_url
 
 
-# We add the search_id and cursor as input variables as well as to the query.
 def scrape_videos_pagination(url, usernames, hashtags, max_count,
                              start_date, end_date, headers, search_id, cursor):
     """Get video data from TikTok API."""

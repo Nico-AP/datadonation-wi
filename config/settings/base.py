@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'rest_framework',
     'rest_framework.authtoken',
+    'cookie_consent',
 ]
 
 MIDDLEWARE = [
@@ -46,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -138,6 +140,13 @@ DDM_DEFAULT_HEADER_IMG_RIGHT = '/static/dd_wi_main/img/logos/some-other-logo.svg
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 CKEDITOR_5_UPLOAD_FILE_TYPES = ['jpeg', 'pdf', 'png', 'mp4']
+
+# Django Rest Framework
+# ------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+}
 
 # Report Configuration
 # ------------------------------------------------------------------------------

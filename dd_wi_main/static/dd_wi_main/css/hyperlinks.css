@@ -1,0 +1,16 @@
+a {
+    text-decoration: none;
+    color: #005d8e;
+    cursor: pointer;
+}
+
+a:hover {
+    filter: saturate(50%);
+}
+
+.a-white {
+    color: white !important;
+}
+.a-white:hover {
+    opacity: 0.8;
+}

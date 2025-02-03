@@ -1,0 +1,15 @@
+.wi-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+}
+.wi-btn:hover {
+    filter: saturate(50%);
+}
+
+.wi-btn-bright {
+    background: white !important;
+    color: black !important;
+}
+.wi-btn-bright:hover {
+    opacity: 0.8;
+}

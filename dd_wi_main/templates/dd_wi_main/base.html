@@ -1,4 +1,5 @@
 {% load static i18n %}
+{% url "cookie_consent_cookie_group_list" as url_cookies %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -22,12 +23,19 @@
 </head>
 
 <body>
-<div style="display: flex; flex-direction: column">
+<div class="d-flex flex-column">
 
   {% block header %}
   <div id="header">
     <div class="container">
       {% block header_content %}
+      <div class="row align-items-center pt-5 pb-5 mt-5">
+        <div class="col-2 pt-5"></div>
+        <div class="col text-center">
+          <p class="header-title">Dein <span>Feed</span><span class="heading-effect">,</span> Deine <span>Wahl</span><span class="heading-effect">.</span></p>
+        </div>
+        <div class="col-2"></div>
+      </div>
       {% endblock header_content %}
     </div>
   </div>
@@ -52,8 +60,12 @@
 
   </div>
 
+  {% include "dd_wi_main/components/cookie_info.html" %}
+
   {% block site_js %}
   <script src="{% static 'dd_wi_main/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'cookie_consent/cookiebar.js' %}"></script>
+  <script type="text/javascript" src="{% static 'dd_wi_main/js/cookie-info.js' %}"></script>
   {% endblock site_js %}
 
 </body>
