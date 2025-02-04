@@ -33,13 +33,17 @@
   </div>
 </div>
 
-<!--hier alle figure-blöcke rein-->
 <h1 id="first">Politik in deinem Feed</h1>
 
 <div class="stats-container">
-  {{ user_consumption_stats|safe }}
+  <ul class="stats-list">
+    <li>Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{{ n_videos }}</span> Videos auf TikTok angesehen</li>
+    <li>Davon waren <span class="stats-value">{{ n_matched }}</span> Videos politisch.</li>
+    <li>Das sind <span class="stats-value">{{ share_political }}%</span> der Videos, die du gesehen hast.</li>
+  </ul>
 </div>
 
+{% if matches %}
 <h2>So oft kamen Videos der <span class="highlight-first">Parteien</span> in deinem Feed vor</h2>
 <div class="visualization-container">
     {{ party_distribution_user_feed.html|safe }}
@@ -71,12 +75,12 @@
         Für die Zweite Abbildung berücksichtigen wir nicht nur Videos von Politikern, sondern alle Videos die einen politischen Hashtag enthalten.
     </div>
 </div>
-  
-<!-- Add Section 2 stuff (public report) -->
-{% include "reports/public_report.html" %}
-  
+{% endif %}
 
-  <!-- Section 3: &Uuml;ber diesen Bericht -->
+{# Add Section 2 stuff (public report) #}
+{% include "reports/public_report.html" %}
+
+{# Section 3: &Uuml;ber diesen Bericht #}
 <div class="section" id="third">
   <h1>&Uuml;ber diesen Bericht</h1>
   <p>F&uuml;r diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet. Wir haben dabei nur offizielle Accounts von Politiker:innen und Parteien benutzt. Politische Inhalte k&ouml;nnen nat&uuml;rlich auch in vielen anderen Videos vorkommen - zum Beispiel, wenn es um aktuelle Nachrichten geht. Diese Videos sind aber entweder neutral oder lassen sich nicht so einfach automatisch einer politischen Richtung zuordnen.</p>

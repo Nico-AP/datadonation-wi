@@ -1,12 +1,13 @@
 import pandas as pd
 
+
 def create_stats_table(df):
     """
     Create a summary statistics table from the posts dataframe.
-    
+
     Args:
         df (pd.DataFrame): DataFrame containing TikTok posts data
-        
+
     Returns:
         pd.DataFrame: Summary statistics table
     """
@@ -27,9 +28,9 @@ def create_stats_table(df):
             df['view_count'].mean()
         ]
     }
-    
+
     # Create DataFrame and round numeric values
     stats_df = pd.DataFrame(stats)
     stats_df['Value'] = stats_df['Value'].round(2)
-    
-    return stats_df 
+
+    return stats_df
