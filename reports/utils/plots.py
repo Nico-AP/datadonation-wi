@@ -78,8 +78,8 @@ def create_plot_html(fig, config=None):
     """Helper function to standardize plot HTML generation"""
     return fig.to_html(
         full_html=False,
-        include_plotlyjs='cdn',
-        config=config or STATIC_PLOT_CONFIG  # Use interactive config by default
+        include_plotlyjs='/static/reports/js/plotly-3.0.0.min.js',
+        config=config or STATIC_PLOT_CONFIG  # Use static config by default
     )
 
 def update_plot_style(fig):
@@ -158,20 +158,8 @@ def create_party_distribution_user_feed(matched_videos):
     )
     
     result = {
-        'html': {
-            'party': (
-                '<div style="width: 100%; max-width: 100%; margin: 0 auto;">' +
-                fig_party.to_html(
-                    full_html=False,
-                    include_plotlyjs='cdn',  # Use CDN version
-                    config=PLOT_CONFIG
-                ) +
-                '</div>'
-            )
-        },
-        'figures': {
-            'party': fig_party
-        }
+        'html': create_plot_html(fig_party),
+        'figure': fig_party,
     }
     
     return result
@@ -310,18 +298,9 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     )
     
     return {
-        'html': (
-            '<div class="weekly-watched-container">'
-            '<div style="width: 100%; max-width: 100%; margin: 0 auto; padding: 0;">' +
-            fig.to_html(
-                full_html=False, 
-                include_plotlyjs='/static/reports/js/plotly-3.0.0.min.js',
-                config=PLOT_CONFIG  # Use standard config that allows hovering
-            ) +
-            '</div>'
-            '</div>'
-        ),
-        'figure': fig
+        'html': create_plot_html(fig),
+        'figure': fig,
+
     }
 
 ### 4. Top videos table
@@ -429,7 +408,7 @@ def create_user_feed_wordcloud(matched_videos):
     
     # Convert to HTML
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight', dpi=600)
+    fig.savefig(buf, format='png', bbox_inches='tight', dpi=800)
     buf.seek(0)
     plt.close(fig)
     
@@ -499,7 +478,7 @@ def create_hashtag_cloud_germany(df_posts):
     
     # Convert to HTML
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight', dpi=600)
+    fig.savefig(buf, format='png', bbox_inches='tight', dpi=800)
     buf.seek(0)
     plt.close(fig)
     
@@ -658,20 +637,8 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     )
     
     result = {
-        'html': {
-            'party': (
-                '<div style="width: 100%; max-width: 100%; margin: 0 auto;">' +
-                fig_party.to_html(
-                    full_html=False,
-                    include_plotlyjs='cdn',  # Use CDN version
-                    config=PLOT_CONFIG
-                ) +
-                '</div>'
-            )
-        },
-        'figure': {
-            'party': fig_party
-        }
+        'html': create_plot_html(fig_party,config=PLOT_CONFIG),
+        'figure': fig_party
     }
     
     print("Debug - Returning plot with keys:", result.keys())

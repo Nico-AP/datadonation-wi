@@ -115,7 +115,6 @@ class TikTokReport(TemplateView):
         context['public_party_distribution_all_accounts'] = cache.get(PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY)
         context['public_views_bars_all_accounts'] = cache.get(PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY)
         context['public_likes_bars_all_accounts'] = cache.get(PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY)
-        print("Debug - cached plot:", bool(context['public_party_distribution_temporal_all_accounts']))
         
         return context
 
