@@ -99,8 +99,9 @@ class TikTokReport(TemplateView):
 
         # Conduct user feed matching to feed in user feed plots.
         # Get watched video IDs and match with posts.
-        watched_video_ids = set(df_user_data['Link'].apply(extract_video_id))
-        matched_videos = df_posts[df_posts['video_id'].isin(watched_video_ids)].copy()
+        watched_ids = set(df_user_data['Link'].apply(extract_video_id))
+        matched_videos = df_posts[
+            df_posts['video_id'].isin(watched_ids)].copy()
 
         n_videos = len(df_user_data)
         n_matched = len(matched_videos)

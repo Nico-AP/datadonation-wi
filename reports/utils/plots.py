@@ -92,7 +92,8 @@ def update_plot_style(fig):
 def create_party_distribution_user_feed(matched_videos):
     """ Create party distribution visualization using treemap. """
     # Filter out non-party accounts and count videos by party.
-    party_counts = matched_videos[matched_videos['partei'] != 'Kein offizieller Parteiaccount']['partei'].value_counts()
+    party_counts = matched_videos[
+        matched_videos['partei'] != 'Kein offizieller Parteiaccount']['partei'].value_counts()
 
     # Only create treemap if we have data.
     if len(party_counts) == 0:
@@ -155,7 +156,8 @@ def create_temporal_party_distribution_user_feed(matched_videos):
 
     # Convert timestamp to datetime and filter non-party accounts.
     matched_videos['date'] = pd.to_datetime(matched_videos['create_time'])
-    matched_videos = matched_videos[matched_videos['partei'] != 'Kein offizieller Parteiaccount']
+    matched_videos = matched_videos[
+        matched_videos['partei'] != 'Kein offizieller Parteiaccount']
 
     # Set date as index and resample by week.
     matched_videos.set_index('date', inplace=True)
@@ -215,8 +217,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             line=dict(width=0),
             stackgroup='one',
             fillcolor=rgba_color,
-            hovertemplate="%{y}<br>" +
-                         "<extra></extra>"
+            hovertemplate="%{y}<br><extra></extra>"
         ))
 
     # Update layout.
@@ -521,7 +522,8 @@ def create_temporal_party_distribution_all_accounts(df_posts):
             continue
 
         party_data = df_temporal[df_temporal['partei'] == party]
-        daily_counts = party_data.resample('D')['video_id'].count().reset_index()
+        daily_counts = \
+            party_data.resample('D')['video_id'].count().reset_index()
         daily_counts['partei'] = party
         party_dfs.append(daily_counts)
 
@@ -653,7 +655,9 @@ def create_temporal_party_distribution_all_accounts(df_posts):
 def create_party_distribution_all_accounts(df_posts):
     """ Create treemap chart showing video count distribution by party. """
     # Filter out non-party accounts and prepare data
-    df_filtered = df_posts[df_posts['partei'].notna() & (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+    df_filtered = df_posts[
+        df_posts['partei'].notna()
+        & (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
 
     # Calculate video counts per party.
     party_metrics = []
@@ -665,7 +669,8 @@ def create_party_distribution_all_accounts(df_posts):
         })
 
     # Sort by video count.
-    party_metrics = sorted(party_metrics, key=lambda x: x['Videos'], reverse=True)
+    party_metrics = sorted(party_metrics, key=lambda x: x['Videos'],
+                           reverse=True)
 
     # Convert hex colors to rgba with opacity.
     def hex_to_rgba(hex_color, opacity=0.6):
@@ -678,12 +683,18 @@ def create_party_distribution_all_accounts(df_posts):
     # Create treemap.
     fig = go.Figure(go.Treemap(
         labels=[m['party'] for m in party_metrics],
-        parents=[''] * len(party_metrics),  # Empty string as parent means root level.
+        # Empty string as parent means root level.
+        parents=[''] * len(party_metrics),
         values=[m['Videos'] for m in party_metrics],
         textinfo='label+value',
         marker=dict(
-            colors=[hex_to_rgba(party_colors[party], 0.6) for party in [m['party'] for m in party_metrics]],
-            line=dict(width=2, color='white')  # Add white borders between sections.
+            colors=[
+                hex_to_rgba(party_colors[party], 0.6)
+                for party
+                in [m['party'] for m in party_metrics]
+            ],
+            line=dict(width=2, color='white')
+            # Add white borders between sections.
         ),
         hovertemplate='<b>%{label}</b><br>Videos: %{value}<extra></extra>'
     ))
@@ -715,7 +726,9 @@ def create_views_bars_all_accounts(df_posts):
     Create bar charts showing total views and views per video side by side.
     """
     # Filter out non-party accounts and prepare data.
-    df_filtered = df_posts[df_posts['partei'].notna() & (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+    df_filtered = df_posts[
+        df_posts['partei'].notna() &
+        (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -736,8 +749,10 @@ def create_views_bars_all_accounts(df_posts):
         })
 
     # Sort data.
-    total_sorted = sorted(total_views, key=lambda x: x['total'], reverse=False)
-    per_video_sorted = sorted(total_views, key=lambda x: x['per_video'], reverse=False)
+    total_sorted = sorted(total_views, key=lambda x: x['total'],
+                          reverse=False)
+    per_video_sorted = sorted(total_views, key=lambda x: x['per_video'],
+                              reverse=False)
 
     # Convert hex colors to rgba with opacity.
     def make_transparent(hex_color, opacity=0.6):
@@ -753,8 +768,14 @@ def create_views_bars_all_accounts(df_posts):
             y=[m['party'] for m in total_sorted],
             x=[m['total'] for m in total_sorted],
             orientation='h',
-            marker_color=[make_transparent(party_colors[p]) for p in [m['party'] for m in total_sorted]],
-            hovertemplate='<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in total_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>'
+            ),
             width=0.5,
             showlegend=False
         ),
@@ -767,8 +788,14 @@ def create_views_bars_all_accounts(df_posts):
             y=[m['party'] for m in per_video_sorted],
             x=[m['per_video'] for m in per_video_sorted],
             orientation='h',
-            marker_color=[make_transparent(party_colors[p]) for p in [m['party'] for m in per_video_sorted]],
-            hovertemplate='<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in per_video_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>'
+            ),
             width=0.5,
             showlegend=False
         ),
@@ -825,7 +852,9 @@ def create_likes_bars_all_accounts(df_posts):
     Create bar charts showing total likes and likes per video side by side.
     """
     # Filter out non-party accounts and prepare data.
-    df_filtered = df_posts[df_posts['partei'].notna() & (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+    df_filtered = df_posts[
+        df_posts['partei'].notna() &
+        (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -845,8 +874,10 @@ def create_likes_bars_all_accounts(df_posts):
         })
 
     # Sort data.
-    total_sorted = sorted(total_likes, key=lambda x: x['total'], reverse=False)
-    per_video_sorted = sorted(total_likes, key=lambda x: x['per_video'], reverse=False)
+    total_sorted = sorted(total_likes, key=lambda x: x['total'],
+                          reverse=False)
+    per_video_sorted = sorted(total_likes, key=lambda x: x['per_video'],
+                              reverse=False)
 
     # Convert hex colors to rgba with opacity.
     def make_transparent(hex_color, opacity=0.6):
@@ -862,8 +893,14 @@ def create_likes_bars_all_accounts(df_posts):
             y=[m['party'] for m in total_sorted],
             x=[m['total'] for m in total_sorted],
             orientation='h',
-            marker_color=[make_transparent(party_colors[p]) for p in [m['party'] for m in total_sorted]],
-            hovertemplate='<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in total_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>'
+            ),
             width=0.5,
             showlegend=False
         ),
@@ -876,8 +913,14 @@ def create_likes_bars_all_accounts(df_posts):
             y=[m['party'] for m in per_video_sorted],
             x=[m['per_video'] for m in per_video_sorted],
             orientation='h',
-            marker_color=[make_transparent(party_colors[p]) for p in [m['party'] for m in per_video_sorted]],
-            hovertemplate='<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in per_video_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>'
+            ),
             width=0.5,
             showlegend=False
         ),
