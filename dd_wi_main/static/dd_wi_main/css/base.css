@@ -4,3 +4,18 @@
 @import url("headings.css");
 @import url("hyperlinks.css");
 @import url("paragraph.css");
+
+.plot-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 400px;
+}
+
+/* Force Plotly containers to be responsive */
+.js-plotly-plot,
+.plot-container.plotly {
+    width: 100% !important;
+    max-width: none !important;
+}

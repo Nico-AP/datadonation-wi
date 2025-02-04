@@ -1,0 +1,5 @@
+# Cache keys
+PUBLIC_TEMPORAL_PLOT_KEY = 'public_party_distribution_temporal_all_accounts' 
+PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY = 'public_party_distribution_all_accounts'
+PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY = 'public_views_bars_all_accounts'
+PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY = 'public_likes_bars_all_accounts'

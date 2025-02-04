@@ -35,7 +35,7 @@ def get_formatted_date():
     """
     Get current date minus 4 days in the format %Y%m%d (e.g., '20241224').
     """
-    current_date = datetime.date.today() - datetime.timedelta(days=15)
+    current_date = datetime.date.today() - datetime.timedelta(days=4)
     formatted_date = current_date.strftime('%Y%m%d')
     return formatted_date
 
@@ -98,7 +98,7 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
         'query': {
             'or': [
                 {'operation': 'IN', 'field_name': 'username', 'field_values': usernames},
-                #{'operation': 'IN', 'field_name': 'hashtag_name', 'field_values': hashtags}
+                {'operation': 'IN', 'field_name': 'hashtag_name', 'field_values': hashtags}
             ],
             'and': [
                 {'operation': 'IN', 'field_name': 'region_code',

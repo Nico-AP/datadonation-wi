@@ -2,14 +2,29 @@
 
 {% load static %}
 
+{% block site_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'reports/css/base.css' %}">
+{% endblock site_css %}
+
 {% block main_content %}
 <div class="row align-items-center pt-2 pb-5">
   <div class="col-2"></div>
   <div class="col text-center">
-    <p class="pt-3 pb-3">Diese Seite befindet sich aktuell im Aufbau.</p>
   </div>
   <div class="col-2"></div>
 </div>
+
+
+
+<!-- Public TikTok Stats Section -->
+<div class="section">
+  <h2>So viel posten die <span class="highlight-second">Parteien</span> t&auml;glich auf TikTok...</h2>
+  <div class="plot-wrapper">
+      {{ public_party_distribution_temporal_all_accounts.html.party|safe }}
+  </div>
+</div>
+
 
 {% endblock %}
 

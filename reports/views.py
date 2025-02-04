@@ -4,14 +4,14 @@ import pytz
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
-from scraper.models import TikTokVideo
 
 from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 import pandas as pd
 
-from .utils.data_processing import load_user_data, augment_posts_data
+from .utils.data_processing import load_user_data, load_posts_data
 from .utils.plots import (
     create_user_consumption_stats,
     create_party_distribution_user_feed,
@@ -21,6 +21,12 @@ from .utils.plots import (
     create_hashtag_cloud_germany
 )
 from .utils.utils import extract_video_id
+from .utils.constants import (
+    PUBLIC_TEMPORAL_PLOT_KEY,
+    PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY,
+    PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY,
+    PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY
+)
 
 
 
@@ -69,43 +75,12 @@ class TikTokReport(TemplateView):
         donated_data = self.get_donation(participant=participant)
         print(f'Time to donations: {time.time() - start_time}')
 
-        # Get all videos from the database
-        videos = TikTokVideo.objects.all().values(
-            'video_id',
-            'create_time',
-            'video_description',
-            'view_count',
-            'like_count',
-            'comment_count',
-            'share_count',
-            'username__name',
-            'hashtags__name'
-        )
-        
-        df_posts = pd.DataFrame.from_records(videos)
-        df_posts = df_posts.rename(columns={
-            'username__name': 'username',
-            'hashtags__name': 'hashtags'
-        })
+        df_posts = load_posts_data()
         print(f'Time to df_posts: {time.time() - start_time}')
-        #### fuse video with hashtag data - TODO: pack into load_posts_data_fucntion perhaps
-        # Group hashtags by video_id since each video can have multiple hashtags
-        df_hashtags = df_posts.groupby('video_id')['hashtags'].apply(list).reset_index()
-
-        # Remove duplicates from video data (keeping first occurrence)
-        df_posts = df_posts.drop('hashtags', axis=1).drop_duplicates(subset=['video_id'])
-
-        # Merge hashtags back into main dataframe
-        df_posts = df_posts.merge(df_hashtags, on='video_id', how='left')
-
-        # Replace NaN with empty lists for videos without hashtags
-        df_posts['hashtags'] = df_posts['hashtags'].apply(lambda x: [] if pd.isna(x).any() else x)
-
-
-        #### Augment posts data - TODO: add simply "partei" col to database?
-        df_posts = augment_posts_data(df_posts)
+        
         # Parse donated data
         df_user_data = load_user_data(donated_data)
+        print(f'Time to df_user_data: {time.time() - start_time}')
 
         #### conduct user feed matching to feed in user feed plots
         # Get watched video IDs and match with posts
@@ -134,6 +109,13 @@ class TikTokReport(TemplateView):
         context['top_videos_table'] = top_videos_table
         context['user_feed_wordcloud'] = user_feed_wordcloud
         context['hashtag_cloud_germany'] = hashtag_cloud_germany
+
+        ### public stuff
+        context['public_party_distribution_temporal_all_accounts'] = cache.get(PUBLIC_TEMPORAL_PLOT_KEY)
+        context['public_party_distribution_all_accounts'] = cache.get(PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY)
+        context['public_views_bars_all_accounts'] = cache.get(PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY)
+        context['public_likes_bars_all_accounts'] = cache.get(PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY)
+        print("Debug - cached plot:", bool(context['public_party_distribution_temporal_all_accounts']))
         
         return context
 
