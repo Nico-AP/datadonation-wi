@@ -174,8 +174,6 @@ CACHES = {
         ),
         'LOCATION': os.getenv('CACHE_LOCATION', 'django_cache'),
         'TIMEOUT': 86400,  # 24 hours
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000
-        }
+        'OPTIONS': {}
     }
 }
