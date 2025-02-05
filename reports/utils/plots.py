@@ -395,9 +395,11 @@ def create_user_feed_wordcloud(matched_videos):
 
     if not user_freq:
         return {'html': '<div>Keine Hashtags gefunden.</div>', 'figure': None}
-
+    import os
+    print(os.getcwd())
     # Create wordcloud.
     user_cloud = WordCloud(
+        font_path='dd_wi_main/static/dd_wi_main/fonts/inter/Inter-VariableFont_opsz,wght.ttf',
         width=800,
         height=800,
         background_color='white',

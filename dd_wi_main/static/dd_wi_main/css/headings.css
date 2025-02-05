@@ -8,12 +8,6 @@ h6 {
     font-weight: bold;
 }
 
-.header-title {
-    font-size: 4rem;
-    font-family: Rubik;
-    font-weight: bold;
-}
-
 @keyframes flicker {
     0% {text-shadow: -1px -1px 0 rgba(255, 0, 80, 0.6), 1px 1px 0 rgba(0, 242, 234, 0.6);}
     2% {text-shadow: -1px -1px 0 rgba(255, 0, 80, 0.2), 1px 1px 0 rgba(0, 242, 234, 0.2);}
@@ -37,3 +31,69 @@ h6 {
 .heading-effect-bw {
     text-shadow: -2px -2px 0 rgba(191, 191, 191, 0.6), 2px 2px 0 rgba(142, 142, 142, 0.6);
 }
+
+
+
+/* Extra small devices (portrait phones, less than 576px) */
+.header-title {
+    font-size: 2.8rem;
+    line-height: 1.3;
+    font-family: Rubik;
+    font-weight: bold;
+}
+.header-sub-title {
+    font-size: 1.6rem;
+    font-family: Rubik;
+    font-weight: bold;
+}
+.heading-p {
+    margin-bottom: -6px !important;
+}
+.header-title-container {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.report-block > h1, h2, h3, h4, h5, h6 {
+    font-family: Rubik;
+    font-weight: bold;
+    text-align: center;
+    color: black;
+}
+.report-block > h1 {
+    font-size: 2.4rem;
+}
+.report-block > h2 {
+    font-size: 1.8rem;
+    margin-top: 40px;
+}
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+    .header-title {
+        font-size: 3.5rem;
+    }
+
+    .header-sub-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .header-title {
+        font-size: 4rem;
+    }
+
+    .heading-p {
+        margin-bottom: -12px !important;
+    }
+ }
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {}

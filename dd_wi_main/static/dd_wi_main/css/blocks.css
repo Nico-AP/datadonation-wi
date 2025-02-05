@@ -1,0 +1,15 @@
+.report-block {
+    padding: 10px;
+    text-align: center;
+}
+
+.wi-rounded-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+@media (min-width: 576px) {
+    .wi-rounded-top {
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+    }
+}

@@ -4,9 +4,8 @@
     height: 15px;
     background-color: black;
     border-radius: 50%;
-    margin-left: 6px; /* Adds spacing between text and dot */
     opacity: 1;
-    animation: scrollingDot 4s infinite;
+    animation: scrollingDot 3s infinite;
 }
 
 @keyframes scrollingDot {
@@ -15,4 +14,14 @@
     20% { transform: translateY(-20px); height: 12px;  }
     40% { scaleY(1); height: 15px; }
     60% { transform: translateY(0); }
+}
+
+.grey-box-shadows {
+    box-shadow:
+        0px -60px rgb(93, 93, 93),
+        0px -100px gray,
+        0px -130px lightgray,
+        0px -150px #eaeaea,
+        0px -165px #f4f4f4;
+    transition: box-shadow 0.1s linear;
 }

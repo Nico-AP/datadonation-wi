@@ -1,9 +1,12 @@
 @import url("fonts.css");
 @import url("animations.css");
+@import url("blocks.css");
 @import url("buttons.css");
+@import url("colors.css");
 @import url("headings.css");
 @import url("hyperlinks.css");
 @import url("paragraph.css");
+@import url("scrollnote.css");
 
 .plot-wrapper {
     width: 100%;

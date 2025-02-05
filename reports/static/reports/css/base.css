@@ -40,6 +40,10 @@ body {
     height: auto !important;
 }
 
+.visualization-container {
+    overflow-x: scroll;
+}
+
 /* Typography */
 h1 {
     color: var(--dark-text);
@@ -49,20 +53,15 @@ h1 {
     text-align: center;
 }
 
-h2 {
-    color: #666;
-    font-size: 250%;
-    margin-top: var(--spacing-xl);
-    padding: 0 var(--spacing-md) var(--spacing-md);
-    text-align: center;
-}
-
 /* Highlights */
 .highlight-first,
 .highlight-second {
     padding: 0 5px;
+    border-radius: 5px;
 }
-.highlight-first { background-color: var(--color-option-1); }
+.highlight-first {
+    background-color: var(--color-option-1);
+}
 .highlight-second { background-color: var(--color-option-2); }
 
 /* Sections */
@@ -86,7 +85,6 @@ h2 {
     .plot-container,
     .visualization-container,
     .plot-wrapper {
-        margin: 0 -10px;  /* Negative margin to allow full width */
         padding: 0;
     }
 
@@ -112,19 +110,7 @@ h2 {
     }
 }
 
-.scroll-note {
-    border-bottom: 3px solid #eee;
-    margin-bottom: 80px;
-    padding-top: 40px;
-    padding-bottom: 60px;
-    font-size: 28pt;
-    color: var(--dark-text);
-    text-align: center;
-}
 
-.scroll-note p {
-    animation: wobble 3s 10s infinite;
-}
 .footer {
     position: sticky;
     bottom: 0;
@@ -165,17 +151,18 @@ h2 {
 }
 
 .stats-value {
-    font-size: 45pt;
     color: var(--dark-text);
     font-weight: bold;
     padding-left: 10px;
     padding-right: 10px;
     background-color: var(--color-option-1);
+    border-radius: 8px;
 }
 
 .top-videos-container {
     text-align: center;
     margin: 20px auto;
+    overflow-x: scroll;
 }
 
 .top-videos-table {
@@ -267,13 +254,14 @@ h2 {
 }
 
 #third p {
-    font-size: 22pt;
     padding-left: 15px;
+    padding-right: 15px;
 }
 
 #third h1 {
     text-align: left;
     padding-top: 10px;
+    margin-top: 10px;
 }
 
 @media screen and (min-width: 64em) {
@@ -294,30 +282,26 @@ h2 {
         font-size: 1.4em;
         font-weight: bold;
     }
-    .scroll-note {
-        font-size: 16pt;
-        margin-top: 0;
-        margin-bottom: 80px;
-        padding-top: 0;
-        padding-bottom: 20px;
-    }
+
     h1 {
         font-size: 200%;
         text-align: left;
         margin-top: var(--spacing-lg);
     }
-
+/*
     h2 {
         font-size: 160%;
         text-align: left;
         padding-bottom: 20px;
         margin-top: var(--spacing-xl);
     }
-
+*/
+/*
     #third p {
         font-size: 16pt;
         padding-left: 15px;
     }
+*/
 }
 
 @media screen and (max-width: 768px) {
@@ -326,7 +310,7 @@ h2 {
         gap: 20px;
         padding: 15px 10px;
     }
-    
+
     .footer img {
         height: 30px;
         max-width: 40%;
