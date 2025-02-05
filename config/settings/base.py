@@ -204,10 +204,16 @@ LOGGING = {
             'maxBytes': 1024*1024*15,
             'formatter': 'verbose'
         },
-        'api_file': {  # Separate handler for API logs
+        'api_file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'scraper/api.log'),
+            'formatter': 'verbose'
+        },
+        'scraper_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'scraper/scraper.log'),
             'formatter': 'verbose'
         },
     },
@@ -219,6 +225,11 @@ LOGGING = {
         },
         'api_logger': {
             'handlers': ['api_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'scraper_logger': {
+            'handlers': ['scraper_file'],
             'level': 'INFO',
             'propagate': False,
         },

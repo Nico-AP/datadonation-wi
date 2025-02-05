@@ -14,14 +14,7 @@ from scraper.models import TikTokVideo, Hashtag, TikTokUser
 
 load_dotenv()
 
-
-def configure_logging():
-    logging.basicConfig(
-        filename='scraper/scraper.log',
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    return
+logger = logging.getLogger('scraper_logger')
 
 
 def get_username_list():
@@ -67,7 +60,7 @@ def request_access_token():
 def log_server_ip():
     """Added to test IP-related issues."""
     response = requests.get('https://api.ipify.org?format=json')
-    logging.info(f'Server IP: {response.json()["ip"]}')
+    logger.info(f'Server IP: {response.json()["ip"]}')
     return
 
 
@@ -163,14 +156,13 @@ def save_videos_to_db(videos):
         try:
             save_video_to_db(video)
         except Exception as e:
-            logging.error(
+            logger.error(
                 f'Video: {video.get("id")}; Exception: {e}'
             )
     return
 
 
 def get_tt_videos():
-    configure_logging()
     access_token = request_access_token()
 
     # Set query parameter.
@@ -192,23 +184,23 @@ def get_tt_videos():
     has_more = True
     error_counter = 0
 
-    while has_more == True:
+    while has_more is True:
         response = scrape_videos_pagination(
             url, usernames, hashtags, max_count,
             start_date, end_date, headers, search_id, cursor
         )
-        logging.info(f'Response status code: {response.status_code}')
+        logger.info(f'Response status code: {response.status_code}')
         temp_data = response.json()
 
         if (temp_data['error']['code'] == 'internal_error') | (temp_data['error']['code'] == 'invalid_params'):
             error_counter += 1
-            logging.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
-            logging.warning(f'Error code: {temp_data["error"]["code"]}')
+            logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
+            logger.warning(f'Error code: {temp_data["error"]["code"]}')
 
             # Killswitch after 20 consecutive errors.
             if error_counter >= 20:
                 has_more = False
-                logging.error(
+                logger.error(
                     f'Stopping after {error_counter} consecutive errors. '
                     f'Last error: {temp_data["error"]["message"]}'
                 )
@@ -216,7 +208,7 @@ def get_tt_videos():
                 time.sleep(10)
         else:
             error_counter = 0
-            logging.info(
+            logger.info(
                 f'Request successful. Cursor: {temp_data["data"]["cursor"]}, '
                 f'Has More: {temp_data["data"]["has_more"]}'
             )
@@ -233,7 +225,7 @@ def get_tt_videos():
             time.sleep(10)
 
             if not has_more:
-                logging.info(
+                logger.info(
                     f'Report for scraping {get_formatted_date()}. '
                     f'Successfully scraped {cursor} videos'
                 )
