@@ -25,8 +25,6 @@ triggerFlicker();
 window.addEventListener("scroll", () => {
     let scrollY = window.scrollY;
 
-    console.log(scrollY);
-
     let maxOffset = 230; // Maximum movement downwards
 
     // Limit shadow movement so it doesn't go beyond maxOffset
@@ -64,7 +62,7 @@ window.addEventListener("scroll", () => {
 
     const reportFirstText = document.getElementById("report-first-text");
     if (reportFirstText) {
-        reportFirstText.style.opacity = Math.min(1, scrollOffset + scrollY / 250);
+        reportFirstText.style.opacity = Math.min(1, scrollOffset + scrollY / 220);
     }
 });
 
