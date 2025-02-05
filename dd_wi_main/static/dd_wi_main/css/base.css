@@ -22,3 +22,9 @@
     width: 100% !important;
     max-width: none !important;
 }
+
+.cookie-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+}
