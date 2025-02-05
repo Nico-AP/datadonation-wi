@@ -1,15 +1,26 @@
 .report-block {
     padding: 10px;
     text-align: center;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    margin-bottom: 4px;
 }
 
 .wi-rounded-top {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+.wi-rounded-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
 @media (min-width: 576px) {
     .wi-rounded-top {
         border-top-left-radius: 30px;
         border-top-right-radius: 30px;
+    }
+    .wi-rounded-bottom {
+        border-bottom-left-radius: 30px;
+        border-bottom-right-radius: 30px;
     }
 }

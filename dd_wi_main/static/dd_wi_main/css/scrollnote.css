@@ -1,25 +1,37 @@
 /* Extra small devices (portrait phones, less than 576px) */
 .scroll-note {
     font-size: 1.1rem;
-    font-family: Rubik;
-    margin-bottom: 100px;
+    font-family: Rubik, sans-serif;
+    padding-bottom: 11px;
+    margin-bottom: 0;
 }
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
-
+    .scroll-note {
+        padding-bottom: 6px;
+        margin-bottom: 0;
+    }
 }
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
-
+    .scroll-note {
+        padding-bottom: 0;
+        margin-bottom: -24px;
+    }
  }
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) {}
 
 /* X-Large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {}
+@media (min-width: 1200px) {
+    .scroll-note {
+        padding-bottom: 40px;
+        margin-bottom: 0;
+    }
+}
 
 /* XX-Large devices (larger desktops, 1400px and up) */
 @media (min-width: 1400px) {}

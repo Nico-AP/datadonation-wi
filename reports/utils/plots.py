@@ -1,7 +1,5 @@
-import base64
-import io
 import matplotlib
-import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import pandas as pd
 import plotly.graph_objects as go
 from collections import Counter
@@ -36,20 +34,19 @@ STATIC_PLOT_CONFIG = {
 
 PLOT_FONT = dict(
     size=25,
-    color='#444',
-    family='Source Sans Pro, Arial, sans-serif'
+    color='black',
+    family='Rubik, Arial, sans-serif'
 )
 
 PLOT_LAYOUT = dict(
     autosize=True,
-    plot_bgcolor='white',
-    paper_bgcolor='white',
+    paper_bgcolor='rgba(0,0,0,0)',
     font=PLOT_FONT,
     margin=dict(
-        r=50,  # These margins will be automatically adjusted on mobile.
+        r=0,  # These margins will be automatically adjusted on mobile.
         t=50,
-        l=50,
-        b=50,
+        l=0,
+        b=0,
         autoexpand=True  # This helps with responsiveness.
     ),
     showlegend=True,
@@ -63,7 +60,7 @@ PLOT_LAYOUT = dict(
 )
 
 
-def hex_to_rgba(hex_color, opacity=0.6):
+def hex_to_rgba(hex_color, opacity=0.9):
     """ Convert hex color to rgba with given opacity. """
     hex_color = hex_color.lstrip('#')
     r = int(hex_color[0:2], 16)
@@ -88,6 +85,22 @@ def update_plot_style(fig):
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
 
 
+def create_custom_colormap(base_color, name):
+    """Create a colormap that fades from white to the base color"""
+    # Convert RGB values to 0-1 range
+    r, g, b = [x/255 for x in base_color]
+    # Create colormap with 256 gradients from white to base color
+    colors = [(1, 1, 1), (r, g, b)]  # white to base color
+    n_bins = 256
+    cm = mcolors.LinearSegmentedColormap.from_list(name, colors, N=n_bins)
+    return cm
+
+
+# Create colormaps from project colors
+orange_colormap = create_custom_colormap((222, 118, 0), 'orange_theme')
+turquoise_colormap = create_custom_colormap((58, 153, 132), 'turquoise_theme')
+
+
 # 2. Party distribution in user feed
 def create_party_distribution_user_feed(matched_videos):
     """ Create party distribution visualization using treemap. """
@@ -108,7 +121,8 @@ def create_party_distribution_user_feed(matched_videos):
         textinfo='label+value',
         textfont=dict(
             size=28,
-            family='Source Sans Pro, Arial, sans-serif'
+            family='Rubik, Arial, sans-serif',
+            color='black',
         ),
         textposition='middle center',
         hoverinfo='skip',
@@ -136,9 +150,15 @@ def create_party_distribution_user_feed(matched_videos):
             'xanchor': 'center',
             'yanchor': 'top'
         },
+        font=dict(
+            family='Rubik, sans-serif',
+            size=12,
+            color='black'
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=0, b=0),
         autosize=True,
         height=600,
-        margin=dict(t=0, l=25, r=25, b=25),
         hovermode=False  # Disable hover mode.
     )
 
@@ -207,7 +227,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
         b = int(hex_color[4:6], 16)
-        rgba_color = f'rgba({r},{g},{b},0.6)'
+        rgba_color = f'rgba({r},{g},{b},0.9)'
 
         fig.add_trace(go.Scatter(
             x=party_data['date'],
@@ -217,7 +237,12 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             line=dict(width=0),
             stackgroup='one',
             fillcolor=rgba_color,
-            hovertemplate="%{y}<br><extra></extra>"
+            hovertemplate="%{y}<br><extra></extra>",
+            textfont=dict(
+                size=25,
+                family='Rubik, Arial, sans-serif',
+                color='black',
+            ),
         ))
 
     # Update layout.
@@ -234,34 +259,39 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             xanchor="center",
             x=0.5,
             font=dict(
-                size=25
+                size=18
             )
         ),
         autosize=True,
         height=800,
+        minreducedwidth=500,
         font=dict(
             size=25,
-            color='#444'
+            color='black',
+            family='Rubik, Arial, sans-serif',
         ),
-        margin=dict(r=100, t=50, l=50, b=30),
-        plot_bgcolor='white',
-        paper_bgcolor='white'
+        # margin=dict(r=100, t=50, l=50, b=30),
+        paper_bgcolor='rgba(0,0,0,0)',
+        # plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=0, b=0),
+        plot_bgcolor='rgb(101, 101, 101)',
     )
 
     fig.update_xaxes(
         showgrid=True,
         gridwidth=1,
-        gridcolor='lightgray',
+        gridcolor='gray',
         zeroline=True,
         zerolinewidth=1,
-        zerolinecolor='lightgray',
+        zerolinecolor='gray',
         tickangle=45,
         tickfont=dict(
-            size=25,
-            color='#444'
+            size=20,
+            color='black'
         ),
         title_font=dict(
-            size=25
+            size=20,
+            family='Rubik, sans-serif',
         ),
         # Format tick labels to show dates.
         ticktext=[
@@ -269,29 +299,31 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             for d
             in daily_party_counts['date'].unique()
         ],
-        tickvals=daily_party_counts['date'].unique()
+        tickvals=daily_party_counts['date'].unique(),
+        linecolor='black'
     )
 
     fig.update_yaxes(
         showgrid=True,
         gridwidth=1,
-        gridcolor='lightgray',
+        gridcolor='gray',
         zeroline=True,
         zerolinewidth=1,
-        zerolinecolor='lightgray',
+        zerolinecolor='gray',
         tickfont=dict(
-            size=25,
-            color='#444'
+            size=20,
+            color='black'
         ),
         title_font=dict(
-            size=25
-        )
+            size=20,
+        ),
+        ticksuffix="  ",
+        linecolor='black'
     )
 
     return {
         'html': create_plot_html(fig),
         'figure': fig,
-
     }
 
 
@@ -368,143 +400,109 @@ def create_top_videos_table(matched_videos):
 # 5. User feed wordcloud.
 def create_user_feed_wordcloud(matched_videos):
     """ Create wordcloud for user's watched political videos. """
-
     # Extract hashtags.
     def get_hashtags(matched_videos):
         # Initialize empty list to store all hashtags.
         all_hashtags = []
 
+        def remove_emojis(tag):
+            """Remove emojis and special characters, keep only regular text"""
+            return ''.join(char for char in tag if ord(char) < 127).lower()
+
         # Iterate through each video's hashtags.
         for hashtag_list in matched_videos['hashtags']:
-            if hashtag_list:  # Check if list exists and is not empty.
-                # Filter out common/unwanted tags.
+            if hashtag_list:
                 filtered_tags = [
-                    tag.lower() for tag in hashtag_list
+                    tag for tag in hashtag_list
                     if tag.lower() not in {
                         'fyp', 'foryou', 'viral', 'trending',
                         'fy', 'fürdich', 'capcut'
                     }
                 ]
-                all_hashtags.extend(filtered_tags)
+                processed_tags = []
+                for tag in filtered_tags:
+                    text_only = remove_emojis(tag)
+                    if text_only:  # Only add if there's text after removing emojis
+                        processed_tags.append(text_only)
+                all_hashtags.extend(processed_tags)
 
-        # Return Counter object with hashtag frequencies.
         return Counter(all_hashtags)
 
     # Get frequencies for user's feed.
     user_freq = get_hashtags(matched_videos)
-
     if not user_freq:
         return {'html': '<div>Keine Hashtags gefunden.</div>', 'figure': None}
-    import os
-    print(os.getcwd())
-    # Create wordcloud.
+
+    # Create wordcloud with emoji support
     user_cloud = WordCloud(
-        font_path='dd_wi_main/static/dd_wi_main/fonts/inter/Inter-VariableFont_opsz,wght.ttf',
+        font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
         height=800,
-        background_color='white',
-        colormap='Reds',  # Red theme for user's feed.
+        background_color=None,
+        colormap=orange_colormap,  # Use custom orange colormap
         max_words=100,
         prefer_horizontal=0.7,
         min_font_size=10,
-        max_font_size=100
+        max_font_size=100,
+        include_numbers=True,  # Allow numbers in hashtags
+        regexp=r"\w+[\w'-]*",  # Modified regex to include more special characters
     ).generate_from_frequencies(user_freq)
-
-    # Create figure.
-    fig, ax = plt.subplots(figsize=(10, 10))
-
-    # Plot wordcloud.
-    ax.imshow(user_cloud, interpolation='bilinear')
-    ax.axis('off')
-
-    # Convert to HTML.
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight', dpi=800)
-    buf.seek(0)
-    plt.close(fig)
-
-    # Create HTML with the image.
-    img_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+    user_cloud_svg = user_cloud.to_svg(embed_font=True)
 
     # Update HTML wrapper to use full width.
-    html = f'''
-    <div style="width:100%; margin:0 auto;">
-        <img src="data:image/png;base64,{img_str}" style="width:100%; height:auto;">
-    </div>
-    '''
-
     return {
-        'html': html,
-        'figure': fig
+        'html': f'<div class="wordcloud-container">{user_cloud_svg}</div>',
     }
 
 
 # 6. All accounts wordcloud.
 def create_hashtag_cloud_germany(df_posts):
     """ Create wordcloud for all political videos in TikTok Germany. """
-
-    # Extract hashtags.
     def get_hashtags(hashtag_col):
-        # Initialize empty list to store all hashtags.
         all_hashtags = []
 
-        # Iterate through each video's hashtags.
+        def remove_emojis(tag):
+            """Remove emojis and special characters, keep only regular text"""
+            return ''.join(char for char in tag if ord(char) < 127).lower()
+
         for hashtag_list in hashtag_col:
-            if hashtag_list:  # Check if list exists and is not empty.
-                # Filter out common/unwanted tags.
+            if hashtag_list:
                 filtered_tags = [
-                    tag.lower() for tag in hashtag_list
+                    tag for tag in hashtag_list
                     if tag.lower() not in {
                         'fyp', 'foryou', 'viral', 'trending',
                         'fy', 'fürdich', 'capcut'
                     }
                 ]
-                all_hashtags.extend(filtered_tags)
-
-        # Return Counter object with hashtag frequencies.
+                processed_tags = []
+                for tag in filtered_tags:
+                    text_only = remove_emojis(tag)
+                    if text_only:  # Only add if there's text after removing emojis
+                        processed_tags.append(text_only)
+                all_hashtags.extend(processed_tags)
         return Counter(all_hashtags)
 
     # Get frequencies for all posts.
     all_freq = get_hashtags(df_posts['hashtags'])
 
-    # Create wordcloud.
+    # Create wordcloud with emoji support
     all_cloud = WordCloud(
+        font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
         height=800,
-        background_color='white',
-        colormap='Blues',  # Blue theme for overall TikTok.
+        background_color=None,
+        colormap=turquoise_colormap,  # Use custom turquoise colormap
         max_words=100,
         prefer_horizontal=0.7,
         min_font_size=10,
-        max_font_size=100
+        max_font_size=100,
+        include_numbers=True,  # Allow numbers in hashtags
+        regexp=r"\w+[\w'-]*",  # Modified regex to include more special characters.
     ).generate_from_frequencies(all_freq)
-
-    # Create figure.
-    fig, ax = plt.subplots(figsize=(10, 10))
-
-    # Plot wordcloud.
-    ax.imshow(all_cloud, interpolation='bilinear')
-    ax.axis('off')
-
-    # Convert to HTML.
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight', dpi=800)
-    buf.seek(0)
-    plt.close(fig)
-
-    # Create HTML with the image.
-    img_str = base64.b64encode(buf.getvalue()).decode('utf-8')
-
-    # Update HTML wrapper to use full width.
-    html = f'''
-    <div style="width:100%; margin:0 auto;">
-        <img src="data:image/png;base64,{img_str}" style="width:100%; height:auto;">
-    </div>
-    '''
+    all_cloud_svg = all_cloud.to_svg(embed_font=True)
 
     return {
-        'html': html,
-        'figure': fig
+        'html': f'<div class="wordcloud-container">{all_cloud_svg}</div>',
     }
 
 
@@ -546,14 +544,17 @@ def create_temporal_party_distribution_all_accounts(df_posts):
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
         b = int(hex_color[4:6], 16)
-        rgba_color = f'rgba({r},{g},{b},0.6)'  # 0.6 for 60% opacity.
+        rgba_color = f'rgba({r},{g},{b},0.9)'  # 0.9 for 90% opacity.
 
         fig_party.add_trace(go.Scatter(
             x=party_data['date'],
             y=party_data['video_id'],
             name=party,
             mode='lines',
-            line=dict(width=0),
+            line=dict(
+                width=0,
+                smoothing=1.3  # Smoothing for curved lines.
+            ),
             stackgroup='one',
             fillcolor=rgba_color,
             # Update hover template to only show number.
@@ -561,11 +562,11 @@ def create_temporal_party_distribution_all_accounts(df_posts):
             hoverlabel=dict(
                 bgcolor='white',
                 font_size=16,
-                font_family='Source Sans Pro, Arial, sans-serif'
+                font_family='Rubik, sans-serif'
             ),
             # Add color to legend text.
             legendgroup=party,
-            showlegend=True
+            showlegend=True,
         ))
 
     # After all traces are added, update the layout.
@@ -581,18 +582,18 @@ def create_temporal_party_distribution_all_accounts(df_posts):
             xanchor='center',
             x=0.5,  # Center horizontally.
             font=dict(
-                size=25
+                size=18
             )
         ),
         autosize=True,
         height=800,  # Increased height.
         font=dict(
             size=25,
-            color='#444'
+            color='black'
         ),
-        margin=dict(r=100, t=50, l=50, b=30),  # Adjusted margins.
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        margin=dict(r=0, t=0, l=0, b=0),  # Adjusted margins.
+        plot_bgcolor='rgb(101, 101, 101)',
+        paper_bgcolor='rgba(0,0,0,0)',
         hovermode='x unified',  # Show all values for a given x position.
         hoverdistance=100,  # Increase hover radius.
         hoverlabel=dict(
@@ -620,11 +621,11 @@ def create_temporal_party_distribution_all_accounts(df_posts):
         zerolinecolor='lightgray',
         tickangle=45,
         tickfont=dict(
-            size=25,
-            color='#444'
+            size=20,
+            color='black'
         ),
         title_font=dict(
-            size=25
+            size=20
         ),
         # Use daily format for tick labels.
         tickformat='%d.%m'
@@ -638,11 +639,11 @@ def create_temporal_party_distribution_all_accounts(df_posts):
         zerolinewidth=1,
         zerolinecolor='lightgray',
         tickfont=dict(
-            size=25,
-            color='#444'
+            size=20,
+            color='black'
         ),
         title_font=dict(
-            size=25
+            size=20
         )
     )
 
@@ -675,7 +676,7 @@ def create_party_distribution_all_accounts(df_posts):
                            reverse=True)
 
     # Convert hex colors to rgba with opacity.
-    def hex_to_rgba(hex_color, opacity=0.6):
+    def hex_to_rgba(hex_color, opacity=0.9):
         hex_color = hex_color.lstrip('#')
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
@@ -691,21 +692,26 @@ def create_party_distribution_all_accounts(df_posts):
         textinfo='label+value',
         marker=dict(
             colors=[
-                hex_to_rgba(party_colors[party], 0.6)
+                hex_to_rgba(party_colors[party], 0.9)
                 for party
                 in [m['party'] for m in party_metrics]
             ],
-            line=dict(width=2, color='white')
+            line=dict(width=0, color='white')
             # Add white borders between sections.
         ),
-        hovertemplate='<b>%{label}</b><br>Videos: %{value}<extra></extra>'
+        hovertemplate='<b>%{label}</b><br>Videos: %{value}<extra></extra>',
     ))
 
     # Update layout.
     fig.update_layout(
         dragmode=False,
         margin=dict(t=0, l=0, r=0, b=0),
-        font=dict(size=25)
+        font=dict(
+            size=25,
+            color='black',
+            family='Rubik, Arial, sans-serif'
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
     )
 
     # Find party with most videos.
@@ -734,10 +740,11 @@ def create_views_bars_all_accounts(df_posts):
 
     # Create figure with subplots side by side.
     fig = make_subplots(
-        rows=1, cols=2,
+        rows=2, cols=1,
         subplot_titles=['Views insgesamt', 'Views pro Video'],
         horizontal_spacing=0.15,  # Reduced from default.
-        column_widths=[0.5, 0.5]  # Ensure equal width.
+        vertical_spacing=0.2,
+        column_widths=[1]  # Ensure equal width.
     )
 
     # Calculate total views.
@@ -757,7 +764,7 @@ def create_views_bars_all_accounts(df_posts):
                               reverse=False)
 
     # Convert hex colors to rgba with opacity.
-    def make_transparent(hex_color, opacity=0.6):
+    def make_transparent(hex_color, opacity=0.9):
         hex_color = hex_color.lstrip('#')
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
@@ -778,8 +785,8 @@ def create_views_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>'
             ),
-            width=0.5,
-            showlegend=False
+            width=0.6,
+            showlegend=False,
         ),
         row=1, col=1
     )
@@ -798,32 +805,44 @@ def create_views_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>'
             ),
-            width=0.5,
-            showlegend=False
+            width=0.6,
+            showlegend=False,
         ),
-        row=1, col=2
+        row=2, col=1
     )
 
     # Use standard settings.
-    fig.update_layout(**PLOT_LAYOUT, dragmode=False,)
+    fig.update_layout(
+        **PLOT_LAYOUT,
+        dragmode=False,
+        height=800,
+        title_font=dict(size=20),
+        plot_bgcolor='rgba(0,0,0,0)',
+    )
+
+    # Adjust subplot title font sizes
+    for annotation in fig.layout.annotations:
+        annotation.font.size = 25
 
     # Update axes.
     for i in [1, 2]:
         fig.update_xaxes(
             title_text='Anzahl',
-            title_font=dict(size=25),  # Title font size.
-            tickfont=dict(size=25),    # Tick label font size.
+            title_font=dict(size=20),  # Title font size.
+            tickfont=dict(size=20),    # Tick label font size.
             showticklabels=True,
-            row=1, col=i,
+            row=i, col=1,
             showgrid=True,
             gridwidth=1,
-            gridcolor='lightgray'
+            gridcolor='gray'
         )
         fig.update_yaxes(
             tickangle=0,
-            tickfont=dict(size=25),  # Tick label font size.
-            row=1, col=i,
-            showgrid=False
+            tickfont=dict(size=20),  # Tick label font size.
+            row=i, col=1,
+            showgrid=False,
+            ticksuffix="  ",  # Increase space between ticks and labels.
+            linecolor='black'
         )
 
     # Find party with most total views and most views per video.
@@ -860,9 +879,10 @@ def create_likes_bars_all_accounts(df_posts):
 
     # Create figure with subplots side by side.
     fig = make_subplots(
-        rows=1, cols=2,
+        rows=2, cols=1,
         subplot_titles=['Likes insgesamt', 'Likes pro Video'],
-        horizontal_spacing=0.15
+        horizontal_spacing=0.15,
+        vertical_spacing=0.2
     )
 
     # Calculate total likes.
@@ -882,7 +902,7 @@ def create_likes_bars_all_accounts(df_posts):
                               reverse=False)
 
     # Convert hex colors to rgba with opacity.
-    def make_transparent(hex_color, opacity=0.6):
+    def make_transparent(hex_color, opacity=0.9):
         hex_color = hex_color.lstrip('#')
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
@@ -903,7 +923,7 @@ def create_likes_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>'
             ),
-            width=0.5,
+            width=0.6,
             showlegend=False
         ),
         row=1, col=1
@@ -923,32 +943,44 @@ def create_likes_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>'
             ),
-            width=0.5,
+            width=0.6,
             showlegend=False
         ),
-        row=1, col=2
+        row=2, col=1
     )
 
     # Use standard settings.
-    fig.update_layout(**PLOT_LAYOUT, dragmode=False,)
+    fig.update_layout(
+        **PLOT_LAYOUT,
+        dragmode=False,
+        height=800,
+        title_font=dict(size=20),
+        plot_bgcolor='rgba(0,0,0,0)',
+    )
+
+    # Adjust subplot title font sizes
+    for annotation in fig.layout.annotations:
+        annotation.font.size = 25
 
     # Update axes.
     for i in [1, 2]:
         fig.update_xaxes(
             title_text='Anzahl',
-            title_font=dict(size=25),  # Title font size.
-            tickfont=dict(size=25),    # Tick label font size.
+            title_font=dict(size=20),  # Title font size.
+            tickfont=dict(size=20),    # Tick label font size.
             showticklabels=True,
-            row=1, col=i,
+            row=i, col=1,
             showgrid=True,
             gridwidth=1,
-            gridcolor='lightgray'
+            gridcolor='gray'
         )
         fig.update_yaxes(
             tickangle=0,
-            tickfont=dict(size=25),  # Tick label font size.
-            row=1, col=i,
-            showgrid=False
+            tickfont=dict(size=20),  # Tick label font size.
+            row=i, col=1,
+            showgrid=False,
+            ticksuffix="  ",  # Increase space between ticks and labels.
+            linecolor='black'
         )
 
     # Find party with most total likes and most likes per video.

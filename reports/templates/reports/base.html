@@ -24,59 +24,61 @@
 {% block main_content %}
 <div class="report-block text-center">
   <p class="mb-0"><span class="scroll-dot"></span></p>
-  <p class="scroll-note pb-4">Scroll weiter, um mehr zu erfahren</p>
+  <p class="scroll-note">Scroll weiter, um mehr zu erfahren</p>
 </div>
 
-<div class="report-block bg-black wi-rounded-top text-white grey-box-shadows">
-  <h1 class="text-white text-center">Politik in deinem Feed</h1>
+<div class="section-heading">
+  Politik in deinem Feed
+</div>
 
+<div class="report-block bg-darkgray wi-rounded-top text-white grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
   <div class="fw-bold">
-    <p class="pb-3">Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{{ n_videos }}</span>&nbsp;Videos auf TikTok angesehen</p>
+    <p class="pb-3">Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{{ n_videos }}</span>&nbsp;Videos auf TikTok angesehen.</p>
     <p class="pb-3">Davon waren <span class="stats-value">{{ n_matched }}</span>&nbsp;Videos politisch.</p>
-    <p class="pb-3">Das sind <span class="stats-value">{{ share_political }}%</span>&nbsp;der Videos, die du gesehen hast.</p>
+    <p>Das entspricht <span class="stats-value">{{ share_political }}%</span>&nbsp;der Videos, die du gesehen hast.</p>
   </div>
 </div>
 
 
 {% if matches %}
-<div class="report-block">
+<div class="report-block bg-grayer">
   <h2>So oft kamen Videos der <span class="highlight-first">Parteien</span> in deinem Feed vor</h2>
   <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
   </div>
 </div>
 
-<div class="report-block">
+<div class="report-block bg-gray">
   <h2>So hat sich die Zahl der politischen Videos in deinem Feed seit dem Ampel-Aus <span class="highlight-first">ver&auml;ndert</span>.</h2>
   <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
   </div>
 </div>
 
-<div class="report-block">
+<div class="report-block bg-lightgray">
   <h2>Die <span class="highlight-first">viralsten</span> Politik-Videos in deinem Feed</h2>
   <div class="top-videos-container">
       {{ top_videos_table | safe }}
       <div class="description" style="text-align: center;">
-        Hier berücksichtigen wir nicht nur Videos von Politikern, sondern alle Videos die einen politischen Hashtag enthalten.
+        Hier berücksichtigen wir nicht nur Videos von Politiker:innen, sondern alle Videos die einen politischen Hashtag enthalten.
     </div>
   </div>
 </div>
 
-<div class="report-block">
+<div class="report-block bg-lightergray">
   <h2>Diese <span class="highlight-first">Hashtags</span> kamen am h&auml;ufigsten in deinem Politik-Feed vor ... </h2>
   <div class="hashtag-section">
       {{ user_feed_wordcloud.html | safe }}
   </div>
 </div>
 
-<div class="report-block">
+<div class="report-block bg-lightestgray wi-rounded-bottom">
   <h2>... und diese wurden &uuml;ber alle <span class="highlight-first">Politik-Videos</span> hinweg benutzt</h2>
   <div class="hashtag-section">
       {{ hashtag_cloud_germany.html | safe }}
       <div class="description" style="text-align: center;">
-          Je gr&ouml;&szlig;er der Hashtag, je h&auml;ufiger wurde er im Wahlkampf benutzt.
-          Für die Zweite Abbildung berücksichtigen wir nicht nur Videos von Politikern, sondern alle Videos die einen politischen Hashtag enthalten.
+          Je gr&ouml;&szlig;er der Hashtag, desto h&auml;ufiger wurde er im Wahlkampf benutzt.
+          Für die zweite Abbildung berücksichtigen wir nicht nur Videos von Politiker:innen, sondern alle Videos die einen politischen Hashtag enthalten.
       </div>
   </div>
 </div>
@@ -86,7 +88,7 @@
 {% include "reports/public_report.html" %}
 
 {# Section 3: &Uuml;ber diesen Bericht #}
-<div class="section" id="third">
+<div class="section wi-rounded-top wi-rounded-bottom" id="third">
   <h1>&Uuml;ber diesen Bericht</h1>
   <p>F&uuml;r diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet. Wir haben dabei nur offizielle Accounts von Politiker:innen und Parteien benutzt. Politische Inhalte k&ouml;nnen nat&uuml;rlich auch in vielen anderen Videos vorkommen - zum Beispiel, wenn es um aktuelle Nachrichten geht. Diese Videos sind aber entweder neutral oder lassen sich nicht so einfach automatisch einer politischen Richtung zuordnen.</p>
   <p>Die Accounts wurden auf Basis der Datenbank &Ouml;ffentlicher Sprecher <a href="https://doi.org/10.17605/OSF.IO/SK6T5" target="_blank">DB&Ouml;S</a> zusammengestellt.</p>
