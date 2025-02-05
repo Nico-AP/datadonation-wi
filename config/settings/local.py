@@ -31,9 +31,9 @@ WEBPACK_LOADER = {
 # CACHE
 # ------------------------------------------------------------------------------
 CACHES = {
-    'plots': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': 'django_cache',
         'TIMEOUT': 86400,  # 24 hours
         'OPTIONS': {
             'MAX_ENTRIES': 1000

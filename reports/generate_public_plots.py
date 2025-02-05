@@ -1,4 +1,4 @@
-from django.core.cache import get_cache
+from django.core.cache import caches
 from .utils.plots import (
     create_temporal_party_distribution_all_accounts,
     create_party_distribution_all_accounts,
@@ -13,7 +13,7 @@ from .utils.constants import (
 )
 
 CACHE_TIMEOUT = 86400  # 24 hours in seconds
-PLOT_CACHE = get_cache('plots')
+PLOT_CACHE = caches['default']
 
 
 def generate_public_plots(df_posts):
