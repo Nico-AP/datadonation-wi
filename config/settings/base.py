@@ -162,16 +162,3 @@ CSP_IMG_SRC = ["'self'", "data:"]
 # Instagram Report
 REPORT_PROJECT_PK = os.getenv('REPORT_PROJECT_PK', None)
 REPORT_API_KEY = os.getenv('REPORT_API_KEY', None)
-
-
-# ------ Cache setting to save public plots
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 86400,  # 24 hours
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000
-        }
-    }
-}
