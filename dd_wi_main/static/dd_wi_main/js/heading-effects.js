@@ -24,6 +24,9 @@ triggerFlicker();
 
 window.addEventListener("scroll", () => {
     let scrollY = window.scrollY;
+
+    console.log(scrollY);
+
     let maxOffset = 230; // Maximum movement downwards
 
     // Limit shadow movement so it doesn't go beyond maxOffset
@@ -45,8 +48,24 @@ window.addEventListener("scroll", () => {
             0px ${-offset5 + Math.min(offset, offset5)}px 0 #f4f4f4
         `;
     }
+    const scrollOffset = -1;
 
-    document.getElementsByClassName("scroll-note")[0].style.opacity = Math.max(0, 1 - scrollY / 100);
+    const scrollNote = document.getElementById("scroll-note");
+    if (scrollNote) {
+        scrollNote.style.opacity = Math.max(0, 1 - scrollY / 100);
+    }
+
+    const personalHighlight = document.getElementById("personal-highlight");
+    if (personalHighlight) {
+        personalHighlight.style.textShadow = `
+            2px -1px rgba(255, 191, 0, ${Math.min(1, scrollOffset + scrollY / 200)})
+        `;
+    }
+
+    const reportFirstText = document.getElementById("report-first-text");
+    if (reportFirstText) {
+        reportFirstText.style.opacity = Math.min(1, scrollOffset + scrollY / 250);
+    }
 });
 
 

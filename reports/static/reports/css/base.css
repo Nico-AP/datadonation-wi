@@ -53,15 +53,13 @@ h1 {
 }
 
 /* Highlights */
-.highlight-first,
-.highlight-second {
+.highlight-first {
     padding: 0 5px;
     border-radius: 5px;
 }
 .highlight-first {
     background-color: var(--color-option-1);
 }
-.highlight-second { background-color: var(--color-option-2); }
 
 /* Sections */
 .section {
@@ -71,10 +69,10 @@ h1 {
 
 #first { background-color: var(--color-option-1); }
 #second { background-color: var(--color-option-2); }
-#third {
-    background-color: var(--color-option-3);
+#about-report {
+    background-color: rgb(70, 70, 70);
     margin-top: var(--spacing-xl);
-    padding-bottom: var(--spacing-lg);
+    padding: 20px 20px 30px 20px;
     text-align: left;
 }
 
@@ -153,8 +151,10 @@ h1 {
     font-weight: bold;
     padding-left: 10px;
     padding-right: 10px;
-    background-color: var(--color-option-1);
+    background-color: rgb(255, 191, 0);
     border-radius: 8px;
+    box-shadow: 2px 2px white;
+    margin-right: 2px;
 }
 
 .top-videos-container {
@@ -221,16 +221,19 @@ h1 {
 
 .video-link {
     display: inline-block;
-    padding: 8px 15px;
-    background-color: var(--color-option-1);
-    color: black;
+    padding: 6px 10px;
+    background-color: #4a4a4a;
+    color: white;
     text-decoration: none;
     border-radius: 4px;
     transition: background-color 0.2s;
+    line-height: 1;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 .video-link:hover {
-    background-color: var(--color-option-2);
+    background-color: #292929;
 }
 
 @media screen and (max-width: 768px) {
@@ -253,15 +256,23 @@ h1 {
     }
 }
 
-#third p {
+#about-report p {
     padding-left: 15px;
     padding-right: 15px;
+    font-size: 1.25rem;
+    color: white;
 }
 
-#third h1 {
+#about-report h1 {
     text-align: left;
     padding-top: 10px;
     margin-top: 10px;
+    font-size: 1.6rem;
+    color: white;
+}
+
+#about-report a {
+    color: rgba(135, 255, 229, 1);
 }
 
 @media screen and (min-width: 64em) {
@@ -279,7 +290,7 @@ h1 {
     }
 
     .stats-value {
-        font-size: 1.4em;
+        /* font-size: 1.4em; */
         font-weight: bold;
     }
 

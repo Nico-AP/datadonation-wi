@@ -63,8 +63,7 @@ h6 {
     margin-bottom: -6px !important;
 }
 .header-title-container {
-    margin-top: 3rem;
-    margin-bottom: 2rem;
+    margin-top: 5rem;
 }
 
 .report-block > h1, h2, h3, h4, h5, h6 {
@@ -77,8 +76,30 @@ h6 {
     font-size: 2.4rem;
     margin-top: 0 !important;
 }
+#report-first-text {
+    opacity: 0;
+    transition: opacity 0.1s linear;
+}
 .report-block > h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    padding-bottom: 20px;
+}
+#personal-highlight {
+    text-shadow: 2px -1px rgba(255, 191, 0, 0);
+    transition: text-shadow 0.1s linear;
+}
+#public-highlight {
+    text-shadow: 2px -1px rgba(135, 255, 229, 1);
+}
+.highlight-second {
+    color: black;
+    font-weight: bold;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #87ffe5;
+    border-radius: 8px;
+    box-shadow: 2px 2px white;
+    margin-right: 2px;
 }
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {

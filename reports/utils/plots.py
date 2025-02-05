@@ -97,8 +97,8 @@ def create_custom_colormap(base_color, name):
 
 
 # Create colormaps from project colors
-orange_colormap = create_custom_colormap((222, 118, 0), 'orange_theme')
-turquoise_colormap = create_custom_colormap((58, 153, 132), 'turquoise_theme')
+orange_colormap = create_custom_colormap((255, 191, 0), 'orange_theme')
+turquoise_colormap = create_custom_colormap((0, 191, 150), 'turquoise_theme')
 
 
 # 2. Party distribution in user feed
