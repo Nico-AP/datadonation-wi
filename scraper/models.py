@@ -25,19 +25,18 @@ class TikTokVideo(models.Model):
         null=True
     )
 
-    comment_count = models.IntegerField()
-    like_count = models.IntegerField()
-    share_count = models.IntegerField()
-    view_count = models.IntegerField()
+    comment_count = models.IntegerField(null=True)
+    like_count = models.IntegerField(null=True)
+    share_count = models.IntegerField(null=True)
+    view_count = models.IntegerField(null=True)
 
     hashtags = models.ManyToManyField(
         Hashtag,
         blank=True,
-        null=True,
         related_name='tt_videos'
     )
     music_id = models.BigIntegerField(null=True)
-    region_code = models.CharField(max_length=255)
+    region_code = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return str(self.video_id)

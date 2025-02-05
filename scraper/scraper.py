@@ -90,12 +90,24 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
     query_params = {
         'query': {
             'or': [
-                {'operation': 'IN', 'field_name': 'username', 'field_values': usernames},
-                {'operation': 'IN', 'field_name': 'hashtag_name', 'field_values': hashtags}
+                {
+                    'operation': 'IN',
+                    'field_name': 'username',
+                    'field_values': usernames
+                },
+                {
+                    'operation': 'IN',
+                    'field_name': 'hashtag_name',
+                    'field_values': hashtags
+                }
             ],
             'and': [
-                {'operation': 'IN', 'field_name': 'region_code',
-                 'field_values': ['DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH']}
+                {
+                    'operation': 'IN', 'field_name': 'region_code',
+                    'field_values': [
+                        'DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH'
+                    ]
+                }
             ]
         },
         'max_count': max_count,
@@ -106,7 +118,8 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
         'search_id': search_id
     }
     # Make the call and transform the response to a JSON file.
-    response = requests.post(url, headers=headers, data=json.dumps(query_params))
+    response = requests.post(
+        url, headers=headers, data=json.dumps(query_params))
     # Return the response parsed as a JSON file.
     return response
 
@@ -192,7 +205,8 @@ def get_tt_videos():
         logger.info(f'Response status code: {response.status_code}')
         temp_data = response.json()
 
-        if (temp_data['error']['code'] == 'internal_error') | (temp_data['error']['code'] == 'invalid_params'):
+        if (temp_data['error']['code'] == 'internal_error') | \
+                (temp_data['error']['code'] == 'invalid_params'):
             error_counter += 1
             logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
             logger.warning(f'Error code: {temp_data["error"]["code"]}')
@@ -219,7 +233,8 @@ def get_tt_videos():
             search_id = temp_data['data']['search_id']
 
             retrieved_data = temp_data['data']['videos']
-            #save_videos_to_file(retrieved_data, start_date, search_id, cursor)
+            # save_videos_to_file(
+            #   retrieved_data, start_date, search_id, cursor)
             save_videos_to_db(retrieved_data)
 
             time.sleep(10)
