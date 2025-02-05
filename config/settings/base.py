@@ -162,3 +162,20 @@ CSP_IMG_SRC = ["'self'", "data:"]
 # Instagram Report
 REPORT_PROJECT_PK = os.getenv('REPORT_PROJECT_PK', None)
 REPORT_API_KEY = os.getenv('REPORT_API_KEY', None)
+
+
+# CACHE
+# ------------------------------------------------------------------------------
+CACHES = {
+    'default': {
+        'BACKEND': os.getenv(
+            'CACHE_BACKEND',
+            'django.core.cache.backends.filebased.FileBasedCache'
+        ),
+        'LOCATION': os.getenv('CACHE_LOCATION', 'django_cache'),
+        'TIMEOUT': 86400,  # 24 hours
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}

@@ -27,16 +27,3 @@ WEBPACK_LOADER = {
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     },
 }
-
-# CACHE
-# ------------------------------------------------------------------------------
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 86400,  # 24 hours
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000
-        }
-    }
-}
