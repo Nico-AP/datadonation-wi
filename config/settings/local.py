@@ -22,7 +22,10 @@ WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': True,
         'BUNDLE_DIR_NAME': 'ddm_core/vue/',
-        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm_core/vue/webpack-stats.json'),
+        'STATS_FILE': os.path.join(
+            STATIC_ROOT,
+            'ddm_core/vue/webpack-stats.json'
+        ),
         'POLL_INTERVAL': 0.1,
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     },

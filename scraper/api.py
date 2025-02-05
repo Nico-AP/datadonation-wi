@@ -11,11 +11,7 @@ from scraper.models import TikTokVideo
 from scraper.scraper import save_video_to_db
 from scraper.serializers import TikTokVideoSerializer
 
-logging.basicConfig(
-    filename='scraper/api.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logger = logging.getLogger('api_logger')
 
 
 class ScraperPostAPI(APIView):
@@ -36,7 +32,7 @@ class ScraperPostAPI(APIView):
                 save_video_to_db(entry)
                 n_posted += 1
             except Exception as e:
-                logging.error(
+                logger.info(
                     f'Video: {entry.get("id")}; Exception: {e}'
                 )
                 post_errors += 1

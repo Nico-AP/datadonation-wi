@@ -27,38 +27,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 
-# LOGGING
-# ------------------------------------------------------------------------------
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt': "%d/%b/%Y %H:%M:%S"
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'datadlab.log'),
-            'maxBytes': 1024*1024*15,
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'propagate': True,
-            'level': 'DEBUG',
-        },
-    }
-}
-
 # DATABASE
 # ------------------------------------------------------------------------------
 DATABASES = {
@@ -71,4 +39,3 @@ DATABASES = {
         'PASSWORD': os.environ.get('DJANGO_DB_PW'),
     }
 }
-

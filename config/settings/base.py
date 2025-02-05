@@ -124,7 +124,10 @@ WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': True,
         'BUNDLE_DIR_NAME': 'ddm_core/vue/',
-        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm_core/vue/webpack-stats.json'),
+        'STATS_FILE': os.path.join(
+            STATIC_ROOT,
+            'ddm_core/vue/webpack-stats.json'
+        ),
         'POLL_INTERVAL': 0.1,
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     },
@@ -133,8 +136,8 @@ DDM_SETTINGS = {
     'EMAIL_PERMISSION_CHECK':  r'.*(\.|@)uzh\.ch$',
 }
 
-DDM_DEFAULT_HEADER_IMG_LEFT = '/static/dd_wi_main/img/logos/some-logo.svg'
-DDM_DEFAULT_HEADER_IMG_RIGHT = '/static/dd_wi_main/img/logos/some-other-logo.svg'
+DDM_DEFAULT_HEADER_IMG_LEFT = '/static/dd_wi_main/img/logos/wzb_logo.svg'
+DDM_DEFAULT_HEADER_IMG_RIGHT = '/static/dd_wi_main/img/logos/ddlab_logo_black.svg'
 
 # CKEditor
 # ------------------------------------------------------------------------------
@@ -175,5 +178,49 @@ CACHES = {
         'LOCATION': os.getenv('CACHE_LOCATION', 'django_cache'),
         'TIMEOUT': 86400,  # 24 hours
         'OPTIONS': {}
+    }
+}
+
+
+# LOGGING
+# ------------------------------------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'datadlab.log'),
+            'maxBytes': 1024*1024*15,
+            'formatter': 'verbose'
+        },
+        'api_file': {  # Separate handler for API logs
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'scraper/api.log'),
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'api_logger': {
+            'handlers': ['api_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     }
 }
