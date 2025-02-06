@@ -90,7 +90,7 @@ def create_custom_colormap(base_color, name):
     # Convert RGB values to 0-1 range
     r, g, b = [x/255 for x in base_color]
     # Create colormap with 256 gradients from white to base color
-    colors = [(1, 1, 1), (r, g, b)]  # white to base color
+    colors = [(0, 0, 0), (r, g, b)]  # white to base color
     n_bins = 256
     cm = mcolors.LinearSegmentedColormap.from_list(name, colors, N=n_bins)
     return cm
