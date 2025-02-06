@@ -1,0 +1,45 @@
+{% load static i18n %}
+{% url "cookie_consent_cookie_group_list" as url_cookies %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Dein Feed, Deine Wahl{% endblock %}</title>
+  <meta name="description" content="Dies ist die offizielle Seite des Datenspende-Projekts 'Dein Feed, Deine Wahl'.">
+
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'dd_wi_main/img/favicon/ddm_favicon_black.svg' %}">
+
+  {% block site_css %}
+  <link rel="stylesheet" href="{% static 'dd_wi_main/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'dd_wi_main/css/base.css' %}">
+  {% endblock site_css %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
+
+<body class="wip-body">
+<div class="d-flex flex-column wip-box">
+    <div class="text-center wip-title">
+        Dein <span class="heading-effect">Feed</span><span>,</span> Deine <span class="heading-effect">Wahl</span><span>.</span>
+    </div>
+    <div class="text-center wip-subtitle">
+        coming soon
+    </div>
+</div>
+
+{% include "dd_wi_main/components/cookie_info.html" %}
+
+{% block site_js %}
+  <script src="{% static 'dd_wi_main/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'cookie_consent/cookiebar.js' %}"></script>
+  <script type="text/javascript" src="{% static 'dd_wi_main/js/cookie-info.js' %}"></script>
+  <script type="text/javascript" src="{% static 'dd_wi_main/js/heading-effects.js' %}"></script>
+{% endblock site_js %}
+</body>
+
+</html>

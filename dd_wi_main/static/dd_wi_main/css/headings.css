@@ -138,3 +138,28 @@ h6 {
 
 /* XX-Large devices (larger desktops, 1400px and up) */
 @media (min-width: 1400px) {}
+
+
+.wip-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+    font-family: Rubik, sans-serif;
+}
+
+.wip-box {
+    font-family: Rubik, sans-serif;
+}
+
+.wip-title {
+    font-size: 7rem;
+    font-weight: bold;
+}
+
+.wip-subtitle {
+    font-weight: bold;
+    font-size: 1.25rem;
+}
