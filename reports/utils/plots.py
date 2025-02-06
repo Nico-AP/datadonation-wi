@@ -275,7 +275,6 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         # plot_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=0, b=0),
         plot_bgcolor='rgba(0,0,0,0)',
-        hovermode='x unified',  # Show all values for a given x position
         hoverdistance=100,  # Increase hover radius
         hoverlabel=dict(
             namelength=0  # Hide trace names in hover
