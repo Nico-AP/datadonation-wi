@@ -22,7 +22,7 @@
   {% endblock extra_head %}
 </head>
 
-<body class="wip-body">
+<body class="wip-body flex-column">
 <div class="d-flex flex-column wip-box">
     <div class="text-center wip-title">
         Dein <span class="heading-effect">Feed</span><span>,</span> Deine <span class="heading-effect">Wahl</span><span>.</span>
@@ -31,8 +31,7 @@
         coming soon
     </div>
 </div>
-
-{% include "dd_wi_main/components/cookie_info.html" %}
+ {% include "dd_wi_main/components/cookie_info.html" %}
 
 {% block site_js %}
   <script src="{% static 'dd_wi_main/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
