@@ -64,6 +64,15 @@ window.addEventListener("scroll", () => {
     if (reportFirstText) {
         reportFirstText.style.opacity = Math.min(1, scrollOffset + scrollY / 220);
     }
+
+    const firstBlock = document.getElementById("first-block");
+    if (firstBlock) {
+
+        let c = Math.min( 241, Math.round(41 + (244 - 41) * scrollY/500));
+
+        firstBlock.style.backgroundColor = `rgb(${c}, ${c}, ${c})`;
+    }
+
 });
 
 

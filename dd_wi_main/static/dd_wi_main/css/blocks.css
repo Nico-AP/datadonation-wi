@@ -5,6 +5,10 @@
     padding-bottom: 100px;
 }
 
+#first-block {
+    background: rgb(41, 41, 41);
+}
+
 .wi-rounded-top {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
