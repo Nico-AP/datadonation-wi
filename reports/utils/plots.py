@@ -277,6 +277,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         plot_bgcolor='rgba(0,0,0,0)',
     )
 
+    # Update x-axis to match the all_accounts style
     fig.update_xaxes(
         showgrid=True,
         gridwidth=1,
@@ -290,17 +291,13 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             color='black'
         ),
         title_font=dict(
-            size=20,
-            family='Rubik, sans-serif',
+            size=20
         ),
-        # Format tick labels to show dates.
-        ticktext=[
-            d.strftime('%d.%m')
-            for d
-            in daily_party_counts['date'].unique()
-        ],
-        tickvals=daily_party_counts['date'].unique(),
-        linecolor='black'
+        # Use daily format for tick labels, matching all_accounts style
+        tickformat='%d.%m',
+        # Automatically determine tick spacing if hard coding needed
+        #dtick='D7',  # Show ticks every 7 days
+        #linecolor='black'
     )
 
     fig.update_yaxes(
@@ -315,10 +312,8 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             color='black'
         ),
         title_font=dict(
-            size=20,
-        ),
-        ticksuffix="  ",
-        linecolor='black'
+            size=20
+        )
     )
 
     return {
@@ -433,19 +428,27 @@ def create_user_feed_wordcloud(matched_videos):
     if not user_freq:
         return {'html': '<div>Keine Hashtags gefunden.</div>', 'figure': None}
 
-    # Create wordcloud with emoji support
+    # Create color function that maps word frequency to color intensity
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        # Get the frequency of the word (normalized between 0-1)
+        freq = user_freq[word] / max(user_freq.values())
+        # Create color with intensity based on frequency
+        # Using orange theme (255, 191, 0)
+        return f'rgb(255, {int(191 * freq)}, 0)'
+
+    # Create wordcloud with emoji support and custom coloring
     user_cloud = WordCloud(
         font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
         height=600,
         background_color=None,
-        colormap=orange_colormap,  # Use custom orange colormap
+        color_func=color_func,  # Use custom color function instead of colormap
         max_words=100,
         prefer_horizontal=0.7,
         min_font_size=10,
         max_font_size=100,
-        include_numbers=True,  # Allow numbers in hashtags
-        regexp=r"\w+[\w'-]*",  # Modified regex to include more special characters
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
     ).generate_from_frequencies(user_freq)
     user_cloud_svg = user_cloud.to_svg(embed_font=True)
 
@@ -485,19 +488,27 @@ def create_hashtag_cloud_germany(df_posts):
     # Get frequencies for all posts.
     all_freq = get_hashtags(df_posts['hashtags'])
 
-    # Create wordcloud with emoji support
+    # Create color function that maps word frequency to color intensity
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        # Get the frequency of the word (normalized between 0-1)
+        freq = all_freq[word] / max(all_freq.values())
+        # Create color with intensity based on frequency
+        # Using turquoise theme (0, 191, 150)
+        return f'rgb(0, {int(191 * freq)}, {int(150 * freq)})'
+
+    # Create wordcloud with emoji support and custom coloring
     all_cloud = WordCloud(
         font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
         height=600,
         background_color=None,
-        colormap=turquoise_colormap,  # Use custom turquoise colormap
+        color_func=color_func,  # Use custom color function instead of colormap
         max_words=100,
         prefer_horizontal=0.7,
         min_font_size=10,
         max_font_size=100,
-        include_numbers=True,  # Allow numbers in hashtags
-        regexp=r"\w+[\w'-]*",  # Modified regex to include more special characters.
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
     ).generate_from_frequencies(all_freq)
     all_cloud_svg = all_cloud.to_svg(embed_font=True)
 
