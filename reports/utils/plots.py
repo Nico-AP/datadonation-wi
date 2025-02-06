@@ -237,11 +237,11 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             line=dict(width=0),
             stackgroup='one',
             fillcolor=rgba_color,
-            hovertemplate="%{y}<br><extra></extra>",
-            textfont=dict(
-                size=25,
-                family='Rubik, Arial, sans-serif',
-                color='black',
+            hovertemplate='%{y} Videos<extra></extra>',
+            hoverlabel=dict(
+                bgcolor='white',
+                font_size=16,
+                font_family='Rubik, sans-serif'
             ),
         ))
 
@@ -275,9 +275,24 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         # plot_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=0, b=0),
         plot_bgcolor='rgba(0,0,0,0)',
+        hovermode='x unified',  # Show all values for a given x position
+        hoverdistance=100,  # Increase hover radius
+        hoverlabel=dict(
+            namelength=0  # Hide trace names in hover
+        ),
+        # Add a title for the hover label that shows the date
+        title=dict(
+            text='<br>',  # Empty title to create space for hover label
+            font=dict(size=1),  # Make title invisible
+            pad=dict(b=0)  # Remove padding
+        ),
+        # Update hover template for date display
+        xaxis=dict(
+            hoverformat='%d.%m.%Y'  # Format for the date in hover
+        )
     )
 
-    # Update x-axis to match the all_accounts style
+    # Update x-axis to show daily ticks.
     fig.update_xaxes(
         showgrid=True,
         gridwidth=1,
@@ -588,9 +603,9 @@ def create_temporal_party_distribution_all_accounts(df_posts):
         showlegend=True,
         legend=dict(
             orientation='h',  # Horizontal legend.
-            yanchor='bottom',
+            yanchor="bottom",
             y=1.02,  # Position above the plot.
-            xanchor='center',
+            xanchor="center",
             x=0.5,  # Center horizontally.
             font=dict(
                 size=18
