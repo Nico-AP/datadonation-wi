@@ -23,13 +23,22 @@ class ScraperPostAPI(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_scrapets(self):
+        """
+        Returns the participant object. If no Participant object is found,
+        returns a http 404 response.
+        """
+        scrape_ts = self.request.query_params.get('scrapets')
+        return scrape_ts
+
     def post(self, request, *args, **kwargs):
         post_data = request.data
         post_errors = 0
         n_posted = 0
+        scrape_ts = self.get_scrapets()
         for entry in post_data:
             try:
-                save_video_to_db(entry)
+                save_video_to_db(entry, scrape_ts)
                 n_posted += 1
             except Exception as e:
                 logger.info(

@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.timezone import make_aware
+from datetime import datetime
 
 
 class Hashtag(models.Model):
@@ -37,6 +39,10 @@ class TikTokVideo(models.Model):
     )
     music_id = models.BigIntegerField(null=True)
     region_code = models.CharField(max_length=255, null=True)
+
+    scrape_date = models.DateTimeField(
+        default=make_aware(datetime(2000, 1, 1, 0, 0, 0))
+    )
 
     def __str__(self):
         return str(self.video_id)

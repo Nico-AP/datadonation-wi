@@ -8,6 +8,7 @@ import requests
 import time
 
 from django.utils import timezone
+from django.utils.timezone import make_aware
 from dotenv import load_dotenv
 from scraper.hashtags import HASHTAG_LIST
 from scraper.models import TikTokVideo, Hashtag, TikTokUser
@@ -139,7 +140,12 @@ def save_videos_to_file(videos, start_date, search_id, cursor):
     return
 
 
-def save_video_to_db(video):
+def get_datetime_from_ts(ts):
+    naive_datetime = datetime.datetime.fromtimestamp(ts)
+    return make_aware(naive_datetime)
+
+
+def save_video_to_db(video, scrape_ts=None):
     tt_user, _ = TikTokUser.objects.get_or_create(name=video.get('username'))
 
     new_video, _ = TikTokVideo.objects.get_or_create(
@@ -156,6 +162,10 @@ def save_video_to_db(video):
         music_id=video.get('music_id'),
         region_code=video.get('region_code'),
     )
+
+    if scrape_ts:
+        new_video.scrape_date = get_datetime_from_ts(scrape_ts)
+        new_video.save()
 
     video_hashtags = []
     for hashtag in video['hashtag_names']:
