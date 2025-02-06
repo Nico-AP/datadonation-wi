@@ -28,10 +28,11 @@ def load_csv_as_dict(csv_path):
     return processed_dict
 
 
-def load_posts_data(needed_fields=None):
+def load_posts_data(needed_fields=None, video_ids=None):
     """ Load and process posts data. """
     csv_path = './reports/static/reports/csv/actor_party_mapping.csv'
     account_dict = load_csv_as_dict(csv_path)
+
     # Get all videos from the database.
     if needed_fields is None:
         fields = [
@@ -44,7 +45,16 @@ def load_posts_data(needed_fields=None):
     else:
         fields = needed_fields
 
-    videos = TikTokVideo.objects.all().values(*fields)
+    if video_ids is None:
+        videos = TikTokVideo.objects.all().values(*fields)
+    else:
+        videos = TikTokVideo.objects.none()
+        BATCH_SIZE = 5000
+        for i in range(0, len(video_ids), BATCH_SIZE):
+            batch = video_ids[i:(i + BATCH_SIZE)]
+            videos = videos | \
+                TikTokVideo.objects.filter(video_id__in=batch).values(*fields)
+
     df_posts = pd.DataFrame.from_records(videos)
     df_posts = df_posts.rename(columns={
         'username__name': 'username',
@@ -53,7 +63,6 @@ def load_posts_data(needed_fields=None):
 
     # Fuse video with hashtag data.
     # Group hashtags by video_id since each video can have multiple hashtags.
-
     df_hashtags = df_posts.groupby('video_id')
     df_hashtags = df_hashtags['hashtags'].apply(list).reset_index()
 

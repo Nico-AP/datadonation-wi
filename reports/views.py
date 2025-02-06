@@ -14,15 +14,15 @@ from .utils.plots import (
     create_party_distribution_user_feed,
     create_temporal_party_distribution_user_feed,
     create_top_videos_table,
-    create_user_feed_wordcloud,
-    create_hashtag_cloud_germany
+    create_user_feed_wordcloud
 )
 from .utils.utils import extract_video_id
 from .utils.constants import (
     PUBLIC_TEMPORAL_PLOT_KEY,
     PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY,
     PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY,
-    PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY
+    PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY,
+    PUBLIC_HT_WORDCLOUD_KEY
 )
 
 
@@ -61,18 +61,16 @@ class TikTokReport(TemplateView):
                 self.project.secret_key, self.project.get_salt())
         return donated_data
 
-    def add_feed_related_plots(self, context, matched_videos, df_posts):
+    def add_feed_related_plots(self, context, df_matched_videos):
         """ Add feed-related plots to context. """
         context['party_distribution_user_feed'] = \
-            create_party_distribution_user_feed(matched_videos)
+            create_party_distribution_user_feed(df_matched_videos)
         context['temporal_party_distribution_user_feed'] = \
-            create_temporal_party_distribution_user_feed(matched_videos)
+            create_temporal_party_distribution_user_feed(df_matched_videos)
         context['top_videos_table'] = \
-            create_top_videos_table(matched_videos)
+            create_top_videos_table(df_matched_videos)
         context['user_feed_wordcloud'] = \
-            create_user_feed_wordcloud(matched_videos)
-        context['hashtag_cloud_germany'] = \
-            create_hashtag_cloud_germany(df_posts)
+            create_user_feed_wordcloud(df_matched_videos)
         return
 
     def add_static_public_plots(self, context):
@@ -85,6 +83,8 @@ class TikTokReport(TemplateView):
             PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_KEY)
         context['public_likes_bars_all_accounts'] = cache.get(
             PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY)
+        context['hashtag_cloud_germany'] = cache.get(
+            PUBLIC_HT_WORDCLOUD_KEY)
         return
 
     def get_context_data(self, **kwargs):
@@ -92,26 +92,21 @@ class TikTokReport(TemplateView):
         participant = self.get_participant()
         donated_data = self.get_donation(participant=participant)
 
-        df_posts = load_posts_data()
-
-        # Parse donated data.
+        # Parse donated data and get list of watched video IDs.
         df_user_data = load_user_data(donated_data)
-
-        # Conduct user feed matching to feed in user feed plots.
-        # Get watched video IDs and match with posts.
-        watched_ids = set(df_user_data['Link'].apply(extract_video_id))
-        matched_videos = df_posts[
-            df_posts['video_id'].isin(watched_ids)].copy()
+        watched_ids = list(set(df_user_data['Link'].apply(extract_video_id)))
+        df_matched_videos = load_posts_data(video_ids=watched_ids)
+        del watched_ids
 
         n_videos = len(df_user_data)
-        n_matched = len(matched_videos)
+        n_matched = len(df_matched_videos)
 
         if n_videos == 0:
             share_political = 0
         else:
             share_political = round(n_matched / n_videos, 2) * 100
 
-        if matched_videos is None or matched_videos.empty:
+        if df_matched_videos is None or df_matched_videos.empty:
             matches = False
         else:
             matches = True
@@ -122,7 +117,7 @@ class TikTokReport(TemplateView):
 
         # Plots feed related.
         if matches:
-            self.add_feed_related_plots(context, matched_videos, df_posts)
+            self.add_feed_related_plots(context, df_matched_videos)
 
         # Add static plots based on public data to context.
         self.add_static_public_plots(context)
