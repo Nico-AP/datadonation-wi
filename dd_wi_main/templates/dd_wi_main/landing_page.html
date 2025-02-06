@@ -9,35 +9,44 @@
 
 {% block main_content %}
 <div class="landing-content">
-    <div class="main-section intro-text">
+    <div class="main-section intro-text text-center">
         <div>
             <!-- TODO: Aktuell Platzhalter Text - Ersetzen durch Journalists Text sobalt sie vond er Mega Landing page wissen... -->
             <p>
                 Am 23. Februar 2025 findet die Bundestagswahl statt.
                 Doch welche Rolle spielen TikTok und politische Inhalte auf TikTok in der Bundestagswahl?
             </p>
-            <p>Ein Gemeinschaftsprojekt des Weizenbaum Instituts Berlin, der UZH Zürich, des BR und der Stuttgarter Zeitung
-            untersucht die Aktivität der Parteien auf TikTok - im allgemeinen und in Deinem Feed.</p>
 
-        </div>
+            <div class="cta-container p-3">
+                <a href="/ddm/studies/tiktok/briefing/" target="_blank"  class="cta-button btn-lg btn" role="button">Jetzt mitmachen und persönliche Feed-Analyse erhalten!</a>
+            </div>
 
-        <div class="call-to-action">
-            <h2>Dazu brauchen wir Dich!</h2>
-            <p>Hilf uns zu verstehen, wie politische Inhalte auf TikTok die Bundestagswahlen 2025 beeinflussen könnten.</p>
-            <p>Als Dankeschön erhältst du einen Link zu deiner individuellen TikTok-Auswertung!</p>
-            <a href="#" class="cta-button">Jetzt mitmachen und persönliche Feed-Analyse erhalten!</a>
-            <p>Dein Feed, deine Wahl, dein Report!</p>
-        </div>
+            <p>
+                Dies ist ein Gemeinschaftsprojekt des Weizenbaum Instituts Berlin,
+                der Universität Zürich, des Bayerischen  Rundfunks BR und der
+                Stuttgarter Zeitung um besser zu verstehen, wie Personen die
+                Aktivitäten der Parteien auf TikTok wahrgenommen haben.
+            </p>
 
-        <div class="data-security">
-            <h2>Deine Daten sind sicher</h2>
-            <p>Wir garantieren die anonyme, sichere, und DSGVO konforme Speicherung deiner Daten auf den Servern des Weizenbaum Instituts.
-            Die Auswertung erfolgt ausschließlich für wissenschaftliche Zwecke.</p>
+            <p class="fw-bolder pt-3 pb-3">
+                Spende deinen Feed und hilf uns dabei!
+            </p>
+            <p>
+                Unten findest du eine allgemeine Übersicht, über die Aktivitäten
+                der Parteien auf TikTok.
+            </p>
         </div>
     </div>
 
     <!-- Public TikTok Stats Section -->
     {% include "reports/public_report.html" %}
+
+    <div class="main-section intro-text text-center pt-5 pb-5">
+        <div class="cta-container p-3">
+            <a href="/ddm/studies/tiktok/briefing/" target="_blank" class="cta-button btn btn-lg" role="button">Jetzt mitmachen und persönliche Feed-Analyse erhalten!</a>
+        </div>
+    </div>
+
 </div>
 {% endblock main_content %}
 

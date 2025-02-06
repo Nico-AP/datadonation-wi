@@ -13,3 +13,21 @@
 .wi-btn-bright:hover {
     opacity: 0.8;
 }
+
+.cta-container {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.cta-button {
+    background: black;
+    box-shadow: -3px -3px 0 #ffbf00, 3px 3px 0 rgba(0, 242, 234, 0.6);
+    font-weight: 500;
+    animation: rotateDualShadow 5s linear infinite;
+    color: white;
+}
+
+.cta-button:hover {
+    background: #242424;
+    color: white;
+}

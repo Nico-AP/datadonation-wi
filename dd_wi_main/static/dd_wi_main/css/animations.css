@@ -25,3 +25,61 @@
         0px -225px #f4f4f4;
     transition: box-shadow 0.1s linear;
 }
+
+.box {
+    width: 150px;
+    height: 150px;
+    background-color: white;
+    border-radius: 10px;
+    position: relative;
+    animation: rotateDualShadow 2s linear infinite;
+}
+
+/* Keyframes for rotating two shadows */
+@keyframes rotateDualShadow {
+    0% {
+        box-shadow: -3px -3px 0 #ffbf00, 3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+    25% {
+        box-shadow: 3px -3px 0 #ffbf00, -3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+    50% {
+        box-shadow: 3px 3px 0 #ffbf00, -3px -3px 0 rgba(0, 242, 234, 0.6);
+    }
+    75% {
+        box-shadow: -3px 3px 0 #ffbf00, 3px -3px 0 rgba(0, 242, 234, 0.6);
+    }
+    100% {
+        box-shadow: -3px -3px 0 #ffbf00, 3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+}
+
+@keyframes rotateDualShadow2 {
+    0% {
+        box-shadow: -3px -3px 0 #ffbf00, 3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+    12.5% {
+        box-shadow: 0px -4px 0 #ffbf00, 0px 4px 0 rgba(0, 242, 234, 0.6);
+    }
+    25% {
+        box-shadow: 3px -3px 0 #ffbf00, -3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+    37.5% {
+        box-shadow: 4px 0px 0 #ffbf00, -4px 0px 0 rgba(0, 242, 234, 0.6);
+    }
+    50% {
+        box-shadow: 3px 3px 0 #ffbf00, -3px -3px 0 rgba(0, 242, 234, 0.6);
+    }
+    62.5% {
+        box-shadow: 0px 4px 0 #ffbf00, 0px -4px 0 rgba(0, 242, 234, 0.6);
+    }
+    75% {
+        box-shadow: -3px 3px 0 #ffbf00, 3px -3px 0 rgba(0, 242, 234, 0.6);
+    }
+    87.5% {
+        box-shadow: -4px 0px 0 #ffbf00, 4px 0px 0 rgba(0, 242, 234, 0.6);
+    }
+    100% {
+        box-shadow: -3px -3px 0 #ffbf00, 3px 3px 0 rgba(0, 242, 234, 0.6);
+    }
+}
