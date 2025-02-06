@@ -322,7 +322,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     )
 
     return {
-        'html': create_plot_html(fig),
+        'html': create_plot_html(fig, config=PLOT_CONFIG),
         'figure': fig,
     }
 
