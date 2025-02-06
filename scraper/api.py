@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from django.utils.timezone import make_aware
+from http import HTTPStatus
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -28,14 +29,27 @@ class ScraperPostAPI(APIView):
         Returns the participant object. If no Participant object is found,
         returns a http 404 response.
         """
-        scrape_ts = self.request.query_params.get('scrapets')
-        return scrape_ts
+        return self.request.query_params.get('scrapets')
 
     def post(self, request, *args, **kwargs):
         post_data = request.data
         post_errors = 0
         n_posted = 0
         scrape_ts = self.get_scrapets()
+        if scrape_ts is not None:
+            try:
+                print(scrape_ts)
+                scrape_ts = float(scrape_ts)
+            except ValueError:
+                msg = (
+                    'Invalid format of url parameter scrapets provided. '
+                    'Must be convertible to float.'
+                )
+                return Response(
+                    {'message': msg},
+                    status=HTTPStatus.UNPROCESSABLE_ENTITY
+                )
+
         for entry in post_data:
             try:
                 save_video_to_db(entry, scrape_ts)
