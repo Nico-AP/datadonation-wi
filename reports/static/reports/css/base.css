@@ -234,6 +234,7 @@ h1 {
 
 .video-link:hover {
     background-color: #292929;
+    color: white;
 }
 
 @media screen and (max-width: 768px) {
