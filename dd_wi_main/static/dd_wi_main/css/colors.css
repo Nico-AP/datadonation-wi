@@ -3,30 +3,29 @@
 }
 
 .bg-darkgray {
-    background-color: #292929;
+    background-color: #c8c8c8;
 }
 .darkgray-shadow {
     box-shadow: 0px 4px #1f1f1f;
 }
 .bg-grayer {
-    background-color: #aaa;
-    box-shadow: 0px 4px #929292;
+    background-color: #d4d4d4;
+    /* box-shadow: 0px 4px #929292; */
 }
 .bg-gray {
-    background-color: #bdbdbd;
-    box-shadow: 0px 4px #acacac;
+    background-color: #ddd;
+    /* box-shadow: 0px 4px #acacac; */
 }
 .bg-lightgray {
-    background-color: lightgray;
-    box-shadow: 0px 4px rgb(191, 191, 191);
+    background-color: #e3e3e3;
+    /* box-shadow: 0px 4px rgb(191, 191, 191); */
 }
 .bg-lightergray {
     background-color: #eaeaea;
-    box-shadow: 0px 4px #dfdfdf;
+    /* box-shadow: 0px 4px #dfdfdf; */
 }
 .bg-lightestgray {
     background-color: #f4f4f4;
-    box-shadow: 0px 4px #e8e8e8;
 }
 .text-black {
     color: black !important;

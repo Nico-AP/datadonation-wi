@@ -1,13 +1,13 @@
 # Party colors and other constants.
 party_colors = {
-    'SPD': '#e3000f',
-    'CDU/CSU': '#000000',
-    'Grüne': '#46962b',
-    'FDP': '#ffed00',
-    'AfD': '#009ee0',
-    'Linke': '#be3075',
-    'Sonstige': '#808080',
-    'BSW': '#691d42',
+    'SPD': '#e4454f',  # '#e3000f',
+    'CDU/CSU': '#454545',  # '#000000',
+    'Grüne': '#76ae63',  # '#46962b',
+    'FDP': '#f8eb45',  # '#ffed00',
+    'AfD': '#45b4e2',  # '#009ee0',
+    'Linke': '#ca6697',  # '#be3075',
+    'Sonstige': '#9f9f9f',  # '#808080',
+    'BSW': '#8e5973',  # '#691d42',
     'Kein offizieller Parteiaccount': '#8B4513'  # Brown color
 }
 

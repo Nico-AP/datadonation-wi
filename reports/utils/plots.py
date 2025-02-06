@@ -136,7 +136,7 @@ def create_party_distribution_user_feed(matched_videos):
             colors=[
                 f'rgba({int(party_colors[party].lstrip("#")[0:2], 16)}, '
                 f'{int(party_colors[party].lstrip("#")[2:4], 16)}, '
-                f'{int(party_colors[party].lstrip("#")[4:6], 16)}, 0.6)'
+                f'{int(party_colors[party].lstrip("#")[4:6], 16)}, 0.9)'
                 for party in party_counts.index
             ]
         )
@@ -158,7 +158,7 @@ def create_party_distribution_user_feed(matched_videos):
         paper_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=0, b=0),
         autosize=True,
-        height=600,
+        height=450,
         hovermode=False  # Disable hover mode.
     )
 
@@ -263,7 +263,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             )
         ),
         autosize=True,
-        height=800,
+        height=400,
         minreducedwidth=500,
         font=dict(
             size=25,
@@ -274,7 +274,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         paper_bgcolor='rgba(0,0,0,0)',
         # plot_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=0, b=0),
-        plot_bgcolor='rgb(101, 101, 101)',
+        plot_bgcolor='rgba(0,0,0,0)',
     )
 
     fig.update_xaxes(
@@ -437,7 +437,7 @@ def create_user_feed_wordcloud(matched_videos):
     user_cloud = WordCloud(
         font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
-        height=800,
+        height=600,
         background_color=None,
         colormap=orange_colormap,  # Use custom orange colormap
         max_words=100,
@@ -489,7 +489,7 @@ def create_hashtag_cloud_germany(df_posts):
     all_cloud = WordCloud(
         font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
         width=800,
-        height=800,
+        height=600,
         background_color=None,
         colormap=turquoise_colormap,  # Use custom turquoise colormap
         max_words=100,
@@ -544,7 +544,7 @@ def create_temporal_party_distribution_all_accounts(df_posts):
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)
         b = int(hex_color[4:6], 16)
-        rgba_color = f'rgba({r},{g},{b},0.9)'  # 0.9 for 90% opacity.
+        rgba_color = f'rgba({r},{g},{b},0.9)'
 
         fig_party.add_trace(go.Scatter(
             x=party_data['date'],
@@ -586,13 +586,13 @@ def create_temporal_party_distribution_all_accounts(df_posts):
             )
         ),
         autosize=True,
-        height=800,  # Increased height.
+        height=400,
         font=dict(
             size=25,
             color='black'
         ),
         margin=dict(r=0, t=0, l=0, b=0),  # Adjusted margins.
-        plot_bgcolor='rgb(101, 101, 101)',
+        plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         hovermode='x unified',  # Show all values for a given x position.
         hoverdistance=100,  # Increase hover radius.
@@ -615,10 +615,10 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     fig_party.update_xaxes(
         showgrid=True,
         gridwidth=1,
-        gridcolor='lightgray',
+        gridcolor='gray',
         zeroline=True,
         zerolinewidth=1,
-        zerolinecolor='lightgray',
+        zerolinecolor='gray',
         tickangle=45,
         tickfont=dict(
             size=20,
@@ -634,10 +634,10 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     fig_party.update_yaxes(
         showgrid=True,
         gridwidth=1,
-        gridcolor='lightgray',
+        gridcolor='gray',
         zeroline=True,
         zerolinewidth=1,
-        zerolinecolor='lightgray',
+        zerolinecolor='gray',
         tickfont=dict(
             size=20,
             color='black'
@@ -690,6 +690,11 @@ def create_party_distribution_all_accounts(df_posts):
         parents=[''] * len(party_metrics),
         values=[m['Videos'] for m in party_metrics],
         textinfo='label+value',
+        textfont=dict(
+            size=28,
+            family='Rubik, Arial, sans-serif',
+            color='black',
+        ),
         marker=dict(
             colors=[
                 hex_to_rgba(party_colors[party], 0.9)
@@ -712,6 +717,7 @@ def create_party_distribution_all_accounts(df_posts):
             family='Rubik, Arial, sans-serif'
         ),
         paper_bgcolor='rgba(0,0,0,0)',
+        height=450,
     )
 
     # Find party with most videos.
@@ -742,9 +748,8 @@ def create_views_bars_all_accounts(df_posts):
     fig = make_subplots(
         rows=2, cols=1,
         subplot_titles=['Views insgesamt', 'Views pro Video'],
-        horizontal_spacing=0.15,  # Reduced from default.
+        horizontal_spacing=0.15,
         vertical_spacing=0.2,
-        column_widths=[1]  # Ensure equal width.
     )
 
     # Calculate total views.
@@ -785,6 +790,9 @@ def create_views_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>'
             ),
+            marker=dict(
+                line=dict(width=0),
+            ),
             width=0.6,
             showlegend=False,
         ),
@@ -805,6 +813,9 @@ def create_views_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>'
             ),
+            marker=dict(
+                line=dict(width=0),
+            ),
             width=0.6,
             showlegend=False,
         ),
@@ -815,14 +826,16 @@ def create_views_bars_all_accounts(df_posts):
     fig.update_layout(
         **PLOT_LAYOUT,
         dragmode=False,
-        height=800,
+        height=600,
         title_font=dict(size=20),
         plot_bgcolor='rgba(0,0,0,0)',
     )
 
     # Adjust subplot title font sizes
     for annotation in fig.layout.annotations:
-        annotation.font.size = 25
+        annotation.font.size = 22
+        annotation.font.weight = 500
+        annotation.font.family = 'Rubik, sans-serif'
 
     # Update axes.
     for i in [1, 2]:
@@ -834,7 +847,10 @@ def create_views_bars_all_accounts(df_posts):
             row=i, col=1,
             showgrid=True,
             gridwidth=1,
-            gridcolor='gray'
+            gridcolor='gray',
+            zeroline=True,
+            zerolinecolor='gray',
+            zerolinewidth=1
         )
         fig.update_yaxes(
             tickangle=0,
@@ -842,7 +858,10 @@ def create_views_bars_all_accounts(df_posts):
             row=i, col=1,
             showgrid=False,
             ticksuffix="  ",  # Increase space between ticks and labels.
-            linecolor='black'
+            zeroline=False,
+            mirror=False,
+            showline=False,
+            linecolor='rgba(0,0,0,0)',
         )
 
     # Find party with most total views and most views per video.
@@ -923,6 +942,9 @@ def create_likes_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>'
             ),
+            marker=dict(
+                line=dict(width=0),
+            ),
             width=0.6,
             showlegend=False
         ),
@@ -943,6 +965,9 @@ def create_likes_bars_all_accounts(df_posts):
             hovertemplate=(
                 '<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>'
             ),
+            marker=dict(
+                line=dict(width=0),
+            ),
             width=0.6,
             showlegend=False
         ),
@@ -953,14 +978,16 @@ def create_likes_bars_all_accounts(df_posts):
     fig.update_layout(
         **PLOT_LAYOUT,
         dragmode=False,
-        height=800,
+        height=600,
         title_font=dict(size=20),
         plot_bgcolor='rgba(0,0,0,0)',
     )
 
     # Adjust subplot title font sizes
     for annotation in fig.layout.annotations:
-        annotation.font.size = 25
+        annotation.font.size = 22
+        annotation.font.weight = 500
+        annotation.font.family = 'Rubik, sans-serif'
 
     # Update axes.
     for i in [1, 2]:
@@ -972,7 +999,10 @@ def create_likes_bars_all_accounts(df_posts):
             row=i, col=1,
             showgrid=True,
             gridwidth=1,
-            gridcolor='gray'
+            gridcolor='gray',
+            zeroline=True,
+            zerolinecolor='gray',
+            zerolinewidth=1
         )
         fig.update_yaxes(
             tickangle=0,
@@ -980,7 +1010,10 @@ def create_likes_bars_all_accounts(df_posts):
             row=i, col=1,
             showgrid=False,
             ticksuffix="  ",  # Increase space between ticks and labels.
-            linecolor='black'
+            zeroline=False,
+            mirror=False,
+            showline=False,
+            linecolor='rgba(0,0,0,0)',
         )
 
     # Find party with most total likes and most likes per video.

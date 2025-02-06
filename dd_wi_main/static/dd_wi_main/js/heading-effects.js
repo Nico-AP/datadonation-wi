@@ -71,9 +71,9 @@ window.addEventListener("scroll", () => {
 document.addEventListener("DOMContentLoaded", function () {
     const svgs = document.querySelectorAll(".wordcloud-container svg");
     svgs.forEach(svg => {
-        svg.setAttribute("viewBox", "0 0 800 800");
+        svg.setAttribute("viewBox", "0 0 800 600");
         svg.setAttribute("width", "95%");
         svg.setAttribute("height", "");
-        svg.style.maxHeight = "800px";
+        svg.style.maxHeight = "600px";
     });
 });

@@ -31,7 +31,7 @@
   Politik in <span id="personal-highlight">deinem Feed</span>
 </div>
 
-<div class="report-block bg-darkgray wi-rounded-top text-white grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
+<div class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
   <div id="report-first-text" class="fw-bold">
     <p class="pb-3">Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{{ n_videos }}</span>&nbsp;Videos auf TikTok angesehen.</p>
     <p class="pb-3">Davon waren <span class="stats-value">{{ n_matched }}</span>&nbsp;Videos politisch.</p>
@@ -41,21 +41,21 @@
 
 
 {% if matches %}
-<div class="report-block bg-grayer">
+<div class="report-block bg-lightergray">
   <h2>So oft kamen Videos der <span class="stats-value">Parteien</span> in deinem Feed vor</h2>
   <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
   </div>
 </div>
 
-<div class="report-block bg-gray">
+<div class="report-block bg-lightgray">
   <h2>So hat sich die Zahl der politischen Videos in deinem Feed seit dem Ampel-Aus <span class="stats-value">ver&auml;ndert</span>.</h2>
   <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
   </div>
 </div>
 
-<div class="report-block bg-lightgray">
+<div class="report-block bg-gray">
   <h2>Die <span class="stats-value">viralsten</span> Politik-Videos in deinem Feed</h2>
   <div class="top-videos-container">
       {{ top_videos_table | safe }}
@@ -65,14 +65,14 @@
   </div>
 </div>
 
-<div class="report-block bg-lightergray">
+<div class="report-block bg-grayer">
   <h2>Diese <span class="stats-value">Hashtags</span> kamen am h&auml;ufigsten in deinem Politik-Feed vor ... </h2>
   <div class="hashtag-section">
       {{ user_feed_wordcloud.html | safe }}
   </div>
 </div>
 
-<div class="report-block bg-lightestgray wi-rounded-bottom">
+<div class="report-block bg-darkgray wi-rounded-bottom">
   <h2>... und diese wurden &uuml;ber alle <span class="stats-value">Politik-Videos</span> hinweg benutzt</h2>
   <div class="hashtag-section">
       {{ hashtag_cloud_germany.html | safe }}

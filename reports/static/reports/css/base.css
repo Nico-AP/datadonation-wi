@@ -253,6 +253,7 @@ h1 {
 
     .video-link {
         padding: 4px 8px;
+        font-size: 16px;
     }
 }
 
@@ -365,6 +366,10 @@ h1 {
 
 .description {
     padding-bottom: 10px;
+    padding-top: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #5e5e5e;
 }
 
 /* Desktop styles */

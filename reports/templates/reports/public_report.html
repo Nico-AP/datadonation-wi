@@ -6,20 +6,20 @@
     Politik <span id="public-highlight">auf TikTok</span>
 </div>
 
-<div class="report-block bg-darkgray wi-rounded-top text-white darkgray-shadow">
+<div class="report-block bg-lightestgray wi-rounded-top darkgray-shadow">
     <div class="fw-bold">
         <p>So haben sich die <span class="highlight-second text-black">Parteien</span> während dem Wahlkampf auf TikTok präsentiert.</p>
     </div>
 </div>
 
-<div class="report-block bg-grayer">
+<div class="report-block bg-lightergray">
     <h2>So viel posten die <span class="highlight-second">Parteien</span> t&auml;glich auf TikTok...</h2>
     <div class="plot-wrapper">
         {{ public_party_distribution_temporal_all_accounts.html|safe }}
     </div>
 </div>
 
-<div class="report-block bg-gray">
+<div class="report-block bg-lightgray">
     <h2>{% if public_party_distribution_all_accounts.party == 'BSW' %}Das{% else %}Die{% endif %}
       <span style="color: {{ public_party_distribution_all_accounts.data.color }}">
           {{ public_party_distribution_all_accounts.data.party }}{% if public_party_distribution_all_accounts.data.party == 'Gr&uuml;ne' %}n{% endif %}
@@ -33,7 +33,7 @@
     </div>
 </div>
 
-<div class="report-block bg-lightgray">
+<div class="report-block bg-gray">
     <h2>{% if public_views_bars_all_accounts.data.total.party == 'BSW' %}Das{% else %}Die{% endif %}
         <span style="color: {{ public_views_bars_all_accounts.data.total.color }}">{{ public_views_bars_all_accounts.data.total.party }}{% if public_views_bars_all_accounts.data.total.party == 'Gr&uuml;ne' %}n{% endif %}</span>
         hat mit <span class="highlight-second">{{ public_views_bars_all_accounts.data.total.value|floatformat:0|intcomma }}</span> Views insgesamt die gr&ouml;&szlig;te Reichweite.
@@ -43,7 +43,7 @@
     <div class="plot-container">{{ public_views_bars_all_accounts.html|safe }}</div>
 </div>
 
-<div class="report-block bg-lightergray wi-rounded-bottom">
+<div class="report-block bg-grayer wi-rounded-bottom">
     <h2>{% if public_likes_bars_all_accounts.data.total.party == 'BSW' %}Das{% else %}Die{% endif %}
         <span style="color: {{ public_likes_bars_all_accounts.data.total.color }}">{{ public_likes_bars_all_accounts.data.total.party }}{% if public_likes_bars_all_accounts.data.total.party == 'Gr&uuml;ne' %}n{% endif %}</span>
         hat mit <span class="highlight-second">{{ public_likes_bars_all_accounts.data.total.value|floatformat:0|intcomma }}</span> Likes die meiste Zustimmung insgesamt erhalten,

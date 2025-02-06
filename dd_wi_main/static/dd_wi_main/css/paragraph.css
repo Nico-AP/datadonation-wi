@@ -2,3 +2,13 @@ p {
     font-family: Rubik, sans-serif;
     font-size: 1.6rem;
 }
+.intro-text > div > p{
+    padding-left:10px;
+    padding-right: 10px;
+    font-size: 1.4rem;
+}
+
+.intro-text > div > h2 {
+    text-align: left;
+    padding-left: 10px;
+}
