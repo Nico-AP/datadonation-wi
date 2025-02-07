@@ -61,6 +61,10 @@ def load_posts_data(needed_fields=None, video_ids=None):
         'hashtags__name': 'hashtags'
     })
 
+    # Account for cases where no videos matched.
+    if df_posts is None or df_posts.empty:
+        return df_posts
+
     # Fuse video with hashtag data.
     # Group hashtags by video_id since each video can have multiple hashtags.
     df_hashtags = df_posts.groupby('video_id')
