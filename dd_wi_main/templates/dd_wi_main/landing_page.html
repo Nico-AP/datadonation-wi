@@ -18,7 +18,9 @@
             </p>
 
             <div class="cta-container p-3">
-                <a href="/ddm/studies/tiktok/briefing/" target="_blank"  class="cta-button btn-lg btn" role="button">Jetzt mitmachen und persönliche Feed-Analyse erhalten!</a>
+                <a href="/ddm/studies/tiktok/briefing/" target="_blank"  class="cta-button btn-lg btn" role="button">
+                    Jetzt mitmachen und persönliche TikTok-Analyse erhalten!
+                </a>
             </div>
 
             <p>
@@ -39,7 +41,12 @@
     </div>
 
     <!-- Public TikTok Stats Section -->
-    {% include "reports/public_report.html" %}
+    <div class="report-block">
+        <h2>So viel posten die <span class="highlight-second">Parteien</span> t&auml;glich auf TikTok...</h2>
+        <div class="plot-wrapper">
+            {{ public_party_distribution_temporal_all_accounts.html|safe }}
+        </div>
+    </div>
 
     <div class="main-section intro-text text-center pt-5 pb-5">
         <div class="cta-container p-3">

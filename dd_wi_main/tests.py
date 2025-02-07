@@ -43,3 +43,24 @@ class TestUrls(TestCase):
         response = self.client.get(reverse('landing'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'dd_wi_main/landing_page.html')
+
+    def test_imprint_view(self):
+        response = self.client.get(reverse('imprint'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'dd_wi_main/imprint.html')
+
+    def test_contact_view(self):
+        response = self.client.get(reverse('contact'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'dd_wi_main/contact.html')
+
+    def test_data_protection_view(self):
+        response = self.client.get(reverse('data_protection'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'dd_wi_main/data_protection.html')
+
+    def test_custom_404(self):
+        url = reverse('landing')
+        response = self.client.get(url + 'nonexisting', follow=True)
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, 'dd_wi_main/404.html')

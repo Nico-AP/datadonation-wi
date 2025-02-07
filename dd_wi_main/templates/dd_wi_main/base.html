@@ -52,7 +52,7 @@
     <div id="footer">
       <div class="container">
         {% block footer_content %}
-        <div class="row align-items-center pb-5">
+        <div class="row align-items-center pb-2">
           <div class="col text-center">
             <a href="https://www.weizenbaum-institut.de/" target="_blank">
               <img class="p-3" alt="Logo Weizenbaum Institut" src="{% static 'dd_wi_main/img/logos/wzb_logo.svg' %}" height="85px">
@@ -64,10 +64,21 @@
             </a>
           </div>
         </div>
+
+        <div class="row align-items-center justify-content-center pb-3">
+          <div class="col-auto text-center">
+            <a href="{% url 'imprint' %}">Impressum</a>
+          </div>
+          <div class="col-auto text-center">
+            <a href="{% url 'contact' %}">Kontakt</a>
+          </div>
+          <div class="col-auto text-center">
+            <a href="{% url 'data_protection' %}">Datenschutz</a>
+          </div>
+        </div>
         {% endblock footer_content %}
       </div>
     </div>
-
   </div>
 
   {% include "dd_wi_main/components/cookie_info.html" %}

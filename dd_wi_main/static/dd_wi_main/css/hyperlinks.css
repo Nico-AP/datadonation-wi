@@ -1,11 +1,12 @@
 a {
     text-decoration: none;
-    color: #005d8e;
+    color: #212121;
     cursor: pointer;
 }
 
 a:hover {
-    filter: saturate(50%);
+    text-shadow: -1px -1px 0 #ffbf00;
+    color: #212121;
 }
 
 .a-white {
