@@ -15,8 +15,8 @@ function triggerFlicker() {
     // Remove animation after 1s to allow delay to reset
     setTimeout(() => {
         element.style.animation = 'none';
-        // Randomly set next flicker time (between 2s and 8s)
-        setTimeout(triggerFlicker, getRandomTimeout(2, 8) * 1000);
+        // Randomly set next flicker time (between 2s and 5s)
+        setTimeout(triggerFlicker, getRandomTimeout(2, 5) * 1000);
     }, getRandomTimeout(1, 3) * 500);
 }
 
