@@ -179,6 +179,16 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     matched_videos = matched_videos[
         matched_videos['partei'] != 'Kein offizieller Parteiaccount']
 
+    # Check if df still contains any relevant entries.
+    if matched_videos.empty:
+        return {
+            'html': (
+                '<p>Keines der von dir angeschauten Videos konnte einem '
+                'Parteiaccount zugeordnet werden.'
+            ),
+            'figure': None,
+        }
+
     # Set date as index and resample by week.
     matched_videos.set_index('date', inplace=True)
 
