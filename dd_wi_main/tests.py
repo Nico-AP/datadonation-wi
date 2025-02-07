@@ -52,7 +52,7 @@ class TestUrls(TestCase):
     def test_contact_view(self):
         response = self.client.get(reverse('contact'), follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'dd_wi_main/contact.html')
+        self.assertTemplateUsed(response, 'dd_wi_main/imprint.html')
 
     def test_data_protection_view(self):
         response = self.client.get(reverse('data_protection'), follow=True)
