@@ -33,8 +33,18 @@
 
 <div id="first-block" class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
   <div id="report-first-text" class="fw-bold">
-    <p class="pb-3">Seit dem Ampel-Aus hast du insgesamt <span class="stats-value">{{ n_videos }}</span>&nbsp;Videos auf TikTok angesehen.</p>
-    <p class="pb-3">Davon waren <span class="stats-value">{{ n_matched }}</span>&nbsp;Videos politisch.</p>
+    <p class="pb-3">
+      Seit dem Ampel-Aus hast du insgesamt
+      <span class="stats-value">{{ n_videos }}</span>&nbsp;
+      {% if n_videos == 1 %}Video{% else %}Videos{% endif %} auf TikTok angesehen.
+    </p>
+    <p class="pb-3">
+      Davon
+      {% if n_matched == 1 %}war nur{% else %}waren{% endif %}
+      <span class="stats-value">{{ n_matched }}</span>&nbsp;
+      {% if n_matched == 1 %}Video{% else %}Videos{% endif %}
+      politisch.
+    </p>
     <p>Das entspricht <span class="stats-value">{{ share_political }}%</span>&nbsp;der Videos, die du gesehen hast.</p>
   </div>
 </div>
