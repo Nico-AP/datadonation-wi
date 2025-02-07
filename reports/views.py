@@ -56,6 +56,8 @@ class TikTokReport(TemplateView):
         data_donations = DataDonation.objects.filter(participant=participant)
         donated_data = {}
         for data_donation in data_donations:
+            if data_donation.blueprint is None:
+                continue
             bp_name = data_donation.blueprint.name
             donated_data[bp_name] = data_donation.get_decrypted_data(
                 self.project.secret_key, self.project.get_salt())

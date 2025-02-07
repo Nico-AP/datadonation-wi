@@ -307,11 +307,11 @@ def create_temporal_party_distribution_user_feed(matched_videos):
         title_font=dict(
             size=20
         ),
-        # Use daily format for tick labels, matching all_accounts style
+        # Use daily format for tick labels, matching all_accounts style.
         tickformat='%d.%m',
-        # Automatically determine tick spacing if hard coding needed
-        #dtick='D7',  # Show ticks every 7 days
-        #linecolor='black'
+        # Automatically determine tick spacing if hard coding needed.
+        # dtick='D7',  # Show ticks every 7 days
+        # linecolor='black'
     )
 
     fig.update_yaxes(
