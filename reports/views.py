@@ -96,6 +96,16 @@ class TikTokReport(TemplateView):
 
         # Parse donated data and get list of watched video IDs.
         df_user_data = load_user_data(donated_data)
+        if df_user_data is None:
+            no_watch_history = True
+        else:
+            no_watch_history = False
+        context['no_watch_history'] = no_watch_history
+
+        if no_watch_history:
+            self.add_static_public_plots(context)
+            return context
+
         watched_ids = list(set(df_user_data['Link'].apply(extract_video_id)))
         df_matched_videos = load_posts_data(video_ids=watched_ids)
         del watched_ids

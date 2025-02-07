@@ -90,9 +90,11 @@ def load_posts_data(needed_fields=None, video_ids=None):
     return df_posts
 
 
-def load_user_data(data_trace):
+def load_user_data(data_traces):
     # Process browsing history.
-    browsing_history = data_trace['Angesehene Videos']
+    browsing_history = data_traces.get('Angesehene Videos')
+    if browsing_history is None:
+        return None
     browsing_df = pd.DataFrame(browsing_history)
     browsing_df['Date'] = pd.to_datetime(browsing_df['Date'])
 
