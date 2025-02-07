@@ -111,7 +111,10 @@ def create_party_distribution_user_feed(matched_videos):
     # Only create treemap if we have data.
     if len(party_counts) == 0:
         print('No party data found!')
-        return '<div>No political party videos found in your feed.</div>'
+        return {
+            'html': None,
+            'figure': None,
+        }
 
     # Create treemap figure.
     fig_party = go.Figure(go.Treemap(
@@ -182,10 +185,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     # Check if df still contains any relevant entries.
     if matched_videos.empty:
         return {
-            'html': (
-                '<p>Keines der von dir angeschauten Videos konnte einem '
-                'Parteiaccount zugeordnet werden.'
-            ),
+            'html': None,
             'figure': None,
         }
 
@@ -357,7 +357,7 @@ def create_top_videos_table(matched_videos):
 
     def format_hashtags(hashtags):
         if not hashtags:  # Check if list is empty.
-            return ""
+            return None
         # Filter out common tags.
         tags_to_filter = {
             'capcut'
@@ -450,7 +450,9 @@ def create_user_feed_wordcloud(matched_videos):
     # Get frequencies for user's feed.
     user_freq = get_hashtags(matched_videos)
     if not user_freq:
-        return {'html': '<div>Keine Hashtags gefunden.</div>', 'figure': None}
+        return {
+            'html': None,
+        }
 
     # Create color function that maps word frequency to color intensity
     def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
