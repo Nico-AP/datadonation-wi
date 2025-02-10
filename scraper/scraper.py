@@ -18,6 +18,53 @@ load_dotenv()
 logger = logging.getLogger('scraper_logger')
 
 
+
+from datetime import timedelta
+from datetime import datetime
+def generate_date_range(start_date, end_date):
+    """
+    Generate a list of date sections for scraping periods beyond the 30-day API limit.
+    
+    Args:
+        start_date (str): Start date in YYMMDD format
+        end_date (str): End date in YYMMDD format
+    
+    Returns:
+        list: List of tuples containing (start_date, end_date) pairs in YYMMDD format
+    
+    Example:
+        >>> generate_date_range('230101', '230215')
+        [('230101', '230130'), ('230131', '230215')]
+    """
+    # Convert YYMMDD to datetime objects
+    start = datetime.strptime(f"20{start_date}", "%Y%m%d")  # Assumes 20xx year
+    end = datetime.strptime(f"20{end_date}", "%Y%m%d")
+    
+    dates = []
+    current_date = start
+    
+    while current_date <= end:
+        days_remaining = (end - current_date).days
+        
+        if days_remaining <= 30:
+            # Add final period and break
+            dates.append((
+                current_date.strftime("%y%m%d"),
+                end.strftime("%y%m%d")
+            ))
+            break
+        else:
+            # Add 30-day period
+            period_end = current_date + timedelta(days=29)  # 29 to avoid overlap
+            dates.append((
+                current_date.strftime("%y%m%d"),
+                period_end.strftime("%y%m%d")
+            ))
+            current_date = period_end + timedelta(days=1)
+    
+    return dates
+
+
 def get_username_list():
     df = pd.read_csv('./reports/static/reports/csv/actor_party_mapping.csv')
     pattern = r"@(.*)"
@@ -25,11 +72,11 @@ def get_username_list():
     return usernames
 
 
-def get_formatted_date():
+def get_formatted_date(delay=4):
     """
     Get current date minus 4 days in the format %Y%m%d (e.g., '20241224').
     """
-    current_date = datetime.date.today() - datetime.timedelta(days=4)
+    current_date = datetime.date.today() - datetime.timedelta(days=delay)
     formatted_date = current_date.strftime('%Y%m%d')
     return formatted_date
 
@@ -125,6 +172,41 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
     return response
 
 
+def scrape_videos_accounts_only(url, usernames, max_count,start_date, end_date, headers, search_id, cursor):
+    '''
+    Get video data from TikTok API for accounts only.
+    '''
+    query_params = {
+        'query': {
+            'or': [
+                {
+                    'operation': 'IN',
+                    'field_name': 'username',
+                    'field_values': usernames
+                }
+            ],
+            'and': [
+                {
+                    'operation': 'IN', 'field_name': 'region_code',
+                    'field_values': [
+                        'DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH'
+                    ]
+                }
+            ]
+        },
+        'max_count': max_count,
+        'is_random': False,
+        'start_date': start_date,
+        'end_date': end_date,
+        'cursor': cursor,
+        'search_id': search_id
+    }
+    # Make the call and transform the response to a JSON file.
+    response = requests.post(
+        url, headers=headers, data=json.dumps(query_params))
+    # Return the response parsed as a JSON file.
+    return response 
+
 def get_datetime_from_unix_ts(unix_ts):
     return datetime.datetime.fromtimestamp(unix_ts, timezone.utc)
 
@@ -185,7 +267,9 @@ def save_videos_to_db(videos):
     return
 
 
-def get_tt_videos():
+def get_tt_videos_new_day():
+
+    logger.info('========Scraping I new day videos========')
     access_token = request_access_token()
 
     # Set query parameter.
@@ -255,5 +339,90 @@ def get_tt_videos():
                     f'Successfully scraped {cursor} videos'
                 )
 
+
+def get_tt_videos_update_account_data():
+
+    logger.info('========Scraping II update account data========')
+    access_token = request_access_token()
+
+    # Set query parameter.
+
+
+    start_date = "20250101"
+    end_date = get_formatted_date(delay=5)
+
+    date_ranges = generate_date_range(start_date, end_date)
+
+    usernames = get_username_list()
+
+    url = get_video_query_url()
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    max_count = 100
+
+    for date_range in date_ranges:
+        start_date = date_range[0]
+        end_date = date_range[1]
+        # Set utility parameter.
+        search_id = ''
+        has_more = True
+        error_counter = 0
+        cursor = 0
+
+        while has_more is True:
+            response = scrape_videos_pagination(
+                url, usernames, hashtags, max_count,
+                start_date, end_date, headers, search_id, cursor
+            )
+            logger.info(f'Response status code: {response.status_code}')
+            temp_data = response.json()
+
+            if (temp_data['error']['code'] == 'internal_error') | \
+                    (temp_data['error']['code'] == 'invalid_params'):
+                error_counter += 1
+                logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
+                logger.warning(f'Error code: {temp_data["error"]["code"]}')
+
+                # Killswitch after 20 consecutive errors.
+                if error_counter >= 20:
+                    has_more = False
+                    logger.error(
+                        f'Stopping after {error_counter} consecutive errors. '
+                        f'Last error: {temp_data["error"]["message"]}'
+                    )
+                else:
+                    time.sleep(10)
+            else:
+                error_counter = 0
+                logger.info(
+                    f'Request successful. Cursor: {temp_data["data"]["cursor"]}, '
+                    f'Has More: {temp_data["data"]["has_more"]}'
+                )
+
+                # Update query parameter based on previous request.
+                cursor = temp_data['data']['cursor']
+                has_more = temp_data['data']['has_more']
+                search_id = temp_data['data']['search_id']
+
+                retrieved_data = temp_data['data']['videos']
+                # save_videos_to_file(
+                #   retrieved_data, start_date, search_id, cursor)
+                save_videos_to_db(retrieved_data)
+
+                time.sleep(10)
+
+                if not has_more:
+                    logger.info(
+                        f'Report for scraping {get_formatted_date()}. '
+                        f'Successfully scraped {cursor} videos'
+                    )
+
     # Add this to test IP-related issues.
     log_server_ip()
+
+
+def get_tt_videos():
+    get_tt_videos_new_day()
+    get_tt_videos_update_account_data()
