@@ -1,7 +1,7 @@
 Django>=4.2,<5.0
 django-cookie-consent==0.6.0
 django-csp==3.8
-django-ddm==2.0b7
+django-ddm==2.0b8
 djangorestframework==3.15.2
 gunicorn==23.0.0
 hiredis==3.1.0
