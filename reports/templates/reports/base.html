@@ -34,7 +34,7 @@
 <div id="first-block" class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
   <div id="report-first-text" class="fw-bold">
     <p class="pb-3">
-      Seit dem 01. Januar 2025hast du insgesamt
+      Seit dem 01. Januar 2025 hast du insgesamt
       <span class="stats-value">{{ n_videos }}</span>&nbsp;
       {% if n_videos == 1 %}Video{% else %}Videos{% endif %} auf TikTok angesehen.
     </p>
@@ -63,7 +63,7 @@
 
 {% if temporal_party_distribution_user_feed.html %}
 <div class="report-block bg-lightgray">
-  <h2>... und so hat sich die Zahl der Partei-Videos in deinem Feed im Wahlkampf <span class="stats-value">entwickelt</span>.</h2>
+  <h2>... und so hat sich die Zahl der Partei-Videos in deinem Feed während des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
   <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
   </div>
