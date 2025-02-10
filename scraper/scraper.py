@@ -21,14 +21,14 @@ logger = logging.getLogger('scraper_logger')
 def generate_date_range(start_date, end_date):
     """
     Generate a list of date sections for scraping periods beyond the 30-day API limit.
-    
+
     Args:
         start_date (str): Start date in YYYYMMDD format
         end_date (str): End date in YYYYMMDD format
-    
+
     Returns:
         list: List of tuples containing (start_date, end_date) pairs in YYYYMMDD format
-    
+
     Example:
         >>> generate_date_range('20230101', '20230215')
         [('20230101', '20230130'), ('20230131', '20230215')]
@@ -36,13 +36,13 @@ def generate_date_range(start_date, end_date):
     # Convert YYYYMMDD to datetime objects
     start = datetime.strptime(start_date, "%Y%m%d")
     end = datetime.strptime(end_date, "%Y%m%d")
-    
+
     dates = []
     current_date = start
-    
+
     while current_date <= end:
         days_remaining = (end - current_date).days
-        
+
         if days_remaining <= 30:
             dates.append((
                 current_date.strftime("%Y%m%d"),
@@ -56,7 +56,7 @@ def generate_date_range(start_date, end_date):
                 period_end.strftime("%Y%m%d")
             ))
             current_date = period_end + timedelta(days=1)
-    
+
     return dates
 
 
@@ -167,10 +167,12 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
     return response
 
 
-def scrape_videos_accounts_only(url, usernames, max_count,start_date, end_date, headers, search_id, cursor):
-    '''
+def scrape_videos_accounts_only(url, usernames, max_count,
+                                start_date, end_date, headers,
+                                search_id, cursor):
+    """
     Get video data from TikTok API for accounts only.
-    '''
+    """
     query_params = {
         'query': {
             'or': [
@@ -200,7 +202,8 @@ def scrape_videos_accounts_only(url, usernames, max_count,start_date, end_date, 
     response = requests.post(
         url, headers=headers, data=json.dumps(query_params))
     # Return the response parsed as a JSON file.
-    return response 
+    return response
+
 
 def get_datetime_from_unix_ts(unix_ts):
     return datetime.fromtimestamp(unix_ts, timezone.utc)
@@ -379,7 +382,7 @@ def get_tt_videos_update_account_data():
             logger.info(f'Response status code: {response.status_code}')
             print(response.status_code)
             temp_data = response.json()
-            
+
             if (temp_data['error']['code'] == 'internal_error') | \
                     (temp_data['error']['code'] == 'invalid_params'):
                 error_counter += 1
