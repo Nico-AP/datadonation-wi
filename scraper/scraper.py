@@ -422,8 +422,3 @@ def get_tt_videos_update_account_data():
 
     # Add this to test IP-related issues.
     log_server_ip()
-
-
-def get_tt_videos():
-    get_tt_videos_new_day()
-    get_tt_videos_update_account_data()
