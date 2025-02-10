@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -6,6 +5,7 @@ import pandas as pd
 import re
 import requests
 import time
+from datetime import datetime, date, timedelta  # Import all needed datetime classes
 
 from django.utils import timezone
 from django.utils.timezone import make_aware
@@ -18,27 +18,24 @@ load_dotenv()
 logger = logging.getLogger('scraper_logger')
 
 
-
-from datetime import timedelta
-from datetime import datetime
 def generate_date_range(start_date, end_date):
     """
     Generate a list of date sections for scraping periods beyond the 30-day API limit.
     
     Args:
-        start_date (str): Start date in YYMMDD format
-        end_date (str): End date in YYMMDD format
+        start_date (str): Start date in YYYYMMDD format
+        end_date (str): End date in YYYYMMDD format
     
     Returns:
-        list: List of tuples containing (start_date, end_date) pairs in YYMMDD format
+        list: List of tuples containing (start_date, end_date) pairs in YYYYMMDD format
     
     Example:
-        >>> generate_date_range('230101', '230215')
-        [('230101', '230130'), ('230131', '230215')]
+        >>> generate_date_range('20230101', '20230215')
+        [('20230101', '20230130'), ('20230131', '20230215')]
     """
-    # Convert YYMMDD to datetime objects
-    start = datetime.strptime(f"20{start_date}", "%Y%m%d")  # Assumes 20xx year
-    end = datetime.strptime(f"20{end_date}", "%Y%m%d")
+    # Convert YYYYMMDD to datetime objects
+    start = datetime.strptime(start_date, "%Y%m%d")
+    end = datetime.strptime(end_date, "%Y%m%d")
     
     dates = []
     current_date = start
@@ -47,18 +44,16 @@ def generate_date_range(start_date, end_date):
         days_remaining = (end - current_date).days
         
         if days_remaining <= 30:
-            # Add final period and break
             dates.append((
-                current_date.strftime("%y%m%d"),
-                end.strftime("%y%m%d")
+                current_date.strftime("%Y%m%d"),
+                end.strftime("%Y%m%d")
             ))
             break
         else:
-            # Add 30-day period
-            period_end = current_date + timedelta(days=29)  # 29 to avoid overlap
+            period_end = current_date + timedelta(days=29)
             dates.append((
-                current_date.strftime("%y%m%d"),
-                period_end.strftime("%y%m%d")
+                current_date.strftime("%Y%m%d"),
+                period_end.strftime("%Y%m%d")
             ))
             current_date = period_end + timedelta(days=1)
     
@@ -76,7 +71,7 @@ def get_formatted_date(delay=4):
     """
     Get current date minus 4 days in the format %Y%m%d (e.g., '20241224').
     """
-    current_date = datetime.date.today() - datetime.timedelta(days=delay)
+    current_date = date.today() - timedelta(days=delay)
     formatted_date = current_date.strftime('%Y%m%d')
     return formatted_date
 
@@ -208,7 +203,7 @@ def scrape_videos_accounts_only(url, usernames, max_count,start_date, end_date, 
     return response 
 
 def get_datetime_from_unix_ts(unix_ts):
-    return datetime.datetime.fromtimestamp(unix_ts, timezone.utc)
+    return datetime.fromtimestamp(unix_ts, timezone.utc)
 
 
 def save_videos_to_file(videos, start_date, search_id, cursor):
@@ -223,7 +218,7 @@ def save_videos_to_file(videos, start_date, search_id, cursor):
 
 
 def get_datetime_from_ts(ts):
-    naive_datetime = datetime.datetime.fromtimestamp(ts)
+    naive_datetime = datetime.fromtimestamp(ts)
     return make_aware(naive_datetime)
 
 
@@ -267,14 +262,18 @@ def save_videos_to_db(videos):
     return
 
 
-def get_tt_videos_new_day():
-
+def get_tt_videos_new_day(specific_date=None):
     logger.info('========Scraping I new day videos========')
     access_token = request_access_token()
 
     # Set query parameter.
-    start_date = get_formatted_date()
-    end_date = get_formatted_date()
+    if specific_date:
+        start_date = specific_date
+        end_date = specific_date
+    else:
+        start_date = get_formatted_date()
+        end_date = get_formatted_date()
+
     usernames = get_username_list()
     hashtags = HASHTAG_LIST
 
@@ -341,19 +340,19 @@ def get_tt_videos_new_day():
 
 
 def get_tt_videos_update_account_data():
-
     logger.info('========Scraping II update account data========')
     access_token = request_access_token()
 
     # Set query parameter.
+    start_date = "20250101"  # Changed back to YYYYMMDD format
+    end_date = get_formatted_date(delay=5)  # Already returns YYYYMMDD
 
-
-    start_date = "20250101"
-    end_date = get_formatted_date(delay=5)
-
+    logger.info(f"Generating date range from {start_date} to {end_date}")
     date_ranges = generate_date_range(start_date, end_date)
+    logger.info(f"Generated {len(date_ranges)} date ranges")
 
     usernames = get_username_list()
+    hashtags = HASHTAG_LIST
 
     url = get_video_query_url()
     headers = {
@@ -363,6 +362,7 @@ def get_tt_videos_update_account_data():
     max_count = 100
 
     for date_range in date_ranges:
+        print(date_range)
         start_date = date_range[0]
         end_date = date_range[1]
         # Set utility parameter.
@@ -372,13 +372,14 @@ def get_tt_videos_update_account_data():
         cursor = 0
 
         while has_more is True:
-            response = scrape_videos_pagination(
-                url, usernames, hashtags, max_count,
+            response = scrape_videos_accounts_only(
+                url, usernames, max_count,
                 start_date, end_date, headers, search_id, cursor
             )
             logger.info(f'Response status code: {response.status_code}')
+            print(response.status_code)
             temp_data = response.json()
-
+            
             if (temp_data['error']['code'] == 'internal_error') | \
                     (temp_data['error']['code'] == 'invalid_params'):
                 error_counter += 1
