@@ -1,0 +1,42 @@
+{% extends "dd_wi_main/base.html" %}
+{% load static %}
+
+{% block title %}Listen der Hashtags und Accounts{% endblock %}
+
+{% block main_content %}
+<div class="container mt-5">
+    <h1>Politische Hashtags und offizielle Accounts</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Politische Hashtags ({{ hashtags|length }})</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                    {% for hashtag in hashtags %}
+                        <li class="list-group-item">#{{ hashtag }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Offizielle Accounts ({{ accounts|length }})</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                    {% for account, party in accounts.items %}
+                        <li class="list-group-item">@{{ account }} ({{ party }})</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

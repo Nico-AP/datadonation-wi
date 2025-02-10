@@ -34,16 +34,16 @@
 <div id="first-block" class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
   <div id="report-first-text" class="fw-bold">
     <p class="pb-3">
-      Seit dem Ampel-Aus hast du insgesamt
+      Seit dem 01. Januar 2025hast du insgesamt
       <span class="stats-value">{{ n_videos }}</span>&nbsp;
       {% if n_videos == 1 %}Video{% else %}Videos{% endif %} auf TikTok angesehen.
     </p>
     <p class="pb-3">
       Davon
-      {% if n_matched == 1 %}war nur{% else %}waren{% endif %}
+      {% if n_matched == 1 %}war nur{% else %}hatten{% endif %}
       <span class="stats-value">{{ n_matched }}</span>&nbsp;
       {% if n_matched == 1 %}Video{% else %}Videos{% endif %}
-      politisch.
+      einen politischen Hashtag.
     </p>
     <p>Das entspricht <span class="stats-value">{{ share_political }}%</span>&nbsp;der Videos, die du gesehen hast.</p>
   </div>
@@ -54,7 +54,7 @@
 
 {% if party_distribution_user_feed.html %}
 <div class="report-block bg-lightergray">
-  <h2>So oft kamen Videos der <span class="stats-value">Parteien</span> in deinem Feed vor</h2>
+  <h2>So oft kamen Videos von offiziellen <span class="stats-value">Partei-Accounts</span> in deinem Feed vor ...</h2>
   <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
   </div>
@@ -63,7 +63,7 @@
 
 {% if temporal_party_distribution_user_feed.html %}
 <div class="report-block bg-lightgray">
-  <h2>So hat sich die Zahl der politischen Videos in deinem Feed seit dem Ampel-Aus <span class="stats-value">ver&auml;ndert</span>.</h2>
+  <h2>... und so hat sich die Zahl der Partei-Videos in deinem Feed im Wahlkampf <span class="stats-value">entwickelt</span>.</h2>
   <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
   </div>
@@ -84,7 +84,7 @@
 
 {% if user_feed_wordcloud.html %}
 <div class="report-block bg-grayer">
-  <h2>Diese <span class="stats-value">Hashtags</span> kamen am h&auml;ufigsten in deinem Politik-Feed vor ... </h2>
+  <h2>Diese <span class="stats-value">Hashtags</span> haben politische Videos in deinem Feed benutzt ... </h2>
   <div class="hashtag-section">
       {{ user_feed_wordcloud.html | safe }}
   </div>
@@ -112,8 +112,14 @@
 {# Section 3: &Uuml;ber diesen Bericht #}
 <div class="section wi-rounded-top wi-rounded-bottom" id="about-report">
   <h1>&Uuml;ber diesen Bericht</h1>
-  <p>F&uuml;r diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet. Wir haben dabei nur offizielle Accounts von Politiker:innen und Parteien benutzt. Politische Inhalte k&ouml;nnen nat&uuml;rlich auch in vielen anderen Videos vorkommen - zum Beispiel, wenn es um aktuelle Nachrichten geht. Diese Videos sind aber entweder neutral oder lassen sich nicht so einfach automatisch einer politischen Richtung zuordnen.</p>
-  <p>Die Accounts wurden auf Basis der Datenbank &Ouml;ffentlicher Sprecher <a href="https://doi.org/10.17605/OSF.IO/SK6T5" target="_blank">DB&Ouml;S</a> zusammengestellt.</p>
+  <p>Für diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet.</p>
+  <p>Manche Analysen beziehen sich explizit nur auf die Videos, die von offilziellen Politiker:Innen-Accounts stammen andere allgemein auf "politische Videos". 
+    Mit politischen Videos meinen wir Videos, die einen politischen Hashtag enthalten oder von einem offiziellen Account einer Partei oder eines Politikers stammen.</p>
+  <p>Die Accounts wurden auf Basis der Datenbank Öffentlicher Sprecher <a href="https://osf.io/sk6t5/" target="_blank" rel="noopener noreferrer">DBÖS</a> zusammengestellt.</p>
+  <p>Die Liste der genutzten offiziellen Accounts und Hashtags findest du <a href="{% url 'reports:hashtags' %}" target="_blank" rel="noopener noreferrer">hier</a>.</p>
+
+  <p>Bei Fragen kannst du dich gerne an die Forschungsgruppe
+    <a href="https://www.weizenbaum-institut.de/forschung/digitale-maerkte-und-oeffentlichkeiten-auf-plattformen/dynamiken-digitaler-nachrichtenvermittlung/" target="_blank" rel="noopener noreferrer"> Dynamiken digitaler Nachrichtenvermittlung</a> am Weizenbaum Institut wenden.</p>
 </div>
 
 {% endblock %}

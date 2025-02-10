@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
-from .utils.data_processing import load_user_data, load_posts_data
+from .utils.data_processing import load_user_data, load_posts_data, load_csv_as_dict
 from .utils.plots import (
     create_party_distribution_user_feed,
     create_temporal_party_distribution_user_feed,
@@ -24,6 +24,7 @@ from .utils.constants import (
     PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY,
     PUBLIC_HT_WORDCLOUD_KEY
 )
+from scraper.hashtags import HASHTAG_LIST
 
 
 utc = pytz.UTC
@@ -133,4 +134,20 @@ class TikTokReport(TemplateView):
 
         # Add static plots based on public data to context.
         self.add_static_public_plots(context)
+        return context
+
+
+class HashtagsView(TemplateView):
+    template_name = 'reports/hashtags.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Load accounts and their parties
+        csv_path = './reports/static/reports/csv/actor_party_mapping.csv'
+        context['accounts'] = load_csv_as_dict(csv_path)
+        
+        # Load hashtags from scraper/hashtags.py
+        context['hashtags'] = sorted(HASHTAG_LIST)  # Sort alphabetically
+        
         return context
