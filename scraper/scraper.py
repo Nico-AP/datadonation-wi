@@ -5,7 +5,7 @@ import pandas as pd
 import re
 import requests
 import time
-from datetime import datetime, date, timedelta  # Import all needed datetime classes
+from datetime import datetime, date, timedelta
 
 from django.utils import timezone
 from django.utils.timezone import make_aware
@@ -256,7 +256,7 @@ def save_video_to_db(video, scrape_ts=None):
         for hashtag in video['hashtag_names']:
             video_hashtags.append(Hashtag.objects.get_or_create(name=hashtag)[0])
         new_video.hashtags.set(video_hashtags)
-        
+
     except Exception as e:
         logger.error(f"Error saving video {video.get('id', 'unknown')}: {str(e)}")
         logger.error(f"Video data: {video}")
