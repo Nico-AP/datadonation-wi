@@ -151,6 +151,7 @@ ATTRIBUTES_TO_ALLOW = {
     'type': True,
     'data-bs-toggle': True,
     'data-bs-target': True,
+    'data-bs-parent': True,
     'aria-expanded': True,
     'aria-controls': True,
     'aria-labelledby': True,
@@ -250,6 +251,10 @@ CKEDITOR_5_CONFIGS = {
                 },
                 {
                     'name': 'h2',
+                    'attributes': ATTRIBUTES_TO_ALLOW
+                },
+                {
+                    'name': 'style',
                     'attributes': ATTRIBUTES_TO_ALLOW
                 },
             ],
