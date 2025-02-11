@@ -133,7 +133,7 @@ WEBPACK_LOADER = {
     },
 }
 DDM_SETTINGS = {
-    'EMAIL_PERMISSION_CHECK':  r'.*(\.|@)uzh\.ch$',
+    'EMAIL_PERMISSION_CHECK':  r'.*(\.|@)weizenbaum-institut\.de$',
 }
 
 DDM_DEFAULT_HEADER_IMG_LEFT = '/static/dd_wi_main/img/logos/wzb_logo.svg'
