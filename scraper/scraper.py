@@ -226,32 +226,41 @@ def get_datetime_from_ts(ts):
 
 
 def save_video_to_db(video, scrape_ts=None):
-    tt_user, _ = TikTokUser.objects.get_or_create(name=video.get('username'))
+    try:
+        # Debug log the video data
+        logger.info(f"Saving video data: {video.get('id')}")
+        logger.debug(f"Video data: {video}")
 
-    new_video, _ = TikTokVideo.objects.get_or_create(
-        video_id=video.get('id'),
-        video_description=video.get('video_description'),
-        create_time=get_datetime_from_unix_ts(video.get('create_time')),
-        username=tt_user,
+        tt_user, _ = TikTokUser.objects.get_or_create(name=video.get('username'))
 
-        comment_count=video.get('comment_count'),
-        like_count=video.get('like_count'),
-        share_count=video.get('share_count'),
-        view_count=video.get('view_count'),
+        new_video, _ = TikTokVideo.objects.get_or_create(
+            video_id=video.get('id'),
+            video_description=video.get('video_description'),
+            create_time=get_datetime_from_unix_ts(video.get('create_time')),
+            username=tt_user,
 
-        music_id=video.get('music_id'),
-        region_code=video.get('region_code'),
-    )
+            comment_count=video.get('comment_count'),
+            like_count=video.get('like_count'),
+            share_count=video.get('share_count'),
+            view_count=video.get('view_count'),
 
-    if scrape_ts:
-        new_video.scrape_date = get_datetime_from_ts(scrape_ts)
-        new_video.save()
+            music_id=video.get('music_id'),
+            region_code=video.get('region_code'),
+        )
 
-    video_hashtags = []
-    for hashtag in video['hashtag_names']:
-        video_hashtags.append(Hashtag.objects.get_or_create(name=hashtag)[0])
-    new_video.hashtags.set(video_hashtags)
-    return
+        if scrape_ts:
+            new_video.scrape_date = get_datetime_from_ts(scrape_ts)
+            new_video.save()
+
+        video_hashtags = []
+        for hashtag in video['hashtag_names']:
+            video_hashtags.append(Hashtag.objects.get_or_create(name=hashtag)[0])
+        new_video.hashtags.set(video_hashtags)
+        
+    except Exception as e:
+        logger.error(f"Error saving video {video.get('id', 'unknown')}: {str(e)}")
+        logger.error(f"Video data: {video}")
+        raise
 
 
 def save_videos_to_db(videos):
