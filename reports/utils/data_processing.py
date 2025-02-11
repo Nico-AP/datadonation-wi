@@ -39,6 +39,7 @@ def load_posts_data(needed_fields=None, video_ids=None):
             'video_id',
             'create_time',
             'view_count',
+            'like_count',
             'username__name',
             'hashtags__name'
         ]
