@@ -157,13 +157,20 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
         'is_random': False,
         'start_date': start_date,
         'end_date': end_date,
-        'cursor': cursor,
-        'search_id': search_id
+        'cursor': cursor
     }
+    
+    # Only add search_id if it exists
+    if search_id:
+        query_params['search_id'] = search_id
+
     # Make the call and transform the response to a JSON file.
     response = requests.post(
         url, headers=headers, data=json.dumps(query_params))
-    # Return the response parsed as a JSON file.
+
+    # Log the response for debugging
+    logger.debug(f"API Response: {response.json()}")
+    
     return response
 
 
@@ -303,52 +310,60 @@ def get_tt_videos_new_day(specific_date=None):
     error_counter = 0
 
     while has_more is True:
-        response = scrape_videos_pagination(
-            url, usernames, hashtags, max_count,
-            start_date, end_date, headers, search_id, cursor
-        )
-        logger.info(f'Response status code: {response.status_code}')
-        temp_data = response.json()
+        try:
+            response = scrape_videos_pagination(
+                url, usernames, hashtags, max_count,
+                start_date, end_date, headers, search_id, cursor
+            )
+            logger.info(f'Response status code: {response.status_code}')
+            temp_data = response.json()
 
-        if (temp_data['error']['code'] == 'internal_error') | \
-                (temp_data['error']['code'] == 'invalid_params'):
-            error_counter += 1
-            logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
-            logger.warning(f'Error code: {temp_data["error"]["code"]}')
+            # Log full response for debugging
+            logger.debug(f"Full API response: {temp_data}")
 
-            # Killswitch after 20 consecutive errors.
-            if error_counter >= 20:
-                has_more = False
-                logger.error(
-                    f'Stopping after {error_counter} consecutive errors. '
-                    f'Last error: {temp_data["error"]["message"]}'
-                )
-            else:
-                time.sleep(10)
-        else:
+            if 'error' in temp_data and temp_data['error'].get('code') in ['internal_error', 'invalid_params']:
+                error_counter += 1
+                logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
+                logger.warning(f'Error code: {temp_data["error"]["code"]}')
+
+                if error_counter >= 20:
+                    has_more = False
+                    logger.error(
+                        f'Stopping after {error_counter} consecutive errors. '
+                        f'Last error: {temp_data["error"]["message"]}'
+                    )
+                else:
+                    time.sleep(10)
+                continue
+
+            # Reset error counter on successful request
             error_counter = 0
+
+            # Check if we have data
+            if 'data' not in temp_data:
+                logger.error(f"Unexpected API response format: {temp_data}")
+                break
+
+            data = temp_data['data']
             logger.info(
-                f'Request successful. Cursor: {temp_data["data"]["cursor"]}, '
-                f'Has More: {temp_data["data"]["has_more"]}'
+                f'Request successful. Cursor: {data.get("cursor", 0)}, '
+                f'Has More: {data.get("has_more", False)}'
             )
 
-            # Update query parameter based on previous request.
-            cursor = temp_data['data']['cursor']
-            has_more = temp_data['data']['has_more']
-            search_id = temp_data['data']['search_id']
+            # Update query parameters
+            cursor = data.get('cursor', 0)
+            has_more = data.get('has_more', False)
+            search_id = data.get('search_id', '')
 
-            retrieved_data = temp_data['data']['videos']
-            # save_videos_to_file(
-            #   retrieved_data, start_date, search_id, cursor)
-            save_videos_to_db(retrieved_data)
+            if 'videos' in data:
+                save_videos_to_db(data['videos'])
 
             time.sleep(10)
 
-            if not has_more:
-                logger.info(
-                    f'Report for scraping {get_formatted_date()}. '
-                    f'Successfully scraped {cursor} videos'
-                )
+        except Exception as e:
+            logger.error(f"Error during scraping: {str(e)}")
+            logger.error("Full traceback:", exc_info=True)
+            raise
 
 
 def get_tt_videos_update_account_data():
