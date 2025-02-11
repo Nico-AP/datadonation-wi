@@ -2,7 +2,8 @@ p {
     font-family: Rubik, sans-serif;
     font-size: 1.6rem;
 }
-.intro-text > div > p{
+.intro-text > div > p,
+.intro-text > p {
     padding-left:10px;
     padding-right: 10px;
     font-size: 1.4rem;
