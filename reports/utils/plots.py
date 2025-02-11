@@ -1073,3 +1073,155 @@ def create_likes_bars_all_accounts(df_posts):
             }
         }
     }
+
+
+def create_temporal_party_distribution_all_accounts_dark(df_posts):
+    """ Create temporal party distribution plot for all accounts. """
+    # Convert timestamp to datetime.
+    df_posts['date'] = pd.to_datetime(df_posts['create_time'], unit='s')
+
+    # Resample to days (D).
+    df_temporal = df_posts.set_index('date')
+
+    # Create party-specific temporal analysis.
+    party_dfs = []
+    for party in df_posts['partei'].unique():
+        if pd.isna(party) or party == 'Kein offizieller Parteiaccount':
+            continue
+
+        party_data = df_temporal[df_temporal['partei'] == party]
+        daily_counts = \
+            party_data.resample('D')['video_id'].count().reset_index()
+        daily_counts['partei'] = party
+        party_dfs.append(daily_counts)
+
+    df_party_temporal = pd.concat(party_dfs)
+
+    # Create figure.
+    fig_party = go.Figure()
+
+    # Inside create_temporal_analysis function.
+    for party in reversed(parties_order):
+        if party not in df_party_temporal['partei'].unique():
+            continue
+
+        party_data = df_party_temporal[df_party_temporal['partei'] == party]
+
+        # Convert hex color to rgba with transparency.
+        hex_color = party_colors[party].lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        rgba_color = f'rgba({r},{g},{b},0.9)'
+
+        fig_party.add_trace(go.Scatter(
+            x=party_data['date'],
+            y=party_data['video_id'],
+            name=party,
+            mode='lines',
+            line=dict(
+                width=0,
+                smoothing=1.3  # Smoothing for curved lines.
+            ),
+            stackgroup='one',
+            fillcolor=rgba_color,
+            # Update hover template to only show number.
+            hovertemplate='%{y} Videos<extra></extra>',
+            hoverlabel=dict(
+                bgcolor='white',
+                font_size=16,
+                font_family='Rubik, sans-serif',
+                font_color='black'
+            ),
+            # Add color to legend text.
+            legendgroup=party,
+            showlegend=True,
+        ))
+
+    # After all traces are added, update the layout.
+    fig_party.update_layout(
+        xaxis_title='Datum',
+        yaxis_title='Anzahl Videos',
+        dragmode=False,
+        showlegend=True,
+        legend=dict(
+            orientation='h',  # Horizontal legend.
+            yanchor="bottom",
+            y=1.02,  # Position above the plot.
+            xanchor="center",
+            x=0.5,  # Center horizontally.
+            font=dict(
+                size=18,
+                color='white'
+            )
+        ),
+        autosize=True,
+        height=400,
+        font=dict(
+            size=25,
+            color='black'
+        ),
+        title_font=dict(color='white'),
+        margin=dict(r=0, t=0, l=0, b=0),  # Adjusted margins.
+        plot_bgcolor='#313131',
+        paper_bgcolor='black',
+        hovermode='x unified',  # Show all values for a given x position.
+        hoverdistance=100,  # Increase hover radius.
+        hoverlabel=dict(
+            namelength=0  # Hide trace names in hover.
+        ),
+        # Add a title for the hover label that shows the date.
+        title=dict(
+            text='<br>',  # Empty title to create space for hover label.
+            font=dict(size=1),  # Make title invisible.
+            pad=dict(b=0)  # Remove padding.
+        ),
+        # Update hover template for date display.
+        xaxis=dict(
+            hoverformat='%d.%m.%Y'  # Format for the date in hover.
+        )
+    )
+
+    # Update x-axis to show daily ticks.
+    fig_party.update_xaxes(
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='gray',
+        zeroline=True,
+        zerolinewidth=1,
+        zerolinecolor='gray',
+        tickangle=45,
+        tickfont=dict(
+            size=20,
+            color='white'
+        ),
+        title_font=dict(
+            size=20,
+            color='white'
+        ),
+        # Use daily format for tick labels.
+        tickformat='%d.%m'
+    )
+
+    fig_party.update_yaxes(
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='gray',
+        zeroline=True,
+        zerolinewidth=1,
+        zerolinecolor='gray',
+        tickfont=dict(
+            size=20,
+            color='white'
+        ),
+        title_font=dict(
+            size=20,
+            color='white'
+        )
+    )
+
+    result = {
+        'html': create_plot_html(fig_party, config=PLOT_CONFIG),
+        'figure': fig_party
+    }
+    return result

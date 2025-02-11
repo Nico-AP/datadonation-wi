@@ -11,28 +11,41 @@
 <div class="landing-content">
     <div class="main-section intro-text text-center">
         <div>
-            <!-- TODO: Aktuell Platzhalter Text - Ersetzen durch Journalists Text sobalt sie vond er Mega Landing page wissen... -->
-            <p class="mb-0">
-                Am 23. Februar 2025 findet die Bundestagswahl statt.
-            </p>
-            <p class="mb-0">
-                Aber wie politisch ist dein TikTok?
-            </p>
 
-            <div class="cta-container p-3">
-                <a href="/ddm/studies/tiktok/briefing/" target="_blank"  class="cta-button btn-lg btn" role="button">
-                    Jetzt anonym mitmachen und persönliche TikTok-Analyse erhalten!
+            <!-- Public TikTok Stats Section -->
+            <div class="text-center pb-5">
+                <h3 class="pt-3 pb-3 fw-500">Am 23. Februar 2025 findet die
+                    Bundestagswahl statt.</h3>
+                <h3 class="pb-3 fw-500">Die <span
+                          class="highlight-second fw-500">Parteien</span> posten
+                    dazu
+                    t&auml;glich auf TikTok...</h3>
+                <div class="plot-wrapper bg-black p-4 pe-5 rounded-3">
+                    {{ party_distribution_plot.html|safe }}
+                </div>
+            </div>
+
+            <h3 class="pb-3 fw-500">... aber wie politisch ist eigentlich <span
+                      class="stats-value fw-500">dein TikTok</span>?</h3>
+
+            <div class="cta-container p-3 pb-4">
+                <a href="/ddm/studies/tiktok/briefing/" target="_blank"
+                      class="cta-button btn-lg btn" role="button">
+                    Jetzt anonym mitmachen und persönliche TikTok-Analyse
+                    erhalten!
                 </a>
             </div>
 
-            <p>
-                Dies ist ein Gemeinschaftsprojekt des Weizenbaum Instituts Berlin,
-                der Universität Zürich, des Bayerischen Rundfunks und der
+            <p class="mt-5">
+                Dies ist ein Gemeinschaftsprojekt des Weizenbaum Instituts
+                Berlin, der Universität Zürich, des Bayerischen Rundfunks und
+                der
                 Stuttgarter Zeitung/Stuttgarter Nachrichten.
-                Wir wollen herausfinden, was euch tatsächlich von den vielen politischen Posts auf TikTok erreicht.
+                Wir wollen herausfinden, was euch tatsächlich von den vielen
+                politischen Posts auf TikTok erreicht.
             </p>
 
-            <p class="fw-bolder mb-0">
+            <p class="fw-bolder mb-0 pt-3">
                 Spende deinen Feed und hilf uns dabei!
             </p>
             <p class="fw-bolder mt-0 mb-0">
@@ -40,25 +53,12 @@
             </p>
         </div>
     </div>
-    <!-- TODO: Decrease Spacing -->
 
-    <!-- Public TikTok Stats Section -->
-    <div class="text-center mt-0 pt-5 pb-5">
-        <h3 class="pt-3 pb-3">Die <span class="highlight-second">Parteien</span> posten t&auml;glich auf TikTok...</h3>
-        <div class="plot-wrapper">
-            {{ public_party_distribution_temporal_all_accounts.html|safe }}
-        </div>
-    </div>
-
-    <!-- TODO: Decrease Spacing -->
-
-    <p>
-        <h3>... aber wie politisch ist eigentlich <span class="highlight-second">dein</span> TikTok?</h3>
-    </p>
-
-    <div class="main-section intro-text text-center pt-5 pb-5">
+    <div class="main-section intro-text text-center pb-5 mb-5">
         <div class="cta-container p-3">
-            <a href="/ddm/studies/tiktok/briefing/" target="_blank" class="cta-button btn btn-lg" role="button">Jetzt anonym mitmachen und persönliche Feed-Analyse erhalten!</a>
+            <a href="/ddm/studies/tiktok/briefing/" target="_blank"
+                  class="cta-button btn btn-lg" role="button">Jetzt anonym
+                mitmachen und persönliche Feed-Analyse erhalten!</a>
         </div>
     </div>
 

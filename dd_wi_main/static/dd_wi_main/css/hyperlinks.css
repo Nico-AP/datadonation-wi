@@ -5,7 +5,7 @@ a {
 }
 
 a:hover {
-    text-shadow: -1px -1px 0 #ffbf00;
+    text-shadow: -1px -1px 0 rgba(255, 0, 80, 0.6);
     color: #212121;
 }
 

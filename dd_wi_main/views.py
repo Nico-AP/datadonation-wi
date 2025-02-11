@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from reports.utils.constants import PUBLIC_TEMPORAL_PLOT_KEY
+from reports.utils.constants import PUBLIC_TEMPORAL_PLOT_DARK_KEY
 
 
 class LandingView(TemplateView):
@@ -11,8 +11,8 @@ class LandingView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Get cached distribution plot.
-        context['public_party_distribution_temporal_all_accounts'] = cache.get(
-            PUBLIC_TEMPORAL_PLOT_KEY)
+        context['party_distribution_plot'] = cache.get(
+            PUBLIC_TEMPORAL_PLOT_DARK_KEY)
         return context
 
 
