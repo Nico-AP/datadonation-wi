@@ -159,7 +159,7 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
         'end_date': end_date,
         'cursor': cursor
     }
-    
+
     # Only add search_id if it exists
     if search_id:
         query_params['search_id'] = search_id
@@ -170,7 +170,7 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
 
     # Log the response for debugging
     logger.debug(f"API Response: {response.json()}")
-    
+
     return response
 
 
@@ -232,37 +232,60 @@ def get_datetime_from_ts(ts):
     return make_aware(naive_datetime)
 
 
-def save_video_to_db(video, scrape_ts=None):
+def save_video_to_db(video_data, scrape_ts=None):
+    """
+    Saves video data to database.
+
+    Creates new video if no video exists in the db with the ID included in
+    video_data.
+    If a video already exists, the existing video is updated if scrape_ts is
+    newser than video.scrape_date.
+
+    scrape_ts must be provided in Unix timestamp format
+    """
     try:
         # Debug log the video data
-        logger.info(f"Saving video data: {video.get('id')}")
-        logger.debug(f"Video data: {video}")
+        logger.info(f"Saving video data: {video_data.get('id')}")
+        logger.debug(f"Video data: {video_data}")
 
-        tt_user, _ = TikTokUser.objects.get_or_create(name=video.get('username'))
+        tt_user, _ = TikTokUser.objects.get_or_create(name=video_data.get('username'))
 
-        new_video, _ = TikTokVideo.objects.get_or_create(
-            video_id=video.get('id'),
-            video_description=video.get('video_description'),
-            create_time=get_datetime_from_unix_ts(video.get('create_time')),
-            username=tt_user,
+        video = TikTokVideo.objects.filter(video_id=video_data.get('id')).first()
+        if video is None:
+            video = TikTokVideo.objects.create(
+                video_id=video_data.get('id'),
+                video_description=video_data.get('video_description'),
+                create_time=get_datetime_from_unix_ts(video_data.get('create_time')),
+                username=tt_user,
 
-            comment_count=video.get('comment_count'),
-            like_count=video.get('like_count'),
-            share_count=video.get('share_count'),
-            view_count=video.get('view_count'),
+                comment_count=video_data.get('comment_count'),
+                like_count=video_data.get('like_count'),
+                share_count=video_data.get('share_count'),
+                view_count=video_data.get('view_count'),
 
-            music_id=video.get('music_id'),
-            region_code=video.get('region_code'),
-        )
+                music_id=video_data.get('music_id'),
+                region_code=video_data.get('region_code'),
+            )
 
-        if scrape_ts:
-            new_video.scrape_date = get_datetime_from_ts(scrape_ts)
-            new_video.save()
+            if scrape_ts:
+                video.scrape_date = get_datetime_from_ts(scrape_ts)
+                video.save()
 
-        video_hashtags = []
-        for hashtag in video['hashtag_names']:
-            video_hashtags.append(Hashtag.objects.get_or_create(name=hashtag)[0])
-        new_video.hashtags.set(video_hashtags)
+            video_hashtags = []
+            for hashtag in video_data['hashtag_names']:
+                video_hashtags.append(Hashtag.objects.get_or_create(name=hashtag)[0])
+            video.hashtags.set(video_hashtags)
+
+        else:
+            scrape_date = get_datetime_from_ts(scrape_ts)
+            if scrape_date > video.scrape_date:
+                video.comment_count = video_data.get('comment_count')
+                video.like_count = video_data.get('like_count')
+                video.share_count = video_data.get('share_count')
+                video.view_count = video_data.get('view_count')
+                video.scrape_date = scrape_date
+                video.save()
+        return
 
     except Exception as e:
         logger.error(f"Error saving video {video.get('id', 'unknown')}: {str(e)}")
@@ -308,6 +331,8 @@ def get_tt_videos_new_day(specific_date=None):
     search_id = ''
     has_more = True
     error_counter = 0
+
+    scrape_date = timezone.now().timestamp()
 
     while has_more is True:
         try:
@@ -356,7 +381,7 @@ def get_tt_videos_new_day(specific_date=None):
             search_id = data.get('search_id', '')
 
             if 'videos' in data:
-                save_videos_to_db(data['videos'])
+                save_videos_to_db(data['videos'], scrape_date)
 
             time.sleep(10)
 
@@ -379,7 +404,6 @@ def get_tt_videos_update_account_data():
     logger.info(f"Generated {len(date_ranges)} date ranges")
 
     usernames = get_username_list()
-    hashtags = HASHTAG_LIST
 
     url = get_video_query_url()
     headers = {
@@ -387,6 +411,8 @@ def get_tt_videos_update_account_data():
         'Content-Type': 'application/json'
     }
     max_count = 100
+
+    scrape_date = timezone.now().timestamp()
 
     for date_range in date_ranges:
         print(date_range)
@@ -437,7 +463,7 @@ def get_tt_videos_update_account_data():
                 retrieved_data = temp_data['data']['videos']
                 # save_videos_to_file(
                 #   retrieved_data, start_date, search_id, cursor)
-                save_videos_to_db(retrieved_data)
+                save_videos_to_db(retrieved_data, scrape_date)
 
                 time.sleep(10)
 
