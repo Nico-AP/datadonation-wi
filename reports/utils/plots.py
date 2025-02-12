@@ -1131,7 +1131,7 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
                 bgcolor='white',
                 font_size=16,
                 font_family='Rubik, sans-serif',
-                font_color='black'
+                font_color='white'
             ),
             # Add color to legend text.
             legendgroup=party,
@@ -1152,19 +1152,19 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
             x=0.5,  # Center horizontally.
             font=dict(
                 size=14,
-                color='black'
+                color='white'
             )
         ),
         autosize=True,
         height=400,
         font=dict(
             size=25,
-            color='black'
+            color='white'
         ),
-        title_font=dict(color='black'),
+        title_font=dict(color='white'),
         margin=dict(r=0, t=0, l=0, b=0),  # Adjusted margins.
         plot_bgcolor='#313131',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='#313131',
         hovermode='x unified',  # Show all values for a given x position.
         hoverdistance=100,  # Increase hover radius.
         hoverlabel=dict(
@@ -1193,11 +1193,11 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
         tickangle=45,
         tickfont=dict(
             size=min(20, 18),
-            color='black'
+            color='white'
         ),
         title_font=dict(
             size=18,
-            color='black'
+            color='white'
         ),
         # Use daily format for tick labels.
         tickformat='%d.%m'
@@ -1212,11 +1212,11 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
         zerolinecolor='gray',
         tickfont=dict(
             size=min(20, 18),
-            color='black'
+            color='white'
         ),
         title_font=dict(
             size=18,
-            color='black'
+            color='white'
         )
     )
 
