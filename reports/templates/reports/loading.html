@@ -64,7 +64,7 @@
                         } else if (attempts >= maxAttempts) {
                             statusMessage.textContent = 'Das dauert länger als erwartet. Bitte versuche, die Seite neu zu laden.';
                         } else {
-                            setTimeout(checkTaskStatus, 3000);
+                            setTimeout(checkTaskStatus, 1000);
                         }
                     })
                     .catch(error => {
