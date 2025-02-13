@@ -38,6 +38,14 @@
   <div id="first-block"
         class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
     <div id="report-first-text" class="fw-bold">
+      {% if no_watch_history %}
+      <p class="pb-3">
+        Leider konnen wir keine personalisierte Analyse deines Feeds erstellen.
+        Entweder hast du deinen TikTok-Feed nicht mit uns geteilt oder die
+        hochgeladene Datei enthielt keine Informationen darüber, welche Videos
+        dir angezeigt wurden.
+      </p>
+      {% else %}
       <p class="pb-3">
         Seit dem 01. Januar 2025 hast du insgesamt
         <span class="stats-value">{{ n_videos }}</span>&nbsp;
@@ -54,6 +62,7 @@
       <p>Das entspricht <span
               class="stats-value">{{ share_political }}%</span>&nbsp;der Videos,
         die du gesehen hast.</p>
+      {% endif %}
     </div>
   </div>
 

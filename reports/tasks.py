@@ -1,7 +1,9 @@
+import pandas as pd
+
 from celery import shared_task
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
-from .utils.data_processing import load_user_data, load_posts_data
+from .utils.data_processing import load_posts_data
 from .utils.plots import (
     create_party_distribution_user_feed,
     create_temporal_party_distribution_user_feed,
@@ -17,15 +19,24 @@ def get_donation(participant_id, secret, salt):
     donations as values.
     """
     participant = Participant.objects.get(id=participant_id)
-    data_donations = DataDonation.objects.filter(participant=participant)
-    donated_data = {}
-    for data_donation in data_donations:
-        if data_donation.blueprint is None:
-            continue
-        bp_name = data_donation.blueprint.name
-        donated_data[bp_name] = data_donation.get_decrypted_data(
-            secret, salt)
-    return donated_data
+    data_donation = DataDonation.objects.filter(
+        participant=participant,
+        blueprint__name='Angesehene Videos'
+    ).first()
+    if data_donation is None:
+        return None
+
+    browsing_history = data_donation.get_decrypted_data(secret, salt)
+    if browsing_history is None:
+        return None
+
+    browsing_df = pd.DataFrame(browsing_history)
+
+    if browsing_df.empty or browsing_df is None:
+        return None
+
+    browsing_df['Date'] = pd.to_datetime(browsing_df['Date'])
+    return browsing_df
 
 
 @shared_task
@@ -37,20 +48,23 @@ def generate_tiktok_report(participant_id, secret, salt):
         'matches': False,
     }
 
-    df_user_data = load_user_data(donated_data)
-    if df_user_data is None:
+    if donated_data is None:
         result['no_watch_history'] = True
         return result
 
-    watched_ids = list(set(df_user_data['Link'].apply(extract_video_id)))
+    watched_ids = list(set(donated_data['Link'].apply(extract_video_id)))
     df_matched_videos = load_posts_data(video_ids=watched_ids)
 
-    n_videos = len(df_user_data)
+    n_videos = len(donated_data)
     n_matched = len(df_matched_videos)
 
     result['n_videos'] = n_videos
     result['n_matched'] = n_matched
-    result['share_political'] = round(n_matched / n_videos, 2) * 100 if n_videos > 0 else 0
+
+    if n_videos > 0:
+        result['share_political'] = round(n_matched / n_videos, 2) * 100
+    else:
+        result['share_political'] = 0
 
     if df_matched_videos is not None and not df_matched_videos.empty:
         result['matches'] = True
