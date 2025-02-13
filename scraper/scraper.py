@@ -293,10 +293,10 @@ def save_video_to_db(video_data, scrape_ts=None):
         raise
 
 
-def save_videos_to_db(videos):
+def save_videos_to_db(videos, scrape_ts=None):
     for video in videos:
         try:
-            save_video_to_db(video)
+            save_video_to_db(video, scrape_ts)
         except Exception as e:
             logger.error(
                 f'Video: {video.get("id")}; Exception: {e}'
