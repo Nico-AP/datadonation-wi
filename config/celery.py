@@ -8,7 +8,7 @@ load_dotenv()
 # Set default settings for Celery
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 
-app = Celery("wi_dd")
+app = Celery("config")
 
 # Load task modules from all registered Django apps
 app.config_from_object("django.conf:settings", namespace="CELERY")
