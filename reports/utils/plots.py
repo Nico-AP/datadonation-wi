@@ -113,7 +113,6 @@ def create_party_distribution_user_feed(matched_videos):
         print('No party data found!')
         return {
             'html': None,
-            'figure': None,
         }
 
     # Create treemap figure.
@@ -167,7 +166,6 @@ def create_party_distribution_user_feed(matched_videos):
 
     result = {
         'html': create_plot_html(fig_party),
-        'figure': fig_party,
     }
 
     return result
@@ -186,7 +184,6 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     if matched_videos.empty:
         return {
             'html': None,
-            'figure': None,
         }
 
     # Set date as index and resample by week.
@@ -342,7 +339,6 @@ def create_temporal_party_distribution_user_feed(matched_videos):
 
     return {
         'html': create_plot_html(fig, config=PLOT_CONFIG),
-        'figure': fig,
     }
 
 
@@ -686,7 +682,6 @@ def create_temporal_party_distribution_all_accounts(df_posts):
 
     result = {
         'html': create_plot_html(fig_party, config=PLOT_CONFIG),
-        'figure': fig_party
     }
     return result
 
@@ -762,7 +757,6 @@ def create_party_distribution_all_accounts(df_posts):
 
     return {
         'html': create_plot_html(fig),
-        'figure': fig,
         'data': {
             'party': max_party['party'],
             'value': int(max_party['Videos']),
@@ -907,7 +901,6 @@ def create_views_bars_all_accounts(df_posts):
 
     return {
         'html': create_plot_html(fig, config=PLOT_CONFIG),
-        'figure': fig,
         'data': {
             'total': {
                 'party': max_total['party'],
@@ -1059,7 +1052,6 @@ def create_likes_bars_all_accounts(df_posts):
 
     return {
         'html': create_plot_html(fig, config=PLOT_CONFIG),
-        'figure': fig,
         'data': {
             'total': {
                 'party': max_total['party'],
@@ -1222,6 +1214,5 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
 
     result = {
         'html': create_plot_html(fig_party, config=PLOT_CONFIG),
-        'figure': fig_party
     }
     return result
