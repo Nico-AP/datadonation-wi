@@ -274,7 +274,7 @@ h1 {
 }
 
 #about-report a {
-    color: rgba(135, 255, 229, 1);
+    color: #54e5e0;
 }
 
 @media screen and (min-width: 64em) {
