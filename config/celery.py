@@ -1,5 +1,9 @@
 import os
 from celery import Celery
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # Set default settings for Celery
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
