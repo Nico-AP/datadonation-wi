@@ -1,4 +1,6 @@
+celery==5.4.0
 Django>=4.2,<5.0
+django-celery-results==2.5.0
 django-cookie-consent==0.6.0
 django-csp==3.8
 django-ddm==2.0b9
