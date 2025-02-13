@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'cookie_consent',
     'django.contrib.humanize',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+
 # USER AUTHORIZATION AND PASSWORD VALIDATION
 # ------------------------------------------------------------------------------
 AUTH_USER_MODEL = 'dd_wi_main.User'
@@ -87,6 +89,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
+
 
 # INTERNATIONALIZATION
 # ------------------------------------------------------------------------------
@@ -104,6 +107,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 
 # DEFAULT PRIMARY KEY FIELD TYPE
 # ------------------------------------------------------------------------------
@@ -267,6 +271,7 @@ CKEDITOR_5_CONFIGS = {
     }
 }
 
+
 # CKEditor
 # ------------------------------------------------------------------------------
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
@@ -280,6 +285,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
 }
 
+
 # Django CSP
 # ------------------------------------------------------------------------------
 CSP_SCRIPT_SRC = ["'self'", "'unsafe-inline'"]
@@ -287,6 +293,7 @@ CSP_SCRIPT_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
 CSP_STYLE_SRC_ATTR = ["'self'", "'unsafe-inline'"]
 CSP_IMG_SRC = ["'self'", "data:"]
+
 
 # Report Configuration
 # ------------------------------------------------------------------------------
@@ -363,3 +370,12 @@ LOGGING = {
         },
     }
 }
+
+
+# CELERY
+# -----------------------------------------------------------------------------
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
