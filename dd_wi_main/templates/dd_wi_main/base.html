@@ -85,13 +85,14 @@
 
           <div class="row align-items-center justify-content-center pb-3">
             <div class="col-auto text-center">
-              <a href="{% url 'imprint' %}">Impressum</a>
+              <a target="_blank" href="{% url 'imprint' %}">Impressum</a>
             </div>
             <div class="col-auto text-center">
-              <a href="{% url 'contact' %}">Kontakt</a>
+              <a target="_blank" href="{% url 'contact' %}">Kontakt</a>
             </div>
             <div class="col-auto text-center">
-              <a href="{% url 'data_protection' %}">Datenschutz</a>
+              <a target="_blank"
+                    href="{% url 'data_protection' %}">Datenschutz</a>
             </div>
           </div>
           {% endblock footer_content %}

@@ -13,124 +13,143 @@
 {% block header_content %}
 <div class="align-items-center pt-5 pb-5 mt-5 text-center report-block">
   <div class="header-sub-title text-center mt-5">Der Wahlkampf auf TikTok</h1>
-  <div class="header-title-container">
-    <div class="header-title heading-p">Dein <span class="heading-effect">Feed</span><span>,</span></div>
-    <div class="header-title heading-p">Deine <span class="heading-effect">Wahl</span><span>,</span></div>
-    <div class="header-title">Dein <span class="heading-effect">Report</span><span>.</span></div>
-  </div>
-</div>
-{% endblock header_content %}
-
-{% block main_content %}
-<div class="report-block text-center">
-  <p class="mb-0"><span class="scroll-dot"></span></p>
-  <p id="scroll-note">Scroll weiter, um mehr zu erfahren</p>
-</div>
-
-<div class="section-heading">
-  Politik in <span id="personal-highlight">deinem Feed</span>
-</div>
-
-<div id="first-block" class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
-  <div id="report-first-text" class="fw-bold">
-    <p class="pb-3">
-      Seit dem 01. Januar 2025 hast du insgesamt
-      <span class="stats-value">{{ n_videos }}</span>&nbsp;
-      {% if n_videos == 1 %}Video{% else %}Videos{% endif %} auf TikTok angesehen.
-    </p>
-    <p class="pb-3">
-      Davon
-      {% if n_matched == 1 %}war nur{% else %}hatten{% endif %}
-      <span class="stats-value">{{ n_matched }}</span>&nbsp;
-      {% if n_matched == 1 %}Video{% else %}Videos{% endif %}
-      einen politischen Hashtag.
-    </p>
-    <p>Das entspricht <span class="stats-value">{{ share_political }}%</span>&nbsp;der Videos, die du gesehen hast.</p>
-  </div>
-</div>
-
-
-{% if matches %}
-
-{% if party_distribution_user_feed.html %}
-<div class="report-block bg-lightergray">
-  <h2>So oft kamen Videos von offiziellen <span class="stats-value">Partei-Accounts</span> in deinem Feed vor ...</h2>
-  <div class="visualization-container">
-      {{ party_distribution_user_feed.html|safe }}
-  </div>
-</div>
-{% endif %}
-
-{% if temporal_party_distribution_user_feed.html %}
-<div class="report-block bg-lightgray">
-  <h2>... und so hat sich die Zahl der Partei-Videos in deinem Feed während des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
-  <div class="visualization-container">
-      {{ temporal_party_distribution_user_feed.html | safe }}
-  </div>
-</div>
-{% endif %}
-
-{% if top_videos_table %}
-<div class="report-block bg-gray">
-  <h2>Die <span class="stats-value">viralsten</span> Politik-Videos in deinem Feed</h2>
-  <div class="top-videos-container">
-      {{ top_videos_table | safe }}
-      <div class="description" style="text-align: center;">
-        Hier berücksichtigen wir nicht nur Videos von Politiker:innen, sondern alle Videos die einen politischen Hashtag enthalten.
+    <div class="header-title-container">
+      <div class="header-title heading-p">Dein <span
+              class="heading-effect">Feed</span><span>,</span></div>
+      <div class="header-title heading-p">Deine <span
+              class="heading-effect">Wahl</span><span>,</span></div>
+      <div class="header-title">Dein <span
+              class="heading-effect">Report</span><span>.</span></div>
     </div>
   </div>
-</div>
-{% endif %}
+  {% endblock header_content %}
 
-{% if user_feed_wordcloud.html %}
-<div class="report-block bg-grayer">
-  <h2>Diese <span class="stats-value">Hashtags</span> haben politische Videos in deinem Feed benutzt ... </h2>
-  <div class="hashtag-section">
-      {{ user_feed_wordcloud.html | safe }}
+  {% block main_content %}
+  <div class="report-block text-center">
+    <p class="mb-0"><span class="scroll-dot"></span></p>
+    <p id="scroll-note">Dein Report ist bereit! Scroll weiter, um mehr zu
+      erfahren</p>
   </div>
-</div>
-{% endif %}
 
-{% if hashtag_cloud_germany.html %}
-<div class="report-block bg-darkgray wi-rounded-bottom">
-  <h2>... und diese wurden &uuml;ber alle <span class="stats-value">Politik-Videos</span> hinweg benutzt</h2>
-  <div class="hashtag-section">
+  <div class="section-heading">
+    Politik in <span id="personal-highlight">deinem Feed</span>
+  </div>
+
+  <div id="first-block"
+        class="report-block bg-lightestgray wi-rounded-top grey-box-shadows {% if not matches %}wi-rounded-bottom{% endif %}">
+    <div id="report-first-text" class="fw-bold">
+      <p class="pb-3">
+        Seit dem 01. Januar 2025 hast du insgesamt
+        <span class="stats-value">{{ n_videos }}</span>&nbsp;
+        {% if n_videos == 1 %}Video{% else %}Videos{% endif %} auf TikTok
+        angesehen.
+      </p>
+      <p class="pb-3">
+        Davon
+        {% if n_matched == 1 %}war nur{% else %}hatten{% endif %}
+        <span class="stats-value">{{ n_matched }}</span>&nbsp;
+        {% if n_matched == 1 %}Video{% else %}Videos{% endif %}
+        einen politischen Hashtag.
+      </p>
+      <p>Das entspricht <span
+              class="stats-value">{{ share_political }}%</span>&nbsp;der Videos,
+        die du gesehen hast.</p>
+    </div>
+  </div>
+
+
+  {% if matches %}
+
+  {% if party_distribution_user_feed.html %}
+  <div class="report-block bg-lightergray">
+    <h2>So oft kamen Videos von offiziellen <span
+            class="stats-value">Partei-Accounts</span> in deinem Feed vor ...
+    </h2>
+    <div class="visualization-container">
+      {{ party_distribution_user_feed.html|safe }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if temporal_party_distribution_user_feed.html %}
+  <div class="report-block bg-lightgray">
+    <h2>... und so hat sich die Zahl der Partei-Videos in deinem Feed während
+      des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
+    <div class="visualization-container">
+      {{ temporal_party_distribution_user_feed.html | safe }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if top_videos_table %}
+  <div class="report-block bg-gray">
+    <h2>Die <span class="stats-value">viralsten</span> Politik-Videos in deinem
+      Feed</h2>
+    <div class="top-videos-container">
+      {{ top_videos_table | safe }}
+      <div class="description" style="text-align: center;">
+        Hier berücksichtigen wir nicht nur Videos von Politiker:innen, sondern
+        alle Videos die einen politischen Hashtag enthalten.
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if user_feed_wordcloud.html %}
+  <div class="report-block bg-grayer">
+    <h2>Diese <span class="stats-value">Hashtags</span> haben politische Videos
+      in deinem Feed benutzt ... </h2>
+    <div class="hashtag-section">
+      {{ user_feed_wordcloud.html | safe }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if hashtag_cloud_germany.html %}
+  <div class="report-block bg-darkgray wi-rounded-bottom">
+    <h2>... und diese wurden &uuml;ber alle <span
+            class="stats-value">Politik-Videos</span> hinweg benutzt</h2>
+    <div class="hashtag-section">
       {{ hashtag_cloud_germany.html | safe }}
       <div class="description" style="text-align: center;">
-          Je gr&ouml;&szlig;er der Hashtag, desto h&auml;ufiger wurde er im Wahlkampf benutzt.
-          Für die zweite Abbildung berücksichtigen wir nicht nur Videos von Politiker:innen, sondern alle Videos die einen politischen Hashtag enthalten.
+        Je gr&ouml;&szlig;er der Hashtag, desto h&auml;ufiger wurde er im
+        Wahlkampf benutzt.
+        Für die zweite Abbildung berücksichtigen wir nicht nur Videos von
+        Politiker:innen, sondern alle Videos die einen politischen Hashtag
+        enthalten.
       </div>
+    </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
 
-{% endif %}
+  {% endif %}
 
-{# Add Section 2 stuff (public report) #}
-{% include "reports/public_report.html" %}
+  {# Add Section 2 stuff (public report) #}
+  {% include "reports/public_report.html" %}
 
-{# Section 3: &Uuml;ber diesen Bericht #}
-<div class="section wi-rounded-top wi-rounded-bottom" id="about-report">
-  <h1>&Uuml;ber diesen Bericht</h1>
-  <p>Für diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet.</p>
-  <p>Manche Analysen beziehen sich explizit nur auf die Videos, die von offilziellen Politiker:Innen-Accounts stammen andere allgemein auf "politische Videos". 
-    Mit politischen Videos meinen wir Videos, die einen politischen Hashtag enthalten oder von einem offiziellen Account einer Partei oder eines Politikers stammen.</p>
-  <p>Die Accounts wurden auf Basis der Datenbank Öffentlicher Sprecher <a href="https://osf.io/sk6t5/" target="_blank" rel="noopener noreferrer">DBÖS</a> zusammengestellt.</p>
-  <p>Die Liste der genutzten offiziellen Accounts und Hashtags findest du <a href="{% url 'reports:hashtags' %}" target="_blank" rel="noopener noreferrer">hier</a>.</p>
+  {# Section 3: &Uuml;ber diesen Bericht #}
+  <div class="section wi-rounded-top wi-rounded-bottom" id="about-report">
+    <h1>&Uuml;ber diesen Bericht</h1>
+    <p>Für diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet.
+    </p>
+    <p>Manche Analysen beziehen sich explizit nur auf die Videos, die von
+      offilziellen Politiker:Innen-Accounts stammen andere allgemein auf
+      "politische Videos".
+      Mit politischen Videos meinen wir Videos, die einen politischen Hashtag
+      enthalten oder von einem offiziellen Account einer Partei oder eines
+      Politikers stammen.</p>
+    <p>Die Accounts wurden auf Basis der Datenbank Öffentlicher Sprecher <a
+            href="https://osf.io/sk6t5/" target="_blank"
+            rel="noopener noreferrer">DBÖS</a> zusammengestellt.</p>
+    <p>Die Liste der genutzten offiziellen Accounts und Hashtags findest du <a
+            href="{% url 'reports:hashtags' %}" target="_blank"
+            rel="noopener noreferrer">hier</a>.</p>
 
-  <p>Bei Fragen kannst du dich gerne an die Forschungsgruppe
-    <a href="https://www.weizenbaum-institut.de/forschung/digitale-maerkte-und-oeffentlichkeiten-auf-plattformen/dynamiken-digitaler-nachrichtenvermittlung/" target="_blank" rel="noopener noreferrer"> Dynamiken digitaler Nachrichtenvermittlung</a> am Weizenbaum Institut wenden.</p>
-</div>
-
-{% endblock %}
-
-{% block footer_content %}
-<div class="row align-items-center pb-5">
-  <div class="col"></div>
-  <div class="col text-center">
-    <img class="p-3" alt="Logo Weizenbaum Institut" src="{% static 'dd_wi_main/img/logos/wzb_logo.svg' %}" height="85px">
-    <img alt="Logo Data Donation Lab" src="{% static 'dd_wi_main/img/logos/ddlab_logo_black.svg' %}" height="85px">
+    <p>Bei Fragen kannst du dich gerne an die Forschungsgruppe
+      <a href="https://www.weizenbaum-institut.de/forschung/digitale-maerkte-und-oeffentlichkeiten-auf-plattformen/dynamiken-digitaler-nachrichtenvermittlung/"
+            target="_blank" rel="noopener noreferrer"> Dynamiken digitaler
+        Nachrichtenvermittlung</a> am Weizenbaum Institut wenden.
+    </p>
   </div>
-  <div class="col"></div>
-</div>
-{% endblock footer_content %}
+
+  {% endblock %}

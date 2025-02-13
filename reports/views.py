@@ -1,22 +1,19 @@
 import pytz
 
-from ddm.datadonation.models import DataDonation
+from .tasks import generate_tiktok_report
+
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import TemplateView
+from celery.result import AsyncResult
+from django.http import JsonResponse
 
-from .utils.data_processing import load_user_data, load_posts_data, load_csv_as_dict
-from .utils.plots import (
-    create_party_distribution_user_feed,
-    create_temporal_party_distribution_user_feed,
-    create_top_videos_table,
-    create_user_feed_wordcloud
-)
-from .utils.utils import extract_video_id
+from .utils.data_processing import load_csv_as_dict
 from .utils.constants import (
     PUBLIC_TEMPORAL_PLOT_KEY,
     PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_KEY,
@@ -30,8 +27,8 @@ from scraper.hashtags import HASHTAG_LIST
 utc = pytz.UTC
 
 
-class TikTokReport(TemplateView):
-    template_name = 'reports/base.html'
+class TikTokReportLoading(TemplateView):
+    template_name = 'reports/loading.html'
     project_pk = settings.REPORT_PROJECT_PK
 
     def __init__(self, *args, **kwargs):
@@ -49,32 +46,28 @@ class TikTokReport(TemplateView):
         participant_id = self.kwargs.get('participant_id')
         return get_object_or_404(Participant, external_id=participant_id)
 
-    def get_donation(self, participant):
-        """
-        Returns a dictionary with blueprint names as keys and the collected
-        donations as values.
-        """
-        data_donations = DataDonation.objects.filter(participant=participant)
-        donated_data = {}
-        for data_donation in data_donations:
-            if data_donation.blueprint is None:
-                continue
-            bp_name = data_donation.blueprint.name
-            donated_data[bp_name] = data_donation.get_decrypted_data(
-                self.project.secret_key, self.project.get_salt())
-        return donated_data
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    def add_feed_related_plots(self, context, df_matched_videos):
-        """ Add feed-related plots to context. """
-        context['party_distribution_user_feed'] = \
-            create_party_distribution_user_feed(df_matched_videos)
-        context['temporal_party_distribution_user_feed'] = \
-            create_temporal_party_distribution_user_feed(df_matched_videos)
-        context['top_videos_table'] = \
-            create_top_videos_table(df_matched_videos)
-        context['user_feed_wordcloud'] = \
-            create_user_feed_wordcloud(df_matched_videos)
-        return
+        # Start the Celery task.
+        participant = self.get_participant()
+        task_result = generate_tiktok_report.delay(
+            participant.pk, self.project.secret_key, self.project.get_salt())
+
+        task_id = task_result.id
+        if task_id:
+            result = AsyncResult(task_id)
+            if result.ready():
+                context['redirect_url'] = reverse(
+                    'reports:tiktok_report_result',
+                    kwargs={'task_id': task_id}
+                )
+            context['task_id'] = task_id
+        return context
+
+
+class TikTokReportResults(TemplateView):
+    template_name = 'reports/base.html'
 
     def add_static_public_plots(self, context):
         """ Add static public plots to context. """
@@ -92,48 +85,24 @@ class TikTokReport(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        participant = self.get_participant()
-        donated_data = self.get_donation(participant=participant)
+        task_id = self.kwargs.get('task_id')
 
-        # Parse donated data and get list of watched video IDs.
-        df_user_data = load_user_data(donated_data)
-        if df_user_data is None:
-            no_watch_history = True
-        else:
-            no_watch_history = False
-        context['no_watch_history'] = no_watch_history
+        if task_id:
+            result = AsyncResult(task_id).get()
 
-        if no_watch_history:
+            context.update({
+                'no_watch_history': result['no_watch_history'],
+                'matches': result['matches'],
+                'n_videos': result.get('n_videos', 0),
+                'n_matched': result.get('n_matched', 0),
+                'share_political': result.get('share_political', 0),
+            })
+
+            if result['matches']:
+                context.update(result['plots'])
+
             self.add_static_public_plots(context)
-            return context
 
-        watched_ids = list(set(df_user_data['Link'].apply(extract_video_id)))
-        df_matched_videos = load_posts_data(video_ids=watched_ids)
-        del watched_ids
-
-        n_videos = len(df_user_data)
-        n_matched = len(df_matched_videos)
-
-        if n_videos == 0:
-            share_political = 0
-        else:
-            share_political = round(n_matched / n_videos, 2) * 100
-
-        if df_matched_videos is None or df_matched_videos.empty:
-            matches = False
-        else:
-            matches = True
-        context['matches'] = matches
-        context['n_videos'] = n_videos
-        context['n_matched'] = n_matched
-        context['share_political'] = share_political
-
-        # Plots feed related.
-        if matches:
-            self.add_feed_related_plots(context, df_matched_videos)
-
-        # Add static plots based on public data to context.
-        self.add_static_public_plots(context)
         return context
 
 
@@ -142,12 +111,39 @@ class HashtagsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         # Load accounts and their parties
         csv_path = './reports/static/reports/csv/actor_party_mapping.csv'
         context['accounts'] = load_csv_as_dict(csv_path)
-        
+
         # Load hashtags from scraper/hashtags.py
         context['hashtags'] = sorted(HASHTAG_LIST)  # Sort alphabetically
-        
+
         return context
+
+
+def check_task_status(request, task_id):
+    try:
+        result = AsyncResult(task_id)
+        ready = result.ready()
+
+        if ready and result.failed():
+            return JsonResponse({
+                'ready': False,
+                'error': 'Task failed',
+                'status': result.status
+            })
+
+        return JsonResponse({
+            'ready': ready,
+            'status': result.status,
+            'redirect_url': reverse(
+                'reports:tiktok_report_result',
+                kwargs={'task_id': task_id}) if ready else None
+        })
+    except Exception as e:
+        return JsonResponse({
+            'ready': False,
+            'error': str(e),
+            'status': 'ERROR'
+        }, status=500)

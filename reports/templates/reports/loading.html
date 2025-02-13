@@ -1,0 +1,83 @@
+{% extends "dd_wi_main/base.html" %}
+
+{% load static %}
+{% load humanize %}
+
+{% block site_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'reports/css/base.css' %}">
+{% endblock site_css %}
+
+{% block title %}Dein Feed, Deine Wahl, Dein Report{% endblock %}
+
+{% block header_content %}
+<div class="align-items-center pt-5 pb-5 mt-5 text-center report-block">
+    <div class="header-sub-title text-center mt-5">Der Wahlkampf auf TikTok</h1>
+        <div class="header-title-container">
+            <div class="header-title heading-p">Dein <span
+                      class="heading-effect">Feed</span><span>,</span></div>
+            <div class="header-title heading-p">Deine <span
+                      class="heading-effect">Wahl</span><span>,</span></div>
+            <div class="header-title">Dein <span
+                      class="heading-effect">Report</span><span>.</span></div>
+        </div>
+    </div>
+    {% endblock header_content %}
+
+
+    {% block main_content %}
+    <div class="pb-5 text-center">
+        <p class="mb-0 pt-3 pb-3"><span class="swirl-dot"></span></p>
+        <p id="status-message"></p>
+    </div>
+
+    <div
+          class="report-loading-block wi-rounded-top wi-rounded-bottom loading-box-shadows mb-5">
+        <p class="fs-5 pt-2 pb-2 mb-0 ps-1 pe-1 text-white">Dein Report wird
+            erstellt...
+            Bitte hab einen Moment Geduld, das kann einige Sekunden dauern.</p>
+    </div>
+    {% endblock %}
+
+
+    {% block site_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const statusMessage = document.getElementById('status-message');
+            let attempts = 0;
+            const maxAttempts = 120;
+
+            function checkTaskStatus() {
+                attempts++;
+
+                fetch(`/api/task-status/${taskId}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.ready) {
+                            window.location.href = data.redirect_url;
+                        } else if (attempts >= maxAttempts) {
+                            statusMessage.textContent = 'Das dauert länger als erwartet. Bitte versuche, die Seite neu zu laden.';
+                        } else {
+                            setTimeout(checkTaskStatus, 3000);
+                        }
+                    })
+                    .catch(error => {
+                        statusMessage.textContent = `Ein Fehler ist aufgetreten: ${error.message}`;
+                    });
+            }
+
+            const taskId = '{{ task_id }}';
+            if (taskId) {
+                checkTaskStatus();
+            } else {
+                statusMessage.textContent = 'Da ist etwas schief gelaufen. Bitte versuche es erneut.';
+            }
+        });
+    </script>
+    {% endblock %}
