@@ -180,3 +180,4 @@ cython_debug/
 testdata/
 testfile.py
 _testfile.py
+_stresstest_locust.py
