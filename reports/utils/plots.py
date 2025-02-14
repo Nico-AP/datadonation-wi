@@ -255,7 +255,7 @@ def create_temporal_party_distribution_user_feed(matched_videos):
     # Update layout.
     fig.update_layout(
         xaxis_title="Datum",
-        yaxis_title="Anzahl gesehener Videos pro Tag",
+        yaxis_title="Anzahl gesehener Videos (kumulativ)",
         hovermode='x unified',
         dragmode=False,
         showlegend=True,
@@ -605,7 +605,7 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     # After all traces are added, update the layout.
     fig_party.update_layout(
         xaxis_title='Datum',
-        yaxis_title='Anzahl Videos',
+        yaxis_title='Anzahl Videos (kumulativ)',
         dragmode=False,
         showlegend=True,
         legend=dict(
