@@ -380,3 +380,17 @@ CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_DEFAULT_QUEUE = os.environ.get('CELERY_TASK_DEFAULT_QUEUE')
+
+
+# django-cookie-consent
+# -----------------------------------------------------------------------------
+COOKIE_CONSENT = {
+    "DECLARATIONS": {
+        "analytics": {
+            "name": "Analytics",
+            "description": "Cookies used for tracking analytics (e.g., Matomo)",
+            "cookies": ["matomo"],
+            "is_required": False,
+        }
+    }
+}
