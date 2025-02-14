@@ -1,4 +1,4 @@
-{% load static i18n %}
+{% load static i18n cookie_consent_tags %}
 {% url "cookie_consent_cookie_group_list" as url_cookies %}
 
 <!DOCTYPE html>
@@ -122,7 +122,7 @@
           src="{% static 'dd_wi_main/js/heading-effects.js' %}"></script>
 
 
-    {% if cookie_consent_accepted "analytics" %}
+    {% if request|cookie_group_accepted:"analytics" %}
     <!-- Matomo -->
     <script>
       var _paq = window._paq = window._paq || [];
