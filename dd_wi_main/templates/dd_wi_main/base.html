@@ -122,7 +122,6 @@
           src="{% static 'dd_wi_main/js/heading-effects.js' %}"></script>
 
 
-    {% if request|cookie_group_accepted:"analytics" %}
     <!-- Matomo -->
     <script>
       const hostname = window.location.hostname.replace(/^www\./, '');
@@ -134,6 +133,9 @@
       }
 
       var _paq = window._paq = window._paq || [];
+
+      /* Ensure cookieless, privacy-friendly tracking of site visits; not collecting personal data. */
+      _paq.push(['disableCookies']);
       /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
       _paq.push(['trackPageView']);
       _paq.push(['enableLinkTracking']);
@@ -146,7 +148,7 @@
       })();
     </script>
     <!-- End Matomo Code -->
-    {% endif %}
+
     {% endblock site_js %}
 
   </div>
