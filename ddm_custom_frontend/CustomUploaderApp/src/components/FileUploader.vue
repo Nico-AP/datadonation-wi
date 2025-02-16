@@ -512,12 +512,18 @@ export default {
                         reHasMatched = true;
                         f
                             .async("string")
-                            .then(c => uploader.processTxtContent(c, blueprint.id.toString()))
+                            .then(c => uploader.processTxtContent(c, blueprint))
                             .catch(e => {
                               uploader.postError(4199, e.message);
                               uploader.recordError(uploader.$t('error-generic') + e.message, blueprint.id.toString());
                             })
                       })
+
+                      if (!reHasMatched) {
+                        uploader.postError(4180, uploader.$t('error-regex-not-matched'), blueprint.id);
+                        uploader.postError(4181, `Files in uploaded folder: ${Object.keys(z.files)}`, blueprint.id);
+                        uploader.recordError(uploader.$t('error-regex-not-matched'), blueprint.id.toString());
+                      }
 
                     } else {
                       uploader.postError(4180, uploader.$t('error-regex-not-matched'), blueprint.id);
@@ -600,9 +606,15 @@ export default {
 
     },
 
-    processTxtContent(content, blueprintID) {
+    processTxtContent(content, blueprint) {
       let uploader = this;
+      let blueprintID = blueprint.id.toString();
       let keys = new Set();
+      if (content.trim() === 'You have no data in this section') {
+        uploader.postError(4207, uploader.$t('error-no-data-in-file'), blueprint.id);
+        uploader.recordError(uploader.$t('error-no-data-in-file'), blueprintID);
+        return;
+      }
 
       // Step 1: Split file content by double newlines (Each log entry is separated by "\n\n")
       const contentList = content.trim().split("\n\n");
@@ -614,7 +626,7 @@ export default {
               const [key, value] = line.split(": ", 2); // Splitting on first ": "
               if (key && value) {
                   contentDict[key.replaceAll(" ", "")] = value.trim();
-                  keys.add(key);
+                  keys.add(key.replaceAll(" ", ""));
               }
           });
           return contentDict;
@@ -624,7 +636,13 @@ export default {
         uploader.blueprintData[blueprintID].extracted_fields.set(k, k);
       }
       uploader.blueprintData[blueprintID].extracted_data = data;
-      return;
+
+      try {
+        let msg = `${uploader.blueprintData[blueprintID].extracted_data.length} entries were extracted.`;
+        uploader.postError(7004, msg, blueprint.id);
+      } catch {
+        // continue regardless of error
+      }
     },
 
     /**
