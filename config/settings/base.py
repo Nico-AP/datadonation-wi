@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'cookie_consent',
     'django.contrib.humanize',
     'django_celery_results',
+    'ddm_custom'
 ]
 
 MIDDLEWARE = [
@@ -298,7 +299,7 @@ REST_FRAMEWORK = {
 CSP_SCRIPT_SRC = [
     "'self'",
     "'unsafe-inline'",
-    'https://matomo.dein-feed-deine-wahl.de/matomo.js'
+    'https://matomo.dein-feed-deine-wahl.de/matomo.js',
 ]
 CSP_SCRIPT_SRC_ELEM = [
     "'self'",
@@ -308,7 +309,10 @@ CSP_SCRIPT_SRC_ELEM = [
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
 CSP_STYLE_SRC_ATTR = ["'self'", "'unsafe-inline'"]
 CSP_IMG_SRC = ["'self'", "data:", "https://matomo.dein-feed-deine-wahl.de/"]
-CSP_CONNECT_SRC = ["'self'", "https://matomo.dein-feed-deine-wahl.de/"]
+CSP_CONNECT_SRC = [
+    "'self'",
+    "https://matomo.dein-feed-deine-wahl.de/",
+]
 
 
 # Report Configuration

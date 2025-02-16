@@ -489,9 +489,41 @@ export default {
                         })
                   })
                   if (!reHasMatched) {
-                    uploader.postError(4180, uploader.$t('error-regex-not-matched'), blueprint.id);
-                    uploader.postError(4181, `Files in uploaded folder: ${Object.keys(z.files)}`, blueprint.id);
-                    uploader.recordError(uploader.$t('error-regex-not-matched'), blueprint.id.toString());
+
+                    /* try to find corresponding text file */
+                    let extractionRoot = blueprint.json_extraction_root;
+                    const fileLookup = {
+                      "Activity.Video Browsing History.VideoList": "/Browsing History.txt",
+                      "Activity.Like List.ItemFavoriteList": "Like List.txt",
+                      "Activity.Search History.SearchList": "Searches.txt",
+                      "Activity.Share History.ShareHistoryList": "Share History.txt",
+                      "Video.Videos.VideoList": "Post.txt",
+                      "Comment.Comments.CommentsList": "Comments.txt",
+                      "Activity.Follower List.FansList": "Follower.txt",
+                      "Activity.Following List.Following": "Following.txt",
+                      "App Settings.Block.BlockList": "Block List.txt"
+                    };
+                    let txtFile = fileLookup[extractionRoot] || null;
+
+                    if (txtFile) {
+                      /* extract txt file. */
+                      let re = new RegExp(txtFile);
+                      z.file(re).forEach(f => {
+                        reHasMatched = true;
+                        f
+                            .async("string")
+                            .then(c => uploader.processTxtContent(c, blueprint.id.toString()))
+                            .catch(e => {
+                              uploader.postError(4199, e.message);
+                              uploader.recordError(uploader.$t('error-generic') + e.message, blueprint.id.toString());
+                            })
+                      })
+
+                    } else {
+                      uploader.postError(4180, uploader.$t('error-regex-not-matched'), blueprint.id);
+                      uploader.postError(4181, `Files in uploaded folder: ${Object.keys(z.files)}`, blueprint.id);
+                      uploader.recordError(uploader.$t('error-regex-not-matched'), blueprint.id.toString());
+                    }
                   }
                 })
               })
@@ -566,6 +598,33 @@ export default {
         });
       }, 1000);
 
+    },
+
+    processTxtContent(content, blueprintID) {
+      let uploader = this;
+      let keys = new Set();
+
+      // Step 1: Split file content by double newlines (Each log entry is separated by "\n\n")
+      const contentList = content.trim().split("\n\n");
+
+      // Step 2: Extract key-value pairs into an array of objects
+      const data = contentList.map(entry => {
+          const contentDict = {};
+          entry.split("\n").forEach(line => {
+              const [key, value] = line.split(": ", 2); // Splitting on first ": "
+              if (key && value) {
+                  contentDict[key.replaceAll(" ", "")] = value.trim();
+                  keys.add(key);
+              }
+          });
+          return contentDict;
+      });
+
+      for (let k of keys) {
+        uploader.blueprintData[blueprintID].extracted_fields.set(k, k);
+      }
+      uploader.blueprintData[blueprintID].extracted_data = data;
+      return;
     },
 
     /**

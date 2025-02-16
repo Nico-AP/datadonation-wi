@@ -16,6 +16,7 @@ urlpatterns = [
     path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('cookies/', include('cookie_consent.urls')),
     path('scraper/', include('scraper.urls')),
+    path('', include('ddm_custom.urls')),
 ]
 
 if settings.DEBUG:

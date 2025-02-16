@@ -3,7 +3,7 @@ const path = require('path');
 
 const pages = {
     'vue_txt_uploader': {
-        entry: './TxtUploaderApp/src/uploader.js',
+        entry: './CustomUploaderApp/src/uploader.js',
         chunks: ['chunk-vendors']
     },
 }
@@ -13,7 +13,7 @@ module.exports = {
     filenameHashing: false,
     runtimeCompiler: true,
     publicPath: '/static/ddm_custom/vue/',
-    outputDir: path.resolve('../ddm_custom/core/static/ddm_custom/vue'),
+    outputDir: path.resolve('../ddm_custom/static/ddm_custom/vue'),
 
     devServer: {
         hot: false,

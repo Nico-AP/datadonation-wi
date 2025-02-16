@@ -2,12 +2,12 @@ from ddm.participation.views import BriefingView, DataDonationView
 
 
 class BriefingViewCustom(BriefingView):
-    step_name = 'briefing-custom'
+    step_name = 'briefing-ddm-custom'
     steps = [
         'briefing-ddm-custom',
         'data-donation-custom',
-        'questionnaire',
-        'debriefing'
+        'ddm_participation:questionnaire',
+        'ddm_participation:debriefing'
     ]
     pass
 
@@ -18,7 +18,7 @@ class DataDonationViewCustom(DataDonationView):
     steps = [
         'briefing-ddm-custom',
         'data-donation-custom',
-        'questionnaire',
-        'debriefing'
+        'ddm_participation:questionnaire',
+        'ddm_participation:debriefing'
     ]
     pass
