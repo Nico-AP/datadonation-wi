@@ -12,11 +12,44 @@ from django.utils.timezone import make_aware
 from dotenv import load_dotenv
 from scraper.hashtags import HASHTAG_LIST
 from scraper.models import TikTokVideo, Hashtag, TikTokUser
+import warnings
+
+warnings.filterwarnings('ignore', category=Warning)
 
 load_dotenv()
 
-logger = logging.getLogger('scraper_logger')
+def setup_logger(mode, existing_logger=None):
+    """Setup logger for a specific scrape session or return existing logger."""
+    if existing_logger:
+        return existing_logger
+        
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.join('scraper', 'logs')
+    os.makedirs(log_dir, exist_ok=True)
 
+    # Create timestamp for the log file
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file = os.path.join(log_dir, f'scraper_{mode}_{timestamp}.log')
+
+    # Create a new logger
+    logger = logging.getLogger(f'scraper_logger_{timestamp}')
+    logger.setLevel(logging.INFO)
+
+    # Create file handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
+
+    # Add only file handler
+    logger.addHandler(file_handler)
+
+    return logger
 
 def generate_date_range(start_date, end_date):
     """
@@ -127,87 +160,213 @@ def get_video_query_url():
     return query_url
 
 
-def scrape_videos_pagination(url, usernames, hashtags, max_count,
-                             start_date, end_date, headers, search_id, cursor):
-    """Get video data from TikTok API."""
-    query_params = {
-        'query': {
-            'or': [
-                {
-                    'operation': 'IN',
-                    'field_name': 'username',
-                    'field_values': usernames
-                },
-                {
-                    'operation': 'IN',
-                    'field_name': 'hashtag_name',
-                    'field_values': hashtags
-                }
-            ],
-            'and': [
-                {
-                    'operation': 'IN', 'field_name': 'region_code',
-                    'field_values': [
-                        'DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH'
-                    ]
-                }
-            ]
-        },
+def make_api_request(url, headers, query_params, max_retries=3, retry_delay=10, logger=None):
+    """Generic function to make API requests with retry logic."""
+    if logger is None:
+        logger = setup_logger('api_request')
+        
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(url, headers=headers, data=json.dumps(query_params))
+            print(response)
+            print(response.status_code)
+            logger.debug(f"Response status code: {response.status_code}")
+            return response.json()
+        except (json.JSONDecodeError, requests.RequestException) as e:
+            if attempt < max_retries - 1:
+                logger.warning(
+                    f"Attempt {attempt + 1}/{max_retries}: Request failed: {str(e)}. "
+                    f"Retrying in {retry_delay} seconds..."
+                )
+                time.sleep(retry_delay)
+                continue
+            logger.error(f"Failed after {max_retries} attempts: {str(e)}")
+            raise
+
+
+def build_query_params(usernames, hashtags=None, start_date=None, end_date=None, 
+                      cursor=0, search_id=None, max_count=100, logger=None):
+    """Build query parameters for TikTok API."""
+    if logger is None:
+        logger = setup_logger('query_builder')
+    
+    query = {
+        'or': [
+            {
+                'operation': 'IN',
+                'field_name': 'username',
+                'field_values': usernames
+            }
+        ],
+        'and': [
+            {
+                'operation': 'IN',
+                'field_name': 'region_code',
+                'field_values': ['DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH']
+            }
+        ]
+    }
+    
+    if hashtags:
+        query['or'].append({
+            'operation': 'IN',
+            'field_name': 'hashtag_name',
+            'field_values': hashtags
+        })
+
+    params = {
+        'query': query,
         'max_count': max_count,
         'is_random': False,
         'start_date': start_date,
         'end_date': end_date,
         'cursor': cursor
     }
-
-    # Only add search_id if it exists
+    
     if search_id:
-        query_params['search_id'] = search_id
-
-    # Make the call and transform the response to a JSON file.
-    response = requests.post(
-        url, headers=headers, data=json.dumps(query_params))
-    # Return the response parsed as a JSON file.
-    return response
+        params['search_id'] = search_id
+        
+    return params
 
 
+def process_api_response(response_data, error_counter=0, logger=None):
+    """Process API response and handle errors."""
+    if logger is None:
+        logger = setup_logger('response_processor')
+    
+    if 'error' in response_data and response_data['error'].get('code') in ['internal_error', 'invalid_params']:
+        error_counter += 1
+        logger.warning(f'Error encountered: {response_data["error"]["message"]} ({error_counter})')
+        logger.warning(f'Error code: {response_data["error"]["code"]}')
+        return None, error_counter, True
+        
+    if 'data' not in response_data:
+        logger.error(f"Unexpected API response format: {response_data}")
+        return None, error_counter, False
+        
+    return response_data['data'], 0, True  # Reset error counter on success
 
-def scrape_videos_accounts_only(url, usernames, max_count,
-                                start_date, end_date, headers,
-                                search_id, cursor):
-    """
-    Get video data from TikTok API for accounts only.
-    """
-    query_params = {
-        'query': {
-            'or': [
-                {
-                    'operation': 'IN',
-                    'field_name': 'username',
-                    'field_values': usernames
-                }
-            ],
-            'and': [
-                {
-                    'operation': 'IN', 'field_name': 'region_code',
-                    'field_values': [
-                        'DE', 'de', 'RU', 'ru', 'AT', 'at', 'ch', 'CH'
-                    ]
-                }
-            ]
-        },
-        'max_count': max_count,
-        'is_random': False,
-        'start_date': start_date,
-        'end_date': end_date,
-        'cursor': cursor,
-        'search_id': search_id
+
+def get_tt_videos_new_day(specific_date=None, logger=None, test_mode=False):
+    """Scrape videos for a specific day or the default past day."""
+    logger = setup_logger('new_day', logger)
+    logger.info('========Scraping I new day videos========')
+    if test_mode:
+        logger.info('TEST MODE: Will stop after first successful request')
+    
+    access_token = request_access_token()
+    
+    start_date = end_date = specific_date or get_formatted_date()
+    scrape_date = timezone.now().timestamp()
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
     }
-    # Make the call and transform the response to a JSON file.
-    response = requests.post(
-        url, headers=headers, data=json.dumps(query_params))
-    # Return the response parsed as a JSON file.
-    return response
+    
+    cursor = 0
+    search_id = ''
+    has_more = True
+    error_counter = 0
+    
+    while has_more and error_counter < 20:
+        try:
+            query_params = build_query_params(
+                usernames=get_username_list(),
+                hashtags=HASHTAG_LIST,
+                start_date=start_date,
+                end_date=end_date,
+                cursor=cursor,
+                search_id=search_id,
+                logger=logger
+            )
+            
+            response_data = make_api_request(get_video_query_url(), headers, query_params, logger=logger)
+            data, error_counter, should_continue = process_api_response(response_data, error_counter, logger=logger)
+            
+            if not should_continue:
+                break
+                
+            if data:
+                if 'videos' in data:
+                    save_videos_to_db(data['videos'], scrape_date, logger)
+                    if test_mode:
+                        logger.info('TEST MODE: Stopping after first successful request')
+                        return
+                
+                cursor = data.get('cursor', 0)
+                has_more = data.get('has_more', False)
+                search_id = data.get('search_id', '')
+                
+            time.sleep(10)
+            
+        except Exception as e:
+            logger.error(f"Error during scraping: {str(e)}", exc_info=True)
+            raise
+
+
+def get_tt_videos_update_account_data(logger=None, test_mode=False):
+    """Update historical account data."""
+    logger = setup_logger('account_update', logger)
+    logger.info('========Scraping II update account data========')
+    if test_mode:
+        logger.info('TEST MODE: Will stop after first successful request')
+    
+    access_token = request_access_token()
+    
+    start_date = "20250101"
+    end_date = get_formatted_date(delay=5)
+    date_ranges = generate_date_range(start_date, end_date)
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    
+    scrape_date = timezone.now().timestamp()
+    usernames = get_username_list()
+    
+    for date_range in date_ranges:
+        cursor = 0
+        search_id = ''
+        has_more = True
+        error_counter = 0
+        
+        while has_more and error_counter < 20:
+            try:
+                query_params = build_query_params(
+                    usernames=usernames,
+                    start_date=date_range[0],
+                    end_date=date_range[1],
+                    cursor=cursor,
+                    search_id=search_id,
+                    logger=logger
+                )
+                
+                response_data = make_api_request(get_video_query_url(), headers, query_params, logger=logger)
+                data, error_counter, should_continue = process_api_response(response_data, error_counter, logger=logger)
+                
+                if not should_continue:
+                    break
+                    
+                if data:
+                    if 'videos' in data:
+                        save_videos_to_db(data['videos'], scrape_date, logger)
+                        if test_mode:
+                            logger.info('TEST MODE: Stopping after first successful request')
+                            return
+                    
+                    cursor = data.get('cursor', 0)
+                    has_more = data.get('has_more', False)
+                    search_id = data.get('search_id', '')
+                    
+                time.sleep(10)
+                
+            except Exception as e:
+                logger.error(f"Error during scraping: {str(e)}", exc_info=True)
+                raise
+    
+    log_server_ip()
 
 
 def get_datetime_from_unix_ts(unix_ts):
@@ -230,19 +389,12 @@ def get_datetime_from_ts(ts):
     return make_aware(naive_datetime)
 
 
-def save_video_to_db(video_data, scrape_ts=None):
-    """
-    Saves video data to database.
-
-    Creates new video if no video exists in the db with the ID included in
-    video_data.
-    If a video already exists, the existing video is updated if scrape_ts is
-    newser than video.scrape_date.
-
-    scrape_ts must be provided in Unix timestamp format
-    """
+def save_video_to_db(video_data, scrape_ts=None, logger=None):
+    """Saves video data to database."""
+    if logger is None:
+        logger = setup_logger('save_video')
+        
     try:
-        # Debug log the video data
         logger.info(f"Saving video data: {video_data.get('id')}")
         logger.debug(f"Video data: {video_data}")
 
@@ -255,12 +407,10 @@ def save_video_to_db(video_data, scrape_ts=None):
                 video_description=video_data.get('video_description'),
                 create_time=get_datetime_from_unix_ts(video_data.get('create_time')),
                 username=tt_user,
-
                 comment_count=video_data.get('comment_count'),
                 like_count=video_data.get('like_count'),
                 share_count=video_data.get('share_count'),
                 view_count=video_data.get('view_count'),
-
                 music_id=video_data.get('music_id'),
                 region_code=video_data.get('region_code'),
             )
@@ -286,190 +436,20 @@ def save_video_to_db(video_data, scrape_ts=None):
         return
 
     except Exception as e:
-        logger.error(f"Error saving video {video.get('id', 'unknown')}: {str(e)}")
-        logger.error(f"Video data: {video}")
+        logger.error(f"Error saving video {video_data.get('id', 'unknown')}: {str(e)}")
+        logger.error(f"Video data: {video_data}")
         raise
 
 
-def save_videos_to_db(videos, scrape_ts=None):
+def save_videos_to_db(videos, scrape_ts=None, logger=None):
+    """Save multiple videos to database."""
+    if logger is None:
+        logger = setup_logger('save_videos')
+        
     for video in videos:
         try:
-            save_video_to_db(video, scrape_ts)
+            save_video_to_db(video, scrape_ts, logger)
         except Exception as e:
             logger.error(
                 f'Video: {video.get("id")}; Exception: {e}'
             )
-    return
-
-
-def get_tt_videos_new_day(specific_date=None):
-    logger.info('========Scraping I new day videos========')
-    access_token = request_access_token()
-
-    # Set query parameter.
-    if specific_date:
-        start_date = specific_date
-        end_date = specific_date
-    else:
-        start_date = get_formatted_date()
-        end_date = get_formatted_date()
-
-    usernames = get_username_list()
-    hashtags = HASHTAG_LIST
-
-    url = get_video_query_url()
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
-    max_count = 100
-    cursor = 0
-
-    # Set utility parameter.
-    search_id = ''
-    has_more = True
-    error_counter = 0
-
-    scrape_date = timezone.now().timestamp()
-
-    while has_more is True:
-        try:
-            response = scrape_videos_pagination(
-                url, usernames, hashtags, max_count,
-                start_date, end_date, headers, search_id, cursor
-            )
-            #logger.info(f'Response status code: {response.status_code}')
-            temp_data = response.json()
-
-            # Log full response for debugging
-            logger.debug(f"Full API response: {temp_data}")
-
-            if 'error' in temp_data and temp_data['error'].get('code') in ['internal_error', 'invalid_params']:
-                error_counter += 1
-                logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
-                logger.warning(f'Error code: {temp_data["error"]["code"]}')
-
-                if error_counter >= 20:
-                    has_more = False
-                    logger.error(
-                        f'Stopping after {error_counter} consecutive errors. '
-                        f'Last error: {temp_data["error"]["message"]}'
-                    )
-                else:
-                    time.sleep(10)
-                continue
-
-            # Reset error counter on successful request
-            error_counter = 0
-
-            # Check if we have data
-            if 'data' not in temp_data:
-                logger.error(f"Unexpected API response format: {temp_data}")
-                break
-
-            data = temp_data['data']
-            logger.info(
-                f'Request successful. Cursor: {data.get("cursor", 0)}, '
-                f'Has More: {data.get("has_more", False)}'
-            )
-
-            # Update query parameters
-            cursor = data.get('cursor', 0)
-            has_more = data.get('has_more', False)
-            search_id = data.get('search_id', '')
-
-            if 'videos' in data:
-                save_videos_to_db(data['videos'], scrape_date)
-
-            time.sleep(10)
-
-        except Exception as e:
-            logger.error(f"Error during scraping: {str(e)}")
-            logger.error("Full traceback:", exc_info=True)
-            raise
-
-
-def get_tt_videos_update_account_data():
-    logger.info('========Scraping II update account data========')
-    access_token = request_access_token()
-
-    # Set query parameter.
-    start_date = "20250101"  # Changed back to YYYYMMDD format
-    end_date = get_formatted_date(delay=5)  # Already returns YYYYMMDD
-
-    logger.info(f"Generating date range from {start_date} to {end_date}")
-    date_ranges = generate_date_range(start_date, end_date)
-    logger.info(f"Generated {len(date_ranges)} date ranges")
-
-    usernames = get_username_list()
-
-    url = get_video_query_url()
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
-    max_count = 100
-
-    scrape_date = timezone.now().timestamp()
-
-    for date_range in date_ranges:
-        print(date_range)
-        start_date = date_range[0]
-        end_date = date_range[1]
-        # Set utility parameter.
-        search_id = ''
-        has_more = True
-        error_counter = 0
-        cursor = 0
-
-        while has_more is True:
-            response = scrape_videos_accounts_only(
-                url, usernames, max_count,
-                start_date, end_date, headers, search_id, cursor
-            )
-            #logger.info(f'Response status code: {response.status_code}')
-            #print(response.status_code)
-            temp_data = response.json()
-
-            if (temp_data['error']['code'] == 'internal_error') | \
-                    (temp_data['error']['code'] == 'invalid_params'):
-                error_counter += 1
-                logger.warning(f'Error encountered: {temp_data["error"]["message"]} ({error_counter})')
-                logger.warning(f'Error code: {temp_data["error"]["code"]}')
-
-                # Killswitch after 20 consecutive errors.
-                if error_counter >= 20:
-                    has_more = False
-                    logger.error(
-                        f'Stopping after {error_counter} consecutive errors. '
-                        f'Last error: {temp_data["error"]["message"]}'
-                    )
-                else:
-                    time.sleep(10)
-            else:
-                error_counter = 0
-                logger.info(
-                    f'Request successful. Cursor: {temp_data["data"]["cursor"]}, '
-                    f'Has More: {temp_data["data"]["has_more"]}'
-                )
-
-                # Update query parameter based on previous request.
-                cursor = temp_data['data']['cursor']
-                has_more = temp_data['data']['has_more']
-                search_id = temp_data['data']['search_id']
-
-                retrieved_data = temp_data['data']['videos']
-                # save_videos_to_file(
-                #   retrieved_data, start_date, search_id, cursor)
-                save_videos_to_db(retrieved_data, scrape_date)
-
-                time.sleep(10)
-
-                if not has_more:
-                    logger.info(
-                        f'Report for scraping {get_formatted_date()}. '
-                        f'Successfully scraped {cursor} videos'
-                    )
-
-    # Add this to test IP-related issues.
-    log_server_ip()
