@@ -605,7 +605,7 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     # After all traces are added, update the layout.
     fig_party.update_layout(
         xaxis_title='Datum',
-        yaxis_title='Anzahl Videos (kumulativ)',
+        yaxis_title='Anzahl Videos (kumuliert)',
         dragmode=False,
         showlegend=True,
         legend=dict(
@@ -1133,7 +1133,7 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
     # After all traces are added, update the layout.
     fig_party.update_layout(
         xaxis_title='Datum',
-        yaxis_title='Anzahl Videos',
+        yaxis_title='Anzahl Videos (kumuliert)',
         dragmode=False,
         showlegend=True,
         legend=dict(
