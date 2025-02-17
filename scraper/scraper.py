@@ -167,18 +167,9 @@ def scrape_videos_pagination(url, usernames, hashtags, max_count,
     # Make the call and transform the response to a JSON file.
     response = requests.post(
         url, headers=headers, data=json.dumps(query_params))
+    # Return the response parsed as a JSON file.
+    return response
 
-    # Add debug logging
-    logger.debug(f"Response status code: {response.status_code}")
-    logger.debug(f"Response headers: {response.headers}")
-    logger.debug(f"Raw response text: {response.text}")
-    
-    try:
-        return response.json()
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON response. Status: {response.status_code}")
-        logger.error(f"Response text: {response.text}")
-        raise
 
 
 def scrape_videos_accounts_only(url, usernames, max_count,
@@ -347,7 +338,7 @@ def get_tt_videos_new_day(specific_date=None):
                 url, usernames, hashtags, max_count,
                 start_date, end_date, headers, search_id, cursor
             )
-            logger.info(f'Response status code: {response.status_code}')
+            #logger.info(f'Response status code: {response.status_code}')
             temp_data = response.json()
 
             # Log full response for debugging
@@ -436,8 +427,8 @@ def get_tt_videos_update_account_data():
                 url, usernames, max_count,
                 start_date, end_date, headers, search_id, cursor
             )
-            logger.info(f'Response status code: {response.status_code}')
-            print(response.status_code)
+            #logger.info(f'Response status code: {response.status_code}')
+            #print(response.status_code)
             temp_data = response.json()
 
             if (temp_data['error']['code'] == 'internal_error') | \
