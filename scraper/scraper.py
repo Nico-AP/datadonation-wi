@@ -168,8 +168,8 @@ def make_api_request(url, headers, query_params, max_retries=3, retry_delay=10, 
     for attempt in range(max_retries):
         try:
             response = requests.post(url, headers=headers, data=json.dumps(query_params))
-            print(response)
-            print(response.status_code)
+            #print(response)
+            #print(response.status_code)
             logger.debug(f"Response status code: {response.status_code}")
             return response.json()
         except (json.JSONDecodeError, requests.RequestException) as e:
@@ -243,6 +243,14 @@ def process_api_response(response_data, error_counter=0, logger=None):
     if 'data' not in response_data:
         logger.error(f"Unexpected API response format: {response_data}")
         return None, error_counter, False
+    
+    # Log cursor information
+    cursor_info = {
+        "cursor": response_data["data"].get("cursor", None),
+        "has_more": response_data["data"].get("has_more", False),
+        "search_id": response_data["data"].get("search_id", "")
+    }
+    logger.info(f"Query cursor info: {json.dumps(cursor_info)}")
         
     return response_data['data'], 0, True  # Reset error counter on success
 
@@ -252,7 +260,7 @@ def get_tt_videos_new_day(specific_date=None, logger=None, test_mode=False):
     logger = setup_logger('new_day', logger)
     logger.info('========Scraping I new day videos========')
     if test_mode:
-        logger.info('TEST MODE: Will stop after first successful request')
+        logger.info('TEST MODE: Will stop after 5 successful requests')
     
     access_token = request_access_token()
     
@@ -269,6 +277,7 @@ def get_tt_videos_new_day(specific_date=None, logger=None, test_mode=False):
     has_more = True
     error_counter = 0
     
+    request_count = 0
     while has_more and error_counter < 20:
         try:
             query_params = build_query_params(
@@ -290,8 +299,9 @@ def get_tt_videos_new_day(specific_date=None, logger=None, test_mode=False):
             if data:
                 if 'videos' in data:
                     save_videos_to_db(data['videos'], scrape_date, logger)
-                    if test_mode:
-                        logger.info('TEST MODE: Stopping after first successful request')
+                    request_count += 1
+                    if test_mode and request_count >= 5:
+                        logger.info('TEST MODE: Completed 5 successful requests')
                         return
                 
                 cursor = data.get('cursor', 0)
@@ -310,13 +320,16 @@ def get_tt_videos_update_account_data(logger=None, test_mode=False):
     logger = setup_logger('account_update', logger)
     logger.info('========Scraping II update account data========')
     if test_mode:
-        logger.info('TEST MODE: Will stop after first successful request')
+        logger.info('TEST MODE: Will stop after 5 successful requests')
     
     access_token = request_access_token()
     
     start_date = "20250101"
     end_date = get_formatted_date(delay=5)
+    
+    logger.info(f"Generating date range from {start_date} to {end_date}")
     date_ranges = generate_date_range(start_date, end_date)
+    logger.info(f"Generated {len(date_ranges)} date ranges")
     
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -326,6 +339,7 @@ def get_tt_videos_update_account_data(logger=None, test_mode=False):
     scrape_date = timezone.now().timestamp()
     usernames = get_username_list()
     
+    request_count = 0
     for date_range in date_ranges:
         cursor = 0
         search_id = ''
@@ -352,8 +366,9 @@ def get_tt_videos_update_account_data(logger=None, test_mode=False):
                 if data:
                     if 'videos' in data:
                         save_videos_to_db(data['videos'], scrape_date, logger)
-                        if test_mode:
-                            logger.info('TEST MODE: Stopping after first successful request')
+                        request_count += 1
+                        if test_mode and request_count >= 5:
+                            logger.info('TEST MODE: Completed 5 successful requests')
                             return
                     
                     cursor = data.get('cursor', 0)
@@ -395,9 +410,6 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         logger = setup_logger('save_video')
         
     try:
-        logger.info(f"Saving video data: {video_data.get('id')}")
-        logger.debug(f"Video data: {video_data}")
-
         tt_user, _ = TikTokUser.objects.get_or_create(name=video_data.get('username'))
 
         video = TikTokVideo.objects.filter(video_id=video_data.get('id')).first()
@@ -445,11 +457,15 @@ def save_videos_to_db(videos, scrape_ts=None, logger=None):
     """Save multiple videos to database."""
     if logger is None:
         logger = setup_logger('save_videos')
-        
+    
+    logger.info(f"Starting to save batch of {len(videos)} videos")
+    success_count = 0
+    
     for video in videos:
         try:
             save_video_to_db(video, scrape_ts, logger)
+            success_count += 1
         except Exception as e:
-            logger.error(
-                f'Video: {video.get("id")}; Exception: {e}'
-            )
+            logger.error(f'Video: {video.get("id")}; Exception: {e}')
+    
+    logger.info(f"Successfully saved {success_count}/{len(videos)} videos from batch")
