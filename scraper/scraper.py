@@ -338,7 +338,7 @@ def get_tt_videos_new_day(specific_date=None):
                 url, usernames, hashtags, max_count,
                 start_date, end_date, headers, search_id, cursor
             )
-            logger.info(f'Response status code: {response.status_code}')
+            #logger.info(f'Response status code: {response.status_code}')
             temp_data = response.json()
 
             # Log full response for debugging
@@ -427,8 +427,8 @@ def get_tt_videos_update_account_data():
                 url, usernames, max_count,
                 start_date, end_date, headers, search_id, cursor
             )
-            logger.info(f'Response status code: {response.status_code}')
-            print(response.status_code)
+            #logger.info(f'Response status code: {response.status_code}')
+            #print(response.status_code)
             temp_data = response.json()
 
             if (temp_data['error']['code'] == 'internal_error') | \
