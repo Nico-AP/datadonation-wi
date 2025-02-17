@@ -621,15 +621,31 @@ export default {
 
       // Step 2: Extract key-value pairs into an array of objects
       const data = contentList.map(entry => {
-          const contentDict = {};
-          entry.split("\n").forEach(line => {
-              const [key, value] = line.split(": ", 2); // Splitting on first ": "
-              if (key && value) {
-                  contentDict[key.replaceAll(" ", "")] = value.trim();
-                  keys.add(key.replaceAll(" ", ""));
+        const contentDict = {};
+        entry.split("\n").forEach(line => {
+          const [key, value] = line.split(": ", 2); // Splitting on first ": "
+          if (key && value) {
+            if (blueprint.json_extraction_root === 'Video.Videos.VideoList') {
+              let keysToInclude = [
+                  "date",
+                  "whocanview",
+                  "allowcomments",
+                  "allowstitches",
+                  "likes"
+              ]
+              if (!keysToInclude.includes(key.replaceAll(" ", "").toLowerCase())) {
+                return;  // skip extraction.
               }
-          });
-          return contentDict;
+            } else if (blueprint.json_extraction_root === 'Comment.Comments.CommentsList') {
+              if (key.replaceAll(" ", "").toLowerCase() === 'url') {
+                return;  // skip extraction of url value.
+              }
+            }
+
+            contentDict[key.replaceAll(" ", "")] = value.trim();
+            keys.add(key.replaceAll(" ", ""));}
+        });
+        return contentDict;
       });
 
       for (let k of keys) {

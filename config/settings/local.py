@@ -42,4 +42,4 @@ WEBPACK_LOADER = {
 }
 
 CSP_SCRIPT_SRC += ["'unsafe-eval'"]
-CSP_CONNECT_SRC += ["ws://192.168.1.10:8080/ws"]
+CSP_CONNECT_SRC += ["ws://192.168.1.10:8080/ws", "ws:", "wss:"]
