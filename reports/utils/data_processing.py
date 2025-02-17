@@ -98,5 +98,9 @@ def load_user_data(data_traces):
         return None
     browsing_df = pd.DataFrame(browsing_history)
     browsing_df['Date'] = pd.to_datetime(browsing_df['Date'])
+    
+    # Filter for videos watched after January 1st, 2025
+    start_date = pd.Timestamp('2025-01-01')
+    browsing_df = browsing_df[browsing_df['Date'] >= start_date]
 
     return browsing_df
