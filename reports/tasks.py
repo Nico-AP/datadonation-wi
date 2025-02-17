@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 
 from celery import shared_task
@@ -11,6 +13,9 @@ from .utils.plots import (
     create_user_feed_wordcloud
 )
 from .utils.utils import extract_video_id
+
+
+logger = logging.getLogger(__name__)  # Get Celery's logger
 
 
 def get_donation(participant_id, secret, salt):
@@ -35,7 +40,9 @@ def get_donation(participant_id, secret, salt):
     if browsing_df.empty or browsing_df is None:
         return None
 
-    browsing_df['Date'] = pd.to_datetime(browsing_df['Date'])
+    browsing_df['Date'] = pd.to_datetime(browsing_df['Date'], errors='coerce')
+    start_date = pd.Timestamp('2025-01-01')
+    browsing_df = browsing_df[browsing_df['Date'] >= start_date]
     return browsing_df
 
 
