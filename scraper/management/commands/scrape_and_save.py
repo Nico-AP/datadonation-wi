@@ -5,7 +5,7 @@ from scraper.scraper import (
     get_tt_videos_new_day,
     get_tt_videos_update_account_data,
     get_formatted_date,
-    logger
+    setup_logger
 )
 
 
@@ -17,13 +17,14 @@ class Command(BaseCommand):
         parser.add_argument(
             '--mode',
             type=str,
-            choices=['all', 'day', 'past_day', 'accounts'],
+            choices=['all', 'day', 'past_day', 'accounts', 'all_test'],
             default='all',
             help='''Scraping mode:
                 all (default) - Run complete scraping (past day + full account history)
                 past_day - Scrape past day only (4 days ago)
                 day - Scrape specific day (requires --date)
                 accounts - Only update full account history
+                all_test - Test mode: one request each for past day and account history
             '''
         )
         parser.add_argument(
@@ -35,38 +36,39 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         mode = options['mode']
         date = options.get('date')
+        is_test = mode == 'all_test'
 
+        # Setup single logger for entire session
+        logger = setup_logger(f'command_{mode}')
+        
         logger.info('=' * 50)
         logger.info(f'Starting scraping with mode: {mode}')
+        if is_test:
+            logger.info('TEST MODE: Will stop after first successful request')
         if date:
             logger.info(f'Target date: {date}')
 
         try:
-            if mode == 'all':
-                self.stdout.write('Running complete scraping...')
-                logger.info('Running complete scraping (new day + account updates)')
-                get_tt_videos_new_day()
-                get_tt_videos_update_account_data()
+            if mode in ['all', 'all_test']:
+                logger.info('Running complete scraping...')
+                get_tt_videos_new_day(logger=logger, test_mode=is_test)
+                get_tt_videos_update_account_data(logger=logger, test_mode=is_test)
             
             elif mode == 'day':
                 if not date:
-                    self.stderr.write('Error: --date is required for day mode')
                     logger.error('No date provided for day mode')
                     return
-                self.stdout.write(f'Scraping specific day: {date}')
                 logger.info(f'Scraping specific day: {date}')
-                get_tt_videos_new_day(specific_date=date)
+                get_tt_videos_new_day(specific_date=date, logger=logger)
             
             elif mode == 'past_day':
-                past_date = get_formatted_date()  # Gets date 4 days ago by default
-                self.stdout.write(f'Scraping past day (4 days ago): {past_date}')
-                logger.info(f'Scraping past day: {past_date}')
-                get_tt_videos_new_day()
+                past_date = get_formatted_date()
+                logger.info(f'Scraping past day (4 days ago): {past_date}')
+                get_tt_videos_new_day(logger=logger)
             
             elif mode == 'accounts':
-                self.stdout.write('Updating account data only...')
-                logger.info('Running account data update only')
-                get_tt_videos_update_account_data()
+                logger.info('Updating account data only...')
+                get_tt_videos_update_account_data(logger=logger)
 
             logger.info('Scraping completed successfully')
             self.stdout.write(self.style.SUCCESS('Scraping completed successfully'))
