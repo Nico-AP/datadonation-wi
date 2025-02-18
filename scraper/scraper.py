@@ -133,10 +133,16 @@ def request_access_token():
     return access_token
 
 
-def log_server_ip():
+def log_server_ip(logger=None):
     """Added to test IP-related issues."""
-    response = requests.get('https://api.ipify.org?format=json')
-    logger.info(f'Server IP: {response.json()["ip"]}')
+    if logger is None:
+        logger = setup_logger('ip_check')
+        
+    try:
+        response = requests.get('https://api.ipify.org?format=json')
+        logger.info(f'Server IP: {response.json()["ip"]}')
+    except Exception as e:
+        logger.error(f"Error checking server IP: {str(e)}")
     return
 
 
@@ -381,7 +387,7 @@ def get_tt_videos_update_account_data(logger=None, test_mode=False):
                 logger.error(f"Error during scraping: {str(e)}", exc_info=True)
                 raise
     
-    log_server_ip()
+    log_server_ip(logger=logger)
 
 
 def get_datetime_from_unix_ts(unix_ts):
