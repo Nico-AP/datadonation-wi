@@ -481,7 +481,7 @@ def create_user_feed_wordcloud_all_accounts(matched_videos):
 def create_user_feed_wordcloud_party_accounts(matched_videos):
     """ Create wordcloud for user's watched political videos. """
     matched_videos = matched_videos[
-        matched_videos['partei'] != 'Kein offizieller Parteiaccount']
+        matched_videos['partei'] != 'Kein Parteiaccount']
 
     # Extract hashtags.
 
@@ -552,7 +552,7 @@ def create_user_feed_wordcloud_party_accounts(matched_videos):
 def create_user_feed_wordcloud_noparty_accounts(matched_videos):
     """ Create wordcloud for user's watched political videos. """
     matched_videos = matched_videos[
-        matched_videos['partei'] == 'Kein offizieller Parteiaccount']
+        matched_videos['partei'] == 'Kein Parteiaccount']
 
     # Extract hashtags.
     def get_hashtags(matched_videos):
@@ -688,7 +688,7 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     # Create party-specific temporal analysis.
     party_dfs = []
     for party in df_posts['partei'].unique():
-        if pd.isna(party) or party == 'Kein offizieller Parteiaccount':
+        if pd.isna(party) or party == 'Kein Parteiaccount':
             continue
 
         party_data = df_temporal[df_temporal['partei'] == party]
@@ -828,7 +828,7 @@ def create_party_distribution_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data
     df_filtered = df_posts[
         df_posts['partei'].notna()
-        & (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+        & (df_posts['partei'] != 'Kein Parteiaccount')].copy()
 
     # Calculate video counts per party.
     party_metrics = []
@@ -908,7 +908,7 @@ def create_views_bars_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
-        (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+        (df_posts['partei'] != 'Kein Parteiaccount')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -1058,7 +1058,7 @@ def create_likes_bars_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
-        (df_posts['partei'] != 'Kein offizieller Parteiaccount')].copy()
+        (df_posts['partei'] != 'Kein Parteiaccount')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -1212,7 +1212,7 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
     # Create party-specific temporal analysis.
     party_dfs = []
     for party in df_posts['partei'].unique():
-        if pd.isna(party) or party == 'Kein offizieller Parteiaccount':
+        if pd.isna(party) or party == 'Kein Parteiaccount':
             continue
 
         party_data = df_temporal[df_temporal['partei'] == party]
