@@ -86,7 +86,7 @@ def load_posts_data(needed_fields=None, video_ids=None):
     # Map accounts to parties, filling NaN values with
     # "Kein offizieller Parteiaccount".
     df_posts['partei'] = df_posts['username'].map(account_dict).fillna(
-        'Kein Parteiaccount')
+        'Keine Partei')
 
     return df_posts
 

@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from collections import Counter
 from wordcloud import WordCloud
 from .utils import party_colors, parties_order
+from django.conf import settings
 
 matplotlib.use('Agg')  # Set the backend before importing pyplot.
 from plotly.subplots import make_subplots
@@ -71,10 +72,18 @@ def hex_to_rgba(hex_color, opacity=0.9):
 
 def create_plot_html(fig, config=None):
     """ Helper function to standardize plot HTML generation. """
+    plotly_js_path = '/static/reports/js/plotly-3.0.0.min.js'
+    
+    # Add version parameter only in debug/development mode
+    if settings.DEBUG:
+        import time
+        version = int(time.time())
+        plotly_js_path = f'{plotly_js_path}?v={version}'
+    
     return fig.to_html(
         full_html=False,
-        include_plotlyjs='/static/reports/js/plotly-3.0.0.min.js',
-        config=config or STATIC_PLOT_CONFIG  # Use static config by default.
+        include_plotlyjs=plotly_js_path,
+        config=config or STATIC_PLOT_CONFIG
     )
 
 
@@ -265,9 +274,10 @@ def create_temporal_party_distribution_user_feed(matched_videos):
             xanchor="center",
             x=0.5,
             font=dict(
-                size=18
+                size=12
             )
         ),
+
         autosize=True,
         height=400,
         minreducedwidth=500,
@@ -481,7 +491,7 @@ def create_user_feed_wordcloud_all_accounts(matched_videos):
 def create_user_feed_wordcloud_party_accounts(matched_videos):
     """ Create wordcloud for user's watched political videos. """
     matched_videos = matched_videos[
-        matched_videos['partei'] != 'Kein Parteiaccount']
+        matched_videos['partei'] != 'Keine Partei']
 
     # Extract hashtags.
 
@@ -552,7 +562,7 @@ def create_user_feed_wordcloud_party_accounts(matched_videos):
 def create_user_feed_wordcloud_noparty_accounts(matched_videos):
     """ Create wordcloud for user's watched political videos. """
     matched_videos = matched_videos[
-        matched_videos['partei'] == 'Kein Parteiaccount']
+        matched_videos['partei'] == 'Keine Partei']
 
     # Extract hashtags.
     def get_hashtags(matched_videos):
@@ -688,7 +698,7 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     # Create party-specific temporal analysis.
     party_dfs = []
     for party in df_posts['partei'].unique():
-        if pd.isna(party) or party == 'Kein Parteiaccount':
+        if pd.isna(party) or party == 'Keine Partei':
             continue
 
         party_data = df_temporal[df_temporal['partei'] == party]
@@ -828,7 +838,7 @@ def create_party_distribution_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data
     df_filtered = df_posts[
         df_posts['partei'].notna()
-        & (df_posts['partei'] != 'Kein Parteiaccount')].copy()
+        & (df_posts['partei'] != 'Keine Partei')].copy()
 
     # Calculate video counts per party.
     party_metrics = []
@@ -908,7 +918,7 @@ def create_views_bars_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
-        (df_posts['partei'] != 'Kein Parteiaccount')].copy()
+        (df_posts['partei'] != 'Keine Partei')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -1058,7 +1068,7 @@ def create_likes_bars_all_accounts(df_posts):
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
-        (df_posts['partei'] != 'Kein Parteiaccount')].copy()
+        (df_posts['partei'] != 'Keine Partei')].copy()
 
     # Create figure with subplots side by side.
     fig = make_subplots(
@@ -1212,7 +1222,7 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
     # Create party-specific temporal analysis.
     party_dfs = []
     for party in df_posts['partei'].unique():
-        if pd.isna(party) or party == 'Kein Parteiaccount':
+        if pd.isna(party) or party == 'Keine Partei':
             continue
 
         party_data = df_temporal[df_temporal['partei'] == party]
