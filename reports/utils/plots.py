@@ -105,8 +105,7 @@ turquoise_colormap = create_custom_colormap((0, 191, 150), 'turquoise_theme')
 def create_party_distribution_user_feed(matched_videos):
     """ Create party distribution visualization using treemap. """
     # Filter out non-party accounts and count videos by party.
-    party_counts = matched_videos[
-        matched_videos['partei'] != 'Kein offizieller Parteiaccount']['partei'].value_counts()
+    party_counts = matched_videos['partei'].value_counts()
 
     # Only create treemap if we have data.
     if len(party_counts) == 0:
@@ -177,8 +176,8 @@ def create_temporal_party_distribution_user_feed(matched_videos):
 
     # Convert timestamp to datetime and filter non-party accounts.
     matched_videos['date'] = pd.to_datetime(matched_videos['create_time'])
-    matched_videos = matched_videos[
-        matched_videos['partei'] != 'Kein offizieller Parteiaccount']
+    #matched_videos = matched_videos[
+    #    matched_videos['partei'] != 'Kein offizieller Parteiaccount']
 
     # Check if df still contains any relevant entries.
     if matched_videos.empty:
@@ -411,9 +410,8 @@ def create_top_videos_table(matched_videos):
 
     return top_videos_html
 
-
-# 5. User feed wordcloud.
-def create_user_feed_wordcloud(matched_videos):
+# 5. User feed wordcloud - all accounts
+def create_user_feed_wordcloud_all_accounts(matched_videos):
     """ Create wordcloud for user's watched political videos. """
     # Extract hashtags.
     def get_hashtags(matched_videos):
@@ -479,6 +477,146 @@ def create_user_feed_wordcloud(matched_videos):
         'html': f'<div class="wordcloud-container">{user_cloud_svg}</div>',
     }
 
+# 5.1 User feed wordcloud - party accounts
+def create_user_feed_wordcloud_party_accounts(matched_videos):
+    """ Create wordcloud for user's watched political videos. """
+    matched_videos = matched_videos[
+        matched_videos['partei'] != 'Kein offizieller Parteiaccount']
+
+    # Extract hashtags.
+
+    def get_hashtags(matched_videos):
+        # Initialize empty list to store all hashtags.
+        all_hashtags = []
+
+        def remove_emojis(tag):
+            """Remove emojis and special characters, keep only regular text"""
+            return ''.join(char for char in tag if ord(char) < 127).lower()
+
+        # Iterate through each video's hashtags.
+        for hashtag_list in matched_videos['hashtags']:
+            if hashtag_list:
+                filtered_tags = [
+                    tag for tag in hashtag_list
+                    if tag.lower() not in {
+                        'fyp', 'foryou', 'viral', 'trending',
+                        'fy', 'fürdich', 'capcut'
+                    }
+                ]
+                processed_tags = []
+                for tag in filtered_tags:
+                    text_only = remove_emojis(tag)
+                    if text_only:  # Only add if there's text after removing emojis
+                        processed_tags.append(text_only)
+                all_hashtags.extend(processed_tags)
+
+        return Counter(all_hashtags)
+
+    # Get frequencies for user's feed.
+    user_freq = get_hashtags(matched_videos)
+    if not user_freq:
+        return {
+            'html': None,
+        }
+
+    # Create color function that maps word frequency to color intensity
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        # Get the frequency of the word (normalized between 0-1)
+        freq = user_freq[word] / max(user_freq.values())
+        # Create color with intensity based on frequency
+        # Using orange theme (255, 191, 0)
+        return f'rgb(255, {int(191 * freq)}, 0)'
+
+    # Create wordcloud with emoji support and custom coloring
+    user_cloud = WordCloud(
+        font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
+        width=800,
+        height=600,
+        background_color=None,
+        color_func=color_func,  # Use custom color function instead of colormap
+        max_words=100,
+        prefer_horizontal=0.7,
+        min_font_size=10,
+        max_font_size=100,
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
+    ).generate_from_frequencies(user_freq)
+    user_cloud_svg = user_cloud.to_svg(embed_font=True)
+
+    # Update HTML wrapper to use full width.
+    return {
+        'html': f'<div class="wordcloud-container">{user_cloud_svg}</div>',
+    }
+
+# 5.2 User feed wordcloud - non-party accounts
+def create_user_feed_wordcloud_noparty_accounts(matched_videos):
+    """ Create wordcloud for user's watched political videos. """
+    matched_videos = matched_videos[
+        matched_videos['partei'] == 'Kein offizieller Parteiaccount']
+
+    # Extract hashtags.
+    def get_hashtags(matched_videos):
+        # Initialize empty list to store all hashtags.
+        all_hashtags = []
+
+        def remove_emojis(tag):
+            """Remove emojis and special characters, keep only regular text"""
+            return ''.join(char for char in tag if ord(char) < 127).lower()
+
+        # Iterate through each video's hashtags.
+        for hashtag_list in matched_videos['hashtags']:
+            if hashtag_list:
+                filtered_tags = [
+                    tag for tag in hashtag_list
+                    if tag.lower() not in {
+                        'fyp', 'foryou', 'viral', 'trending',
+                        'fy', 'fürdich', 'capcut'
+                    }
+                ]
+                processed_tags = []
+                for tag in filtered_tags:
+                    text_only = remove_emojis(tag)
+                    if text_only:  # Only add if there's text after removing emojis
+                        processed_tags.append(text_only)
+                all_hashtags.extend(processed_tags)
+
+        return Counter(all_hashtags)
+
+    # Get frequencies for user's feed.
+    user_freq = get_hashtags(matched_videos)
+    if not user_freq:
+        return {
+            'html': None,
+        }
+
+    # Create color function that maps word frequency to color intensity
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        # Get the frequency of the word (normalized between 0-1)
+        freq = user_freq[word] / max(user_freq.values())
+        # Create color with intensity based on frequency
+        # Using turquoise theme (0, 191, 150)
+        return f'rgb(0, {int(191 * freq)}, {int(150 * freq)})'
+
+    # Create wordcloud with emoji support and custom coloring
+    user_cloud = WordCloud(
+        font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
+        width=800,
+        height=600,
+        background_color=None,
+        color_func=color_func,  # Use custom color function instead of colormap
+        max_words=100,
+        prefer_horizontal=0.7,
+        min_font_size=10,
+        max_font_size=100,
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
+    ).generate_from_frequencies(user_freq)
+    user_cloud_svg = user_cloud.to_svg(embed_font=True)
+
+    # Update HTML wrapper to use full width.
+    return {
+        'html': f'<div class="wordcloud-container">{user_cloud_svg}</div>',
+    }
 
 # 6. All accounts wordcloud.
 def create_hashtag_cloud_germany(df_posts):
@@ -537,7 +675,6 @@ def create_hashtag_cloud_germany(df_posts):
     return {
         'html': f'<div class="wordcloud-container">{all_cloud_svg}</div>',
     }
-
 
 # 7. Party distribution all accounts temporal.
 def create_temporal_party_distribution_all_accounts(df_posts):
@@ -685,7 +822,6 @@ def create_temporal_party_distribution_all_accounts(df_posts):
     }
     return result
 
-
 # 8. Party distribution all accounts treemap.
 def create_party_distribution_all_accounts(df_posts):
     """ Create treemap chart showing video count distribution by party. """
@@ -763,7 +899,6 @@ def create_party_distribution_all_accounts(df_posts):
             'color': party_colors[max_party['party']]
         }
     }
-
 
 # 9. Views bar plots.
 def create_views_bars_all_accounts(df_posts):
@@ -914,7 +1049,6 @@ def create_views_bars_all_accounts(df_posts):
             }
         }
     }
-
 
 # 10. Likes bar plots.
 def create_likes_bars_all_accounts(df_posts):

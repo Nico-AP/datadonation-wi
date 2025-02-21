@@ -8,7 +8,7 @@ party_colors = {
     'Linke': '#ca6697',  # '#be3075',
     'Sonstige': '#9f9f9f',  # '#808080',
     'BSW': '#8e5973',  # '#691d42',
-    'Kein offizieller Parteiaccount': '#8B4513'  # Brown color
+    'Kein offizieller Parteiaccount': '#d4c5aa'
 }
 
 candidate_parties = [
