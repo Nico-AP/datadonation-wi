@@ -10,7 +10,8 @@ from .utils.plots import (
     create_party_distribution_user_feed,
     create_temporal_party_distribution_user_feed,
     create_top_videos_table,
-    create_user_feed_wordcloud
+    create_user_feed_wordcloud_party_accounts,
+    create_user_feed_wordcloud_noparty_accounts
 )
 from .utils.utils import extract_video_id
 
@@ -79,7 +80,8 @@ def generate_tiktok_report(participant_id, secret, salt):
             'party_distribution_user_feed': create_party_distribution_user_feed(df_matched_videos),
             'temporal_party_distribution_user_feed': create_temporal_party_distribution_user_feed(df_matched_videos),
             'top_videos_table': create_top_videos_table(df_matched_videos),
-            'user_feed_wordcloud': create_user_feed_wordcloud(df_matched_videos)
+            'user_feed_wordcloud_party_accounts': create_user_feed_wordcloud_party_accounts(df_matched_videos),
+            'user_feed_wordcloud_noparty_accounts': create_user_feed_wordcloud_noparty_accounts(df_matched_videos)
         }
 
     return result
