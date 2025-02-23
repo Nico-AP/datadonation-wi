@@ -70,12 +70,13 @@
 
   {% if party_distribution_user_feed.html %}
   <div class="report-block bg-lightergray">
-    <h2>So oft kamen politische Videos von 
-      <span class="stats-value">offiziellen</span> Partei-Accounts und 
-      <span class="stats-value">nicht-offiziellen</span> Accounts in deinem Feed vor ...
+    <h2>So oft kamen <span class="stats-value">politische Videos</span> in deinem Feed vor ...
     </h2>
     <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
+      <div class="description" style="text-align: center;">
+        Keine Partei bedeutet, dass das Video nicht von einem offiziellen Partei-Account stammt, aber einen politischen Hashtag benutzt hat.
+      </div>
     </div>
   </div>
   {% endif %}
@@ -86,6 +87,9 @@
       des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
     <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
+      <div class="description" style="text-align: center;">
+        Keine Partei bedeutet, dass das Video nicht von einem offiziellen Partei-Account stammt, aber einen politischen Hashtag benutzt hat.
+      </div>
     </div>
   </div>
   {% endif %}
@@ -97,8 +101,7 @@
     <div class="top-videos-container">
       {{ top_videos_table | safe }}
       <div class="description" style="text-align: center;">
-        Hier berücksichtigen wir nicht nur Videos von Politiker:innen, sondern
-        alle Videos die einen politischen Hashtag enthalten.
+        Hier berücksichtigen wir alle Videos die einen politischen Hashtag enthalten.
       </div>
     </div>
   </div>
@@ -147,7 +150,7 @@
             href="{% url 'reports:hashtags' %}" target="_blank"
             rel="noopener noreferrer">hier</a>.</p>
 
-    <p>Die Metadaten zu den TikTok-Videos wurden über die offizielle TikTok Research API abgerufen.</p>
+    <p>Die Metadaten zu den TikTok-Videos wurden über die offizielle TikTok Research API abgerufen. Dabei ergibt sich immer Verzögerung von vier Tagen.</p>
 
     <p>Du kannst jederzeit einen neuen Report erstellen indem du den Cache in deinem Browser löschst.</p>
     
