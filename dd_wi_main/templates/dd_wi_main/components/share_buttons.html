@@ -1,0 +1,51 @@
+{% load static %}
+
+<div class="container mt-5 mb-5 text-center">
+      <div class="fw-bold">Unterstütze uns und teile den Link zur Studie:</div>
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Copy Link -->
+            <a title="Link kopieren" class="share-button" onclick="copyLink()">
+                  <img src="{% static 'dd_wi_main/img/icons/link.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+
+            <!-- Email -->
+            <a title="per E-Mail teilen" class="share-button"
+                  onclick="shareViaEmail()">
+                  <img src="{% static 'dd_wi_main/img/icons/envelope.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+
+            <!-- WhatsApp -->
+            <a title="auf WhatsApp teilen"
+                  href="https://wa.me/?text=https://dein-feed-deine-wahl.de"
+                  id="whatsapp" class="share-button" target="_blank">
+                  <img src="{% static 'dd_wi_main/img/icons/whatsapp.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+
+            <!-- Telegram -->
+            <a title="auf Telegram teilen"
+                  href="https://t.me/share/url?url=https://dein-feed-deine-wahl.de"
+                  id="telegram" class="share-button" target="_blank">
+                  <img src="{% static 'dd_wi_main/img/icons/telegram.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+
+            <!-- Signal -->
+            <a title="auf Signal teilen"
+                  href="https://signal.me/#p/https://dein-feed-deine-wahl.de"
+                  id="signal" class="share-button" target="_blank">
+                  <img src="{% static 'dd_wi_main/img/icons/signal-messenger.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+
+            <!-- LinkedIn -->
+            <a title="auf LinkedIn teilen"
+                  href="https://www.linkedin.com/sharing/share-offsite/?url=https://dein-feed-deine-wahl.de"
+                  id="linkedin" class="share-button" target="_blank">
+                  <img src="{% static 'dd_wi_main/img/icons/linkedin.svg' %}"
+                        alt="Email" class="share-icon">
+            </a>
+      </div>
+</div>

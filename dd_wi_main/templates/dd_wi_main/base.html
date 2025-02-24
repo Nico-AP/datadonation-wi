@@ -12,11 +12,13 @@
   <meta name="description"
         content="Dies ist die offizielle Seite des Datenspende-Projekts 'Dein Feed, Deine Wahl'.">
 
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'dd_wi_main/img/dfdw_banner.png' %}">
+  <meta property="og:image"
+        content="{{ request.scheme }}://{{ request.get_host }}{% static 'dd_wi_main/img/dfdw_banner.png' %}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'dd_wi_main/img/dfdw_square.png' %}">
+  <meta property="og:image"
+        content="{{ request.scheme }}://{{ request.get_host }}{% static 'dd_wi_main/img/dfdw_square.png' %}">
   <meta property="og:image:width" content="600">
   <meta property="og:image:height" content="600">
 
@@ -65,6 +67,10 @@
         {% endblock main_content %}
       </div>
 
+      <div>
+        {% include "dd_wi_main/components/share_buttons.html" %}
+      </div>
+
       <div id="footer">
         <div class="container">
           {% block footer_content %}
@@ -104,8 +110,7 @@
 
             <div class="col text-center">
               <a href="https://www.br.de/index.html" target="_blank">
-                <img alt="Logo Bayerischer Rundfunk"
-                      class="logo"
+                <img alt="Logo Bayerischer Rundfunk" class="logo"
                       src="{% static 'dd_wi_main/img/logos/br.png' %}"
                       height="80px">
               </a>
@@ -140,7 +145,8 @@
           src="{% static 'dd_wi_main/js/cookie-info.js' %}"></script>
     <script type="text/javascript"
           src="{% static 'dd_wi_main/js/heading-effects.js' %}"></script>
-
+    <script type="text/javascript"
+          src="{% static 'dd_wi_main/js/sharing.js' %}"></script>
 
     <!-- Matomo -->
     <script>
