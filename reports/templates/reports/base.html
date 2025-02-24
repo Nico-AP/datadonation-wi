@@ -70,7 +70,7 @@
 
   {% if party_distribution_user_feed.html %}
   <div class="report-block bg-lightergray">
-    <h2>So oft kamen <span class="stats-value">politische Videos</span> in deinem Feed vor ...
+    <h2>So oft kamen Videos von <span class="stats-value">offiziellen Partei-Accounts</span> in deinem Feed vor ...
     </h2>
     <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
@@ -83,7 +83,7 @@
 
   {% if temporal_party_distribution_user_feed.html %}
   <div class="report-block bg-lightgray">
-    <h2>... und so hat sich die Zahl der politischen Videos in deinem Feed während
+    <h2>... und so hat sich die Zahl der Videos von offiziellen Partei-Accounts in deinem Feed während
       des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
     <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
