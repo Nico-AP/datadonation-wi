@@ -5,6 +5,7 @@ from django.utils.timezone import make_aware
 from http import HTTPStatus
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -67,11 +68,18 @@ class ScraperPostAPI(APIView):
         return Response({'message': msg}, status=status.HTTP_201_CREATED)
 
 
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+
+
 class TikTokVideoListAPI(ListAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     queryset = TikTokVideo.objects.all().order_by('-create_time')
     serializer_class = TikTokVideoSerializer
+    pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         """
