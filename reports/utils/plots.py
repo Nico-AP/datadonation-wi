@@ -114,6 +114,8 @@ turquoise_colormap = create_custom_colormap((0, 191, 150), 'turquoise_theme')
 def create_party_distribution_user_feed(matched_videos):
     """ Create party distribution visualization using treemap. """
     # Filter out non-party accounts and count videos by party.
+    matched_videos = matched_videos[
+        matched_videos['partei'] != 'Keine Partei']
     party_counts = matched_videos['partei'].value_counts()
 
     # Only create treemap if we have data.
@@ -185,8 +187,8 @@ def create_temporal_party_distribution_user_feed(matched_videos):
 
     # Convert timestamp to datetime and filter non-party accounts.
     matched_videos['date'] = pd.to_datetime(matched_videos['create_time'])
-    #matched_videos = matched_videos[
-    #    matched_videos['partei'] != 'Kein offizieller Parteiaccount']
+    matched_videos = matched_videos[
+        matched_videos['partei'] != 'Keine Partei']
 
     # Check if df still contains any relevant entries.
     if matched_videos.empty:
