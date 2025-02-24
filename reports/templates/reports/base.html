@@ -70,12 +70,14 @@
 
   {% if party_distribution_user_feed.html %}
   <div class="report-block bg-lightergray">
-    <h2>So oft kamen Videos von <span class="stats-value">offiziellen Partei-Accounts</span> in deinem Feed vor ...
+    <h2>So oft kamen Videos von <span class="stats-value">offiziellen
+        Partei-Accounts</span> in deinem Feed vor ...
     </h2>
     <div class="visualization-container">
       {{ party_distribution_user_feed.html|safe }}
       <div class="description" style="text-align: center;">
-        Keine Partei bedeutet, dass das Video nicht von einem offiziellen Partei-Account stammt, aber einen politischen Hashtag benutzt hat.
+        Keine Partei bedeutet, dass das Video nicht von einem offiziellen
+        Partei-Account stammt, aber einen politischen Hashtag benutzt hat.
       </div>
     </div>
   </div>
@@ -83,12 +85,14 @@
 
   {% if temporal_party_distribution_user_feed.html %}
   <div class="report-block bg-lightgray">
-    <h2>... und so hat sich die Zahl der Videos von offiziellen Partei-Accounts in deinem Feed während
+    <h2>... und so hat sich die Zahl der Videos von offiziellen Partei-Accounts
+      in deinem Feed während
       des Wahlkampfs <span class="stats-value">entwickelt</span>.</h2>
     <div class="visualization-container">
       {{ temporal_party_distribution_user_feed.html | safe }}
       <div class="description" style="text-align: center;">
-        Für eine bessere Übersicht kannst du einzelne Parteien in der Legende ausblenden.
+        Für eine bessere Übersicht kannst du einzelne Parteien in der Legende
+        ausblenden.
       </div>
     </div>
   </div>
@@ -101,7 +105,8 @@
     <div class="top-videos-container">
       {{ top_videos_table | safe }}
       <div class="description" style="text-align: center;">
-        Hier berücksichtigen wir alle Videos die einen politischen Hashtag enthalten.
+        Hier berücksichtigen wir alle Videos die einen politischen Hashtag
+        enthalten.
       </div>
     </div>
   </div>
@@ -120,7 +125,9 @@
   {% if user_feed_wordcloud_noparty_accounts.html %}
   <div class="report-block bg-grayer">
     <h2>... und diese Hashtags haben Videos von
-      <span class="stats-value">nicht-offiziellen</span> Accounts in deinem Feed benutzt ... </h2>
+      <span class="stats-value">nicht-offiziellen</span> Accounts in deinem Feed
+      benutzt ...
+    </h2>
     <div class="hashtag-section">
       {{ user_feed_wordcloud_noparty_accounts.html | safe }}
       <div class="description" style="text-align: center;">
@@ -131,18 +138,31 @@
   </div>
   {% endif %}
 
+  <div>
+    {% include "dd_wi_main/components/share_buttons.html" %}
+  </div>
+
   {% endif %}
 
   {# Add Section 2 stuff (public report) #}
   {% include "reports/public_report.html" %}
+
+  <div>
+    {% include "dd_wi_main/components/share_buttons.html" %}
+  </div>
+
 
   {# Section 3: &Uuml;ber diesen Bericht #}
   <div class="section wi-rounded-top wi-rounded-bottom" id="about-report">
     <h1>&Uuml;ber diesen Bericht</h1>
     <p>Für diese Analyse haben wir deinen TikTok-Feed automatisch ausgewertet.
     </p>
-    <p>Manche Analysen beziehen sich explizit nur auf die Videos, die von offiziellen Politiker:innen-Accounts stammen, andere beziehen sich allgemein auf "politische Videos". 
-      Mit politischen Videos meinen wir Videos, die einen politischen Hashtag enthalten oder von einem offiziellen Account einer Partei oder eines Politikers/einer Politikerin stammen.</p>
+    <p>Manche Analysen beziehen sich explizit nur auf die Videos, die von
+      offiziellen Politiker:innen-Accounts stammen, andere beziehen sich
+      allgemein auf "politische Videos".
+      Mit politischen Videos meinen wir Videos, die einen politischen Hashtag
+      enthalten oder von einem offiziellen Account einer Partei oder eines
+      Politikers/einer Politikerin stammen.</p>
     <p>Die Accounts wurden auf Basis der Datenbank Öffentlicher Sprecher <a
             href="https://osf.io/sk6t5/" target="_blank"
             rel="noopener noreferrer">DBÖS</a> zusammengestellt.</p>
@@ -150,10 +170,13 @@
             href="{% url 'reports:hashtags' %}" target="_blank"
             rel="noopener noreferrer">hier</a>.</p>
 
-    <p>Die Metadaten zu den TikTok-Videos wurden über die offizielle TikTok Research API abgerufen. Dabei ergibt sich eine Verzögerung von vier Tagen.</p>
+    <p>Die Metadaten zu den TikTok-Videos wurden über die offizielle TikTok
+      Research API abgerufen. Dabei ergibt sich eine Verzögerung von vier Tagen.
+    </p>
 
-    <p>Du kannst jederzeit einen neuen Report erstellen indem du den Cache in deinem Browser löschst.</p>
-    
+    <p>Du kannst jederzeit einen neuen Report erstellen indem du den Cache in
+      deinem Browser löschst.</p>
+
     <p>Bei Fragen kannst du dich gerne an die Forschungsgruppe
       <a href="https://www.weizenbaum-institut.de/forschung/digitale-maerkte-und-oeffentlichkeiten-auf-plattformen/dynamiken-digitaler-nachrichtenvermittlung/"
             target="_blank" rel="noopener noreferrer"> Dynamiken digitaler
