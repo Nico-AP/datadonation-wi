@@ -493,14 +493,14 @@ export default {
                     /* try to find corresponding text file */
                     let extractionRoot = blueprint.json_extraction_root;
                     const fileLookup = {
-                      "Activity.Video Browsing History.VideoList": "/Browsing History.txt",
-                      "Activity.Like List.ItemFavoriteList": "Like List.txt",
-                      "Activity.Search History.SearchList": "Searches.txt",
-                      "Activity.Share History.ShareHistoryList": "Share History.txt",
+                      "Your Activity.Video Browsing History.VideoList": "/Browsing History.txt",
+                      "Your Activity.Like List.ItemFavoriteList": "Like List.txt",
+                      "Your Activity.Search History.SearchList": "Searches.txt",
+                      "Your Activity.Share History.ShareHistoryList": "Share History.txt",
                       "Video.Videos.VideoList": "Post.txt",
                       "Comment.Comments.CommentsList": "Comments.txt",
-                      "Activity.Follower List.FansList": "Follower.txt",
-                      "Activity.Following List.Following": "Following.txt",
+                      "Your Activity.Follower List.FansList": "Follower.txt",
+                      "Your Activity.Following List.Following": "Following.txt",
                       "App Settings.Block.BlockList": "Block List.txt"
                     };
                     let txtFile = fileLookup[extractionRoot] || null;
