@@ -2,6 +2,8 @@
 
 <template>
 
+  <div>dldjlkdsjflkjdsflkjdslkfjdj</div>
+
   <div class="mb-5">
     <div class="float-left pt-2 ps-2 rounded-top">
       <div class="col-sm">
@@ -492,8 +494,9 @@ export default {
 
                     /* try to find corresponding text file */
                     let extractionRoot = blueprint.json_extraction_root;
+                    console.log(extractionRoot)
                     const fileLookup = {
-                      "Your Activity.Video Browsing History.VideoList": "/Browsing History.txt",
+                      "Your Activity.Video Browsing History.VideoList": "Watch History.txt",
                       "Your Activity.Like List.ItemFavoriteList": "Like List.txt",
                       "Your Activity.Search History.SearchList": "Searches.txt",
                       "Your Activity.Share History.ShareHistoryList": "Share History.txt",
