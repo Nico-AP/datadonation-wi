@@ -638,7 +638,10 @@ export default {
                 return;  // skip extraction.
               }
             } else if (blueprint.json_extraction_root === 'Comment.Comments.CommentsList') {
-              if (key.replaceAll(" ", "").toLowerCase() === 'url') {
+              let keysToInclude = [
+                  "date"
+              ]
+              if (!keysToInclude.includes(key.replaceAll(" ", "").toLowerCase())) {
                 return;  // skip extraction of url value.
               }
             }
