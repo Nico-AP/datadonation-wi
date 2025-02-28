@@ -2,6 +2,7 @@
 
 <template>
 
+
   <div class="mb-5">
     <div class="float-left pt-2 ps-2 rounded-top">
       <div class="col-sm">
@@ -493,15 +494,15 @@ export default {
                     /* try to find corresponding text file */
                     let extractionRoot = blueprint.json_extraction_root;
                     const fileLookup = {
-                      "Activity.Video Browsing History.VideoList": "/Browsing History.txt",
-                      "Activity.Like List.ItemFavoriteList": "Like List.txt",
-                      "Activity.Search History.SearchList": "Searches.txt",
-                      "Activity.Share History.ShareHistoryList": "Share History.txt",
-                      "Video.Videos.VideoList": "Post.txt",
-                      "Comment.Comments.CommentsList": "Comments.txt",
-                      "Activity.Follower List.FansList": "Follower.txt",
-                      "Activity.Following List.Following": "Following.txt",
-                      "App Settings.Block.BlockList": "Block List.txt"
+                      "Your Activity.Video Browsing History.VideoList": /(?:^|\/)(Browsing History\.txt|Watch History\.txt)$/,
+                      "Your Activity.Like List.ItemFavoriteList": "Like List\\.txt",
+                      "Your Activity.Search History.SearchList": "Searches\\.txt",
+                      "Your Activity.Share History.ShareHistoryList": "Share History\\.txt",
+                      "Video.Videos.VideoList": /(?:^|\/)(Post\.txt|Posts\.txt)$/,
+                      "Comment.Comments.CommentsList": "Comments\\.txt",
+                      "Your Activity.Follower List.FansList": "Follower\\.txt",
+                      "Your Activity.Following List.Following": "Following\\.txt",
+                      "App Settings.Block.BlockList": "Block List\\.txt"
                     };
                     let txtFile = fileLookup[extractionRoot] || null;
 
@@ -637,7 +638,10 @@ export default {
                 return;  // skip extraction.
               }
             } else if (blueprint.json_extraction_root === 'Comment.Comments.CommentsList') {
-              if (key.replaceAll(" ", "").toLowerCase() === 'url') {
+              let keysToInclude = [
+                  "date"
+              ]
+              if (!keysToInclude.includes(key.replaceAll(" ", "").toLowerCase())) {
                 return;  // skip extraction of url value.
               }
             }
@@ -685,7 +689,16 @@ export default {
         if(fileContent) {
           if (blueprint.json_extraction_root !== '') {
             try {
-              fileContent = this.getNestedJsonEntry(fileContent, blueprint.json_extraction_root);
+              let extractedContent = this.getNestedJsonEntry(fileContent, blueprint.json_extraction_root);
+
+              if (!extractedContent) {
+                if (blueprint.json_extraction_root.startsWith("Your ")) {
+                  let altExtractionRoot = blueprint.json_extraction_root.slice(5);
+                  extractedContent = this.getNestedJsonEntry(fileContent, altExtractionRoot);
+                }
+              }
+              fileContent = extractedContent;
+
             } catch (e) {
               uploader.postError(4207, uploader.$t('error-no-data-in-file'), blueprint.id);
               uploader.recordError(uploader.$t('error-no-data-in-file'), blueprintID);
@@ -1030,8 +1043,7 @@ export default {
       let nSuccess = 0;
       let nFailed = 0;
       let nBlueprints = Object.keys(this.blueprintData).length;
-      console.log(this.generalErrors)
-      console.log(this.generalErrors.length)
+
       for (let bp in this.blueprintData){
         if (this.generalErrors.length !== 0) {
           this.blueprintData[bp].status = 'failed';
@@ -1077,7 +1089,7 @@ export default {
           this.$refs.ulInfoModal.style.display = 'block';
           this.$refs.modalBackdrop.style.display = 'block';
 
-        } else if ((nSuccess + nNothingExtracted) === nBlueprints) {
+        } else if (((nSuccess + nNothingExtracted) === nBlueprints) || (nSuccess > 0 && nSuccess < nBlueprints)) {
           this.uploadStatus = 'success';
           modalIcon.className = 'bi bi-file-check text-success';
           this.ulModalInfoTitle = this.$t('ul-success-modal-title');
