@@ -3,7 +3,7 @@
   "assets": {
     "css/vue_txt_uploader.css": {
       "name": "css/vue_txt_uploader.css",
-      "path": "css\\vue_txt_uploader.css",
+      "path": "css/vue_txt_uploader.css",
       "publicPath": "/static/ddm_custom/vue/css/vue_txt_uploader.css"
     },
     "favicon.ico": {
@@ -20,22 +20,22 @@
     },
     "js/chunk-vendors.js": {
       "name": "js/chunk-vendors.js",
-      "path": "js\\chunk-vendors.js",
+      "path": "js/chunk-vendors.js",
       "publicPath": "/static/ddm_custom/vue/js/chunk-vendors.js"
     },
     "js/chunk-vendors.js.map": {
       "name": "js/chunk-vendors.js.map",
-      "path": "js\\chunk-vendors.js.map",
+      "path": "js/chunk-vendors.js.map",
       "publicPath": "/static/ddm_custom/vue/js/chunk-vendors.js.map"
     },
     "js/vue_txt_uploader.js": {
       "name": "js/vue_txt_uploader.js",
-      "path": "js\\vue_txt_uploader.js",
+      "path": "js/vue_txt_uploader.js",
       "publicPath": "/static/ddm_custom/vue/js/vue_txt_uploader.js"
     },
     "js/vue_txt_uploader.js.map": {
       "name": "js/vue_txt_uploader.js.map",
-      "path": "js\\vue_txt_uploader.js.map",
+      "path": "js/vue_txt_uploader.js.map",
       "publicPath": "/static/ddm_custom/vue/js/vue_txt_uploader.js.map"
     }
   },
