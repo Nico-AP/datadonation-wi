@@ -494,15 +494,15 @@ export default {
                     /* try to find corresponding text file */
                     let extractionRoot = blueprint.json_extraction_root;
                     const fileLookup = {
-                      "Your Activity.Video Browsing History.VideoList": /(?:^|\/)(Browsing History\.txt|Watch History\.txt)$/,
+                      "Your Activity.Watch History.VideoList": /(?:^|\/)(Browsing History\.txt|Watch History\.txt)$/,
                       "Your Activity.Like List.ItemFavoriteList": "Like List\\.txt",
-                      "Your Activity.Search History.SearchList": "Searches\\.txt",
+                      "Your Activity.Searches.SearchList": "Searches\\.txt",
                       "Your Activity.Share History.ShareHistoryList": "Share History\\.txt",
-                      "Video.Videos.VideoList": /(?:^|\/)(Post\.txt|Posts\.txt)$/,
+                      "Post.Posts.VideoList": /(?:^|\/)(Post\.txt|Posts\.txt)$/,
                       "Comment.Comments.CommentsList": "Comments\\.txt",
-                      "Your Activity.Follower List.FansList": "Follower\\.txt",
-                      "Your Activity.Following List.Following": "Following\\.txt",
-                      "App Settings.Block.BlockList": "Block List\\.txt"
+                      "Your Activity.Follower.FansList": "Follower\\.txt",
+                      "Your Activity.Following.Following": "Following\\.txt",
+                      "App Settings.Block List.BlockList": "Block List\\.txt"
                     };
                     let txtFile = fileLookup[extractionRoot] || null;
 
@@ -626,7 +626,7 @@ export default {
         entry.split("\n").forEach(line => {
           const [key, value] = line.split(": ", 2); // Splitting on first ": "
           if (key && value) {
-            if (blueprint.json_extraction_root === 'Video.Videos.VideoList') {
+            if (blueprint.json_extraction_root === 'Post.Posts.VideoList') {
               let keysToInclude = [
                   "date",
                   "whocanview",
@@ -926,18 +926,91 @@ export default {
     },
 
     getNestedJsonEntry(fileContent, path) {
+      // First try the original path
+      try {
+        let result = this.getPathValue(fileContent, path);
+        if (result) return result;
+      } catch (e) {
+        // Continue to alternatives if original path fails
+      }
+      
+      // Define path mappings for known variations
+      const pathMappings = {
+        // Watch History variations
+        "Your Activity.Watch History.VideoList": [
+          "Your Activity.Video Browsing History.VideoList",
+          "Activity.Video Browsing History.VideoList",
+          "Video Browsing History"
+        ],
+        // Video List variations
+        "Post.Posts.VideoList": [
+          "Video.Videos.VideoList",
+          "Post.Post.VideoList"
+        ],
+        // Block List variations
+        "App Settings.Block List.BlockList": [
+          "App Settings.Block.BlockList"
+        ],
+        // Search History variations
+        "Your Activity.Searches.SearchList": [
+          "Your Activity.Search History.SearchList",
+          "Activity.Search History.SearchList"
+        ],
+        // Follower List variations
+        "Your Activity.Follower.FansList": [
+          "Your Activity.Follower List.FansList",
+          "Activity.Follower List.FansList"
+        ],
+        // Following List variations
+        "Your Activity.Following.Following": [
+          "Your Activity.Following List.Following",
+          "Activity.Following List.Following"
+        ]
+      };
+      
+      // Try alternative paths if they exist for this path
+      if (path in pathMappings) {
+        for (const altPath of pathMappings[path]) {
+          try {
+            let result = this.getPathValue(fileContent, altPath);
+            if (result) return result;
+          } catch (e) {
+            // Continue to next alternative
+          }
+        }
+      }
+      
+      // If path starts with "Your ", try without it
+      if (path.startsWith("Your ")) {
+        try {
+          let result = this.getPathValue(fileContent, path.slice(5));
+          if (result) return result;
+        } catch (e) {
+          // Continue if this fails
+        }
+      }
+      
+      // Return undefined if no path works
+      return undefined;
+    },
+    
+    // Helper method to get value from a path
+    getPathValue(fileContent, path) {
       path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
       path = path.replace(/^\./, '');           // strip a leading dot
       let a = path.split('.');
+      let content = fileContent;
+      
       for (let i = 0, n = a.length; i < n; ++i) {
         let k = a[i];
-        if (k in fileContent) {
-          fileContent = fileContent[k];
+        if (k in content) {
+          content = content[k];
         } else {
-          return;
+          throw new Error("Path not found");
         }
       }
-      return fileContent;
+      
+      return content;
     },
 
     /**
