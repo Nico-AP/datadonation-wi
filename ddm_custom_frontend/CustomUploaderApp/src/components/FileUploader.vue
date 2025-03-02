@@ -943,8 +943,9 @@ export default {
           "Video Browsing History"
         ],
         // Video List variations
-        "Video.Videos.VideoList": [
-          "Post.Posts.VideoList"
+        "Post.Posts.VideoList": [
+          "Video.Videos.VideoList",
+          "Post.Post.VideoList"
         ],
         // Block List variations
         "App Settings.Block List.BlockList": [
