@@ -945,7 +945,8 @@ export default {
         // Video List variations
         "Post.Posts.VideoList": [
           "Video.Videos.VideoList",
-          "Post.Post.VideoList"
+          "Post.Post.VideoList",
+          "Posts.Posts.VideoList"
         ],
         // Block List variations
         "App Settings.Block List.BlockList": [
@@ -965,6 +966,10 @@ export default {
         "Your Activity.Following.Following": [
           "Your Activity.Following List.Following",
           "Activity.Following List.Following"
+        ],
+        // Comments variations
+        "Comment.Comments.CommentsList": [
+          "Comments.Comments.CommentsList"
         ]
       };
       
