@@ -40,6 +40,10 @@ class TikTokUser_B(models.Model):
     recommend_reason = models.CharField(max_length=255, null=True)
     suggest_account_bind = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "TikTok User (scraper B)"
+        verbose_name_plural = "TikTok Users (scraper B)"
+
     def __str__(self):
         return str(self.author_id) if self.author_id else self.username
 
@@ -158,6 +162,9 @@ class TikTokVideo_B(models.Model):
         default=None
     )
 
+    class Meta:
+        verbose_name = "TikTok Video (scraper B)"
+        verbose_name_plural = "TikTok Videos (scraper B)"
 
     def __str__(self):
         return str(self.video_id)
