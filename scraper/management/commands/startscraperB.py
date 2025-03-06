@@ -16,8 +16,8 @@ class Command(BaseCommand):
             choices=['production', 'test'],
             default='production',
             help='''Scraping mode:
-                production (default) - Run complete scraping (past day + full account history)
-                test - Test mode: one request each for past day and account history
+                production (default) - runs complete list of vidoes that is out in without retstrictions
+                test - runs ony for 10 videos
             '''
         )
 

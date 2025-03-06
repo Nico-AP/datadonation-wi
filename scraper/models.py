@@ -10,53 +10,46 @@ class Hashtag(models.Model):
 
 
 class TikTokUser(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    # name = username in TikTokUser_B
+    name = models.CharField(max_length=255)
+    def __str__(self):
+        return self.name
 
+
+
+class TikTokUser_B(models.Model):
+    # name = username in TikTokUser
+    username = models.CharField(max_length=255)
     ###### ADDED FIELDS ######
-    ## id --> bigint
-    author_id = models.BigIntegerField(null=True)
-    ## name --> character varying(250), in quentins scheme "name" - for us name is the "unique username"
+    author_id = models.BigIntegerField(null=True, unique=True)
+    ## in TikTok_Content_Scraper scheme "name"
     nick_name = models.CharField(max_length=255, null=True)
-    ## signature --> text
     signature = models.TextField(null=True)
-    ## create_time --> integer
     create_time = models.IntegerField(null=True)
-    ## verified --> boolean
     verified = models.BooleanField(default=False)
-    ## ftc --> boolean
     ftc = models.BooleanField(default=False)
-    ## relation --> integer
     relation = models.IntegerField(null=True)
-    ## open_favorite --> boolean
     open_favorite = models.BooleanField(default=False)
-    ## comment_setting --> integer
     comment_setting = models.IntegerField(null=True)
-    ## duet_setting --> smallint
     duet_setting = models.SmallIntegerField(null=True)
-    ## stitch_setting --> smallint
     stitch_setting = models.SmallIntegerField(null=True)
-    ## private_account --> boolean
     private_account = models.BooleanField(default=False)
-    ## secret --> boolean
     secret = models.BooleanField(default=False)
-    ## is_ad_virtual --> boolean
     is_ad_virtual = models.BooleanField(default=False)
-    ## download_setting --> smallint
     download_setting = models.SmallIntegerField(null=True)
-    ## recommend_reason --> character varying(250)
     recommend_reason = models.CharField(max_length=255, null=True)
-    ## suggest_account_bind --> boolean
     suggest_account_bind = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return str(self.author_id) if self.author_id else self.username
+
 
 
 class TikTokVideo(models.Model):
     video_id = models.BigIntegerField(unique=True)
     video_description = models.TextField(null=True, blank=True)
     create_time = models.DateTimeField()
-    username = models.ForeignKey(
+    author_id = models.ForeignKey(
         TikTokUser,
         on_delete=models.SET_NULL,
         null=True
@@ -87,8 +80,8 @@ class TikTokVideo_B(models.Model):
     video_id = models.BigIntegerField(unique=True)
     video_description = models.TextField(null=True, blank=True)
     create_time = models.DateTimeField(null=True)
-    username = models.ForeignKey(
-        TikTokUser,
+    author_id = models.ForeignKey(
+        TikTokUser_B,
         on_delete=models.SET_NULL,
         null=True
     )
@@ -109,7 +102,7 @@ class TikTokVideo_B(models.Model):
     ##### NEW METADATA FIELDS #####
     # new fields for table B
     mentions = models.ManyToManyField(
-        TikTokUser,
+        TikTokUser_B,
         blank=True,
         related_name='mentions_b'
     )
@@ -155,13 +148,16 @@ class TikTokVideo_B(models.Model):
     ratio = models.IntegerField(null=True)
     volume_loudness = models.FloatField(null=True)
     volume_peak = models.FloatField(null=True)
-    has_original_audio = models.BooleanField(default=False)
-    enable_audio_caption = models.BooleanField(default=False)
+    has_original_audio = models.BooleanField(null=True, default=None)
+    enable_audio_caption = models.BooleanField(null=True, default=None)
     no_caption_reason = models.SmallIntegerField(null=True)
 
     scrape_date = models.DateTimeField(
-        default=make_aware(datetime(2000, 1, 1, 0, 0, 0))
+        null=True,
+        blank=True,
+        default=None
     )
+
 
     def __str__(self):
         return str(self.video_id)
