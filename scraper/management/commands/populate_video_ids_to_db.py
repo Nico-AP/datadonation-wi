@@ -42,7 +42,21 @@ class Command(BaseCommand):
             self.project.secret, self.project.get_salt())
 
         video_ids = [item["Link"].rstrip("/").split("/")[-1] for item in data]
-        unique_video_ids = set(video_ids)
+        video_ids_clean = []
+        for video_id in video_ids:
+            try:
+                int_value = int(video_id)
+            except (ValueError, TypeError):
+                print(f'{video_id}: Could not be converted to integer.')
+                continue
+
+            if -9223372036854775808 <= int_value <= 9223372036854775807:
+                video_ids_clean.append(video_id)
+            else:
+                print(f'{video_id}: Exceeds bigint constraint.')
+                continue
+
+        unique_video_ids = set(video_ids_clean)
 
         # Prepare objects for bulk creation
         new_videos = [TikTokVideo_B(video_id=video_id) for video_id in unique_video_ids]
