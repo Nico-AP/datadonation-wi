@@ -45,16 +45,12 @@ class Command(BaseCommand):
         video_ids_clean = []
         for video_id in video_ids:
             try:
-                int_value = int(video_id)
+                int(video_id)
             except (ValueError, TypeError):
                 print(f'{video_id}: Could not be converted to integer.')
                 continue
 
-            if -9223372036854775808 <= int_value <= 9223372036854775807:
-                video_ids_clean.append(video_id)
-            else:
-                print(f'{video_id}: Exceeds bigint constraint.')
-                continue
+            video_ids_clean.append(video_id)
 
         unique_video_ids = set(video_ids_clean)
 
