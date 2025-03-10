@@ -56,7 +56,7 @@ class Command(BaseCommand):
             blueprint=bp,
             consent=True,
             status='success'
-        ).iterator()
+        ).iterator(chunk_size=10)
 
         if max_donations:
             donations_queryset = itertools.islice(donations_queryset, max_donations)  # Efficient slicing
