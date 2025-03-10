@@ -45,24 +45,24 @@ class Command(BaseCommand):
         # Get project.
         self.project = bp.project
 
+        total_count = DataDonation.objects.filter(
+            blueprint=bp, consent=True, status='success'
+        ).count()
+
         # Get donation belonging to watch history blueprint.
         donations_queryset = DataDonation.objects.filter(
             blueprint=bp,
             consent=True,
             status='success'
-        )
+        ).iterator()
 
         if max_donations:
-            donations_queryset = itertools.islice(donations_queryset.iterator(), max_donations)  # Efficient slicing
-
-        total_count = DataDonation.objects.filter(
-            blueprint=bp, consent=True, status='success'
-        ).count()
+            donations_queryset = itertools.islice(donations_queryset, max_donations)  # Efficient slicing
 
         pbar = tqdm(total=total_count, dynamic_ncols=True, position=0, leave=True, colour="magenta")
-        for donation in donations_queryset.iterator():
+        for donation in donations_queryset:
             participant_id = donation.participant.external_id
-            video_ids = self.extract_video_ids(donation)
+            video_ids = self.extract_video_ids(donation, participant_id)
             self.bulk_insert_videos(video_ids, participant_id)
             pbar.update(1)
         pbar.update(1)
@@ -70,7 +70,8 @@ class Command(BaseCommand):
         console.print('[bold green]✅ All entries added to db.[/]')
         return
 
-    def extract_video_ids(self, donation):
+    def extract_video_ids(self, donation, participant_id):
+        print_to_console(f'[cyan]Getting videos for {participant_id}.')
         data = donation.get_decrypted_data(
             self.project.secret, self.project.get_salt())
 
