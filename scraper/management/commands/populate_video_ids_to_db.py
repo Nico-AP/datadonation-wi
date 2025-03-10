@@ -45,17 +45,19 @@ class Command(BaseCommand):
         self.project = bp.project
 
         # Get donation belonging to watch history blueprint.
-        donations = DataDonation.objects.filter(
+        donations_queryset = DataDonation.objects.filter(
             blueprint=bp,
             consent=True,
             status='success'
         )
 
         if max_donations:
-            donations = donations[:max_donations]
+            donations_queryset = donations_queryset[:max_donations]
 
-        pbar = tqdm(total=len(donations), dynamic_ncols=True, position=0, leave=True, colour="magenta")
-        for donation in donations:
+        total_count = donations_queryset.count()
+
+        pbar = tqdm(total=total_count, dynamic_ncols=True, position=0, leave=True, colour="magenta")
+        for donation in donations_queryset.iterator():
             self.extract_video_ids(donation)
             pbar.update(1)
         pbar.update(1)
