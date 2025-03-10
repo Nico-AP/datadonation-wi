@@ -83,7 +83,7 @@ class Command(BaseCommand):
         return list(video_ids_clean)
 
     def bulk_insert_videos(self, video_ids, participant_id):
-        BATCH_SIZE = 5000
+        BATCH_SIZE = 20000
 
         # Prepare objects for bulk creation
         for i in range(0, len(video_ids), BATCH_SIZE):
