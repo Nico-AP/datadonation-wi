@@ -165,7 +165,7 @@ class TT_Scraper(HTML_Scraper):
             self.repeated_error += 1
             self.log.warning("-> retrying video due to error in package download...")
             time.sleep(self.repeated_error * 3)
-            self._innit_request_headers()
+            self._init_request_headers()
             video_binary = None
             slide_pictures = None
             metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
