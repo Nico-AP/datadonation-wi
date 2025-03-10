@@ -90,4 +90,4 @@ class Command(BaseCommand):
             print_to_console(f'[cyan]Processing {participant_id}: [yellow] Adding video ids {i}:{i + BATCH_SIZE}.')
             ids_to_insert = video_ids[i:i + BATCH_SIZE]
             new_videos = [TikTokVideo_B(video_id=video_id) for video_id in ids_to_insert]
-            TikTokVideo_B.objects.bulk_create(new_videos[i:i + BATCH_SIZE], ignore_conflicts=True)
+            TikTokVideo_B.objects.bulk_create(new_videos, ignore_conflicts=True)
