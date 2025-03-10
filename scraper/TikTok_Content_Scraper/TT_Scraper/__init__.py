@@ -138,26 +138,36 @@ class TT_Scraper(HTML_Scraper):
             self.log.warning("No data from URL")
             metadata_package = self._exception_handler(id, error_code, "NoDataFromURL")
             content_binary = None
+            video_binary = None
+            slide_pictures = None
         except ItemInfoError:
             error_code="I"
             self.log.warning("The scraped HTML code could not provide the searched metadata elements")
             metadata_package = self._exception_handler(id, error_code, "ItemInfoError")
             content_binary = None
+            video_binary = None
+            slide_pictures = None
         except VideoNotFoundError:
             error_code="V"
             self.log.warning("No data from URL")
             metadata_package = self._exception_handler(id, error_code, "VideoNotFoundError")
             content_binary = None
+            video_binary = None
+            slide_pictures = None
         except OtherError:
             error_code="O"
             metadata_package = self._exception_handler(id, error_code, "OtherError")
             content_binary = None
+            video_binary = None
+            slide_pictures = None
         except RetryLaterError:
             #retry 
             self.repeated_error += 1
             self.log.warning("-> retrying video due to error in package download...")
             time.sleep(self.repeated_error * 3)
             self._innit_request_headers()
+            video_binary = None
+            slide_pictures = None
             metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
             if self.repeated_error > self.ALLOW_REPEATED_ERRORS:
                 self.log.ERROR("too many errors in a row")

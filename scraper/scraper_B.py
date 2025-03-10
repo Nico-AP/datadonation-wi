@@ -1,12 +1,16 @@
+from django.utils import timezone
+
 from .TikTok_Content_Scraper.TT_Scraper import TT_Scraper
 from scraper.models import TikTokVideo_B, Hashtag, TikTokUser_B
 from django.utils.timezone import make_aware
-from datetime import datetime, date, timedelta
+from datetime import datetime
 import os
 import logging
 import traceback
 import sys
-from django.db import connection
+
+
+logging.getLogger("django.db.backends").setLevel(logging.WARNING)
 
 
 def setup_logger(mode, existing_logger=None):
@@ -66,24 +70,54 @@ def get_datetime_from_ts(ts):
     return make_aware(naive_datetime)
 
 def load_video_ids_from_db():
-    """Load video IDs in batches of 1000 that haven't been scraped yet using a cursor."""
+    """Load video IDs in batches of 1000 that haven't been scraped yet."""
     BATCH_SIZE = 1000
-    
-    with connection.cursor() as cursor:
-        # Get videos that haven't been scraped yet (where scrape_date is None)
-        cursor.execute("""
-            SELECT video_id 
-            FROM scraper_tiktokvideo_b 
-            WHERE scrape_date IS NULL 
-            LIMIT %s
-        """, [BATCH_SIZE])
-        
-        # Fetch results and convert to list
-        video_ids = [row[0] for row in cursor.fetchall()]
-        
+    video_ids = (
+        TikTokVideo_B.objects
+        .filter(scrape_date__isnull=True)
+        .order_by('pk')  # Ensure deterministic results
+        .values_list('video_id', flat=True)[:BATCH_SIZE]
+    )
     return video_ids
 
-def save_video_to_db(video_data, scrape_ts=None, logger=None):
+def save_tt_user_to_db(author_id, author_metadata, logger):
+    logger.info(f"Processing user: {author_id}")
+    tt_user, created = TikTokUser_B.objects.get_or_create(
+        author_id=author_id
+    )
+    if created:
+        logger.info(f"Created new user: {author_id}")
+    else:
+        logger.info(f"Found existing user: {author_id}")
+
+    # If user info has already been scraped, keep original values and do not overwrite.
+    if tt_user.scrape_success:
+        return tt_user
+
+    # Update user fields
+    tt_user.username = author_metadata.get('username')
+    tt_user.nick_name = author_metadata.get("name")
+    tt_user.signature = author_metadata.get("signature")
+    tt_user.create_time = author_metadata.get("create_time")
+    tt_user.verified = author_metadata.get("verified")
+    tt_user.ftc = author_metadata.get("ftc")
+    tt_user.relation = author_metadata.get("relation")
+    tt_user.open_favorite = author_metadata.get("open_favorite")
+    tt_user.comment_setting = author_metadata.get("comment_setting")
+    tt_user.duet_setting = author_metadata.get("duet_setting")
+    tt_user.stitch_setting = author_metadata.get("stitch_setting")
+    tt_user.private_account = author_metadata.get("private_account")
+    tt_user.secret = author_metadata.get("secret")
+    tt_user.is_ad_virtual = author_metadata.get("is_ad_virtual")
+    tt_user.download_setting = author_metadata.get("download_setting")
+    tt_user.recommend_reason = author_metadata.get("recommend_reason")
+    tt_user.suggest_account_bind = author_metadata.get("suggest_account_bind")
+    tt_user.scrape_success = True
+    tt_user.scrape_date = timezone.now()
+    tt_user.save()
+    return tt_user
+
+def save_video_to_db(video_data, logger=None):
     """Saves video data to database."""
     if logger is None:
         logger = setup_logger('save_video')
@@ -98,9 +132,10 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         # Get video ID from video_metadata
         video_id = video_metadata.get('id')
         if not video_id:
-            logger.error("No video ID found in video_metadata")
+            msg = "No video ID found in video_metadata"
+            logger.error(msg)
             logger.error(f"Video metadata: {video_metadata}")
-            return
+            return msg
             
         logger.info(f"Processing video data for ID: {video_id}")
         
@@ -108,50 +143,21 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         required_sections = ['video_metadata', 'file_metadata', 'music_metadata', 'author_metadata', 'hashtags_metadata']
         missing_sections = [section for section in required_sections if section not in video_data]
         if missing_sections:
-            logger.error(f"Missing required metadata sections for video {video_id}: {missing_sections}")
+            msg = f"Missing required metadata sections for video {video_id}: {missing_sections}"
+            logger.error(msg)
             logger.error(f"Available sections: {list(video_data.keys())}")
-            return
+            return msg
         
         # Create or update user
         # Check if the user already exists
-        author_id = author_metadata.get("id")
-        if not author_id:
-            logger.error(f"No author_id found in video data for video {video_id}")
+        author_id = author_metadata.get("id", None)
+        if author_id is None:
+            msg = f"No author_id found in video data for video {video_id}"
+            logger.error(msg)
             logger.error(f"Video data keys: {list(video_data.keys())}")
-            return
-            
-            
-        logger.info(f"Processing user: {author_id}")
-        tt_user, created = TikTokUser_B.objects.get_or_create(
-            author_id=author_id
-        )
-        if created:
-            logger.info(f"Created new user: {author_id}")
+            tt_user = None
         else:
-            logger.info(f"Found existing user: {author_id}")
-
-        # Log user metadata
-        logger.info(f"User metadata: {author_metadata}")
-
-        # Update user fields
-        tt_user.username = author_metadata.get('username')
-        tt_user.nick_name = author_metadata.get("name")
-        tt_user.signature = author_metadata.get("signature")
-        tt_user.create_time = author_metadata.get("create_time")
-        tt_user.verified = author_metadata.get("verified")
-        tt_user.ftc = author_metadata.get("ftc")
-        tt_user.relation = author_metadata.get("relation")
-        tt_user.open_favorite = author_metadata.get("open_favorite")
-        tt_user.comment_setting = author_metadata.get("comment_setting")
-        tt_user.duet_setting = author_metadata.get("duet_setting")
-        tt_user.stitch_setting = author_metadata.get("stitch_setting")
-        tt_user.private_account = author_metadata.get("private_account")
-        tt_user.secret = author_metadata.get("secret")
-        tt_user.is_ad_virtual = author_metadata.get("is_ad_virtual")
-        tt_user.download_setting = author_metadata.get("download_setting")
-        tt_user.recommend_reason = author_metadata.get("recommend_reason")
-        tt_user.suggest_account_bind = author_metadata.get("suggest_account_bind")
-        tt_user.save()
+            tt_user = save_tt_user_to_db(author_id, author_metadata, logger)
 
         # Get or create video
         logger.info(f"Processing video: {video_id}")
@@ -161,8 +167,9 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         else:
             logger.info(f"Found existing video: {video_id}")
 
-        # Log video metadata
-        logger.info(f"Video metadata: {video_metadata}")
+        # If video info has already been scraped, keep original values and do not overwrite.
+        if video.scrape_success:
+            return None
 
         # Update video fields
         video.video_description = video_metadata.get("description")  # Changed from video_description to description
@@ -220,8 +227,7 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         video.enable_audio_caption = file_metadata.get("enable_audio_caption")
         video.no_caption_reason = file_metadata.get("no_caption_reason")
 
-        # Set scrape date to current time if no timestamp provided
-        video.scrape_date = get_datetime_from_ts(scrape_ts)
+        video.scrape_date = timezone.now()
 
         # Handle mentions (ManyToManyField)
         mentions = video_metadata.get("mentions")
@@ -229,11 +235,13 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
             # Create or get TikTokUser_B objects for each mentioned user
             mentioned_users = []
             for author_id in mentions:
-                # Create a temporary user with just the ID
-                mentioned_user, _ = TikTokUser_B.objects.get_or_create(
-                    username=f"temp_user_{author_id}",  # Temporary username until we get the actual username
-                    defaults={'author_id': author_id}
+                mentioned_user, created = TikTokUser_B.objects.get_or_create(
+                    author_id=author_id
                 )
+                if created:
+                    mentioned_user.username = f"temp_user_{author_id}",  # Temporary username until we get the actual username
+                    mentioned_user.save()
+
                 mentioned_users.append(mentioned_user)
             
             if mentioned_users:
@@ -259,14 +267,17 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
         else:
             video.hashtags.clear()
 
+        video.scrape_success = True
         video.save()
         logger.info(f"Successfully saved video {video_id}")
+        return None
 
     except Exception as e:
         logger.error(f"Error saving video {video_data.get('id', 'unknown')}: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         logger.error(f"Video data: {video_data}")
         raise
+
 
 # create a new class, that inherits the TT_Scraper
 class TT_Scraper_DB_metadata(TT_Scraper):
@@ -279,21 +290,46 @@ class TT_Scraper_DB_metadata(TT_Scraper):
         try:
             metadata_package, success = super().scrape(id=id, scrape_content=False, download_metadata=False, download_content=False)
             if metadata_package:
-                self.insert_metadata_to_db(metadata_package)
-                self.log.info(f"Successfully processed video {id}")
-                return True
+                msg = save_video_to_db(metadata_package, logger=self.log)
+
+                if msg is not None:
+                    # Add scraping exception to db.
+                    video = TikTokVideo_B.objects.filter(video_id=id).first()
+                    if video is not None:
+                        video.scrape_success = False
+                        video.scrape_status = msg
+                        video.scrape_date = timezone.now()
+                        video.save()
+                    else:
+                        self.log.error(f'A: video is none: {id}')
+                    return False
+                else:
+                    self.log.info(f"Successfully processed video {id}")
+                    return True
             else:
-                self.log.error(f"Failed to get metadata for video {id}")
+                msg = f"Failed to get metadata for video {id}"
+                self.log.error(msg)
+                video = TikTokVideo_B.objects.filter(video_id=id).first()
+                if video is not None:
+                    video.scrape_success = False
+                    video.scrape_status = msg
+                    video.scrape_date = timezone.now()
+                    video.save()
+                else:
+                    self.log.error(f'B: video is none: {id}')
                 return False
         except Exception as e:
             self.log.error(f"Error in scrape method for video {id}: {str(e)}")
             self.log.error(f"Traceback: {traceback.format_exc()}")
+            video = TikTokVideo_B.objects.filter(video_id=id).first()
+            video.scrape_date = timezone.now()
+            video.save()
             return False
 
     def scrape_list(self, ids, scrape_content=False, batch_size=None, clear_console=True, total_videos=0, already_scraped_count=0, total_errors=0):
         """Override scrape_list to handle multiple videos."""
         self.log.info(f"Starting to scrape {len(ids)} videos")
-        self.log.info(f"Video IDs: {ids}")
+        # self.log.info(f"Video IDs: {ids}")
         
         for video_id in ids:
             try:
@@ -312,42 +348,49 @@ class TT_Scraper_DB_metadata(TT_Scraper):
 
     def insert_metadata_to_db(self, metadata_package):
         """Save video metadata to database."""
-        save_video_to_db(metadata_package, logger=self.log)
-        return None
+        # TODO: Delete?
+        msg = save_video_to_db(metadata_package, logger=self.log)
+        return msg
 
 
-def collect_metadata_for_all(tt=None, logger=None, test_mode=False):
+def collect_metadata_for_all(scraper=None, logger=None, test_mode=False):
     """Collect metadata for all videos in the database."""
     if logger is None:
         logger = setup_logger('collect_metadata')
     
     # Create TT_Scraper_DB_metadata instance with the same logger
-    if tt is None:
-        tt = TT_Scraper_DB_metadata(wait_time=0.35, logger=logger)
-    
-    try:
-        video_ids = load_video_ids_from_db()
-        logger.info(f'Found {len(video_ids)} videos in database')
-        logger.info(f'Video IDs: {video_ids}')
+    if scraper is None:
+        scraper = TT_Scraper_DB_metadata(wait_time=0.35, logger=logger)
 
-        if test_mode:
-            video_ids = video_ids[:10]
-            logger.info(f'Test mode: Processing first {len(video_ids)} videos')
-        
-        # Redirect stdout to prevent binary data from being printed
-        original_stdout = sys.stdout
-        sys.stdout = open(os.devnull, 'w')
-        
+    while True:
+
         try:
-            tt.scrape_list(video_ids, scrape_content=False)  # Don't download content, just metadata
-        finally:
-            sys.stdout.close()
-            sys.stdout = original_stdout
-            
-        logger.info('Scraping completed successfully')
-        
-    except Exception as e:
-        logger.error(f"Error in collect_metadata_for_all: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        raise
+            video_ids = load_video_ids_from_db()
+            if len(video_ids) == 0:
+                break
 
+            logger.info(f'Loaded {len(video_ids)} videos from database')
+
+            if test_mode:
+                video_ids = video_ids[:10]
+                logger.info(f'Test mode: Processing first {len(video_ids)} videos')
+
+            # Redirect stdout to prevent binary data from being printed
+            original_stdout = sys.stdout
+            sys.stdout = open(os.devnull, 'w')
+
+            try:
+                scraper.scrape_list(video_ids, scrape_content=False)  # Don't download content, just metadata
+            finally:
+                if test_mode:
+                    break
+
+                sys.stdout.close()
+                sys.stdout = original_stdout
+
+            logger.info('Scraping completed successfully')
+
+        except Exception as e:
+            logger.error(f"Error in collect_metadata_for_all: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise

@@ -21,8 +21,8 @@ class TikTokUser_B(models.Model):
     # name = username in TikTokUser
     username = models.CharField(max_length=255)
     ###### ADDED FIELDS ######
-    author_id = models.DecimalField(
-        max_digits=100, decimal_places=0, unique=True, null=True, blank=True)
+    author_id = models.CharField(
+        max_length=100, unique=True, null=True, blank=True)
     ## in TikTok_Content_Scraper scheme "name"
     nick_name = models.CharField(max_length=255, null=True, blank=True)
     signature = models.TextField(null=True, blank=True)
@@ -40,6 +40,19 @@ class TikTokUser_B(models.Model):
     download_setting = models.SmallIntegerField(null=True, blank=True)
     recommend_reason = models.CharField(max_length=255, null=True, blank=True)
     suggest_account_bind = models.BooleanField(default=False)
+
+    scrape_success = models.BooleanField(default=False)
+    scrape_status = models.TextField(null=True)
+    scrape_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        default=None
+    )
+
+    date_added = models.DateTimeField(
+        auto_now_add=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "TikTok User (scraper B)"
@@ -82,7 +95,7 @@ class TikTokVideo(models.Model):
 
 
 class TikTokVideo_B(models.Model):
-    video_id = models.DecimalField(max_digits=100, decimal_places=0, unique=True)
+    video_id = models.CharField(max_length=100, unique=True)
     video_description = models.TextField(null=True, blank=True)
     create_time = models.DateTimeField(null=True, blank=True)
     author_id = models.ForeignKey(
@@ -157,6 +170,8 @@ class TikTokVideo_B(models.Model):
     enable_audio_caption = models.BooleanField(null=True, default=None, blank=True)
     no_caption_reason = models.SmallIntegerField(null=True, blank=True)
 
+    scrape_success = models.BooleanField(default=False)
+    scrape_status = models.TextField(null=True)
     scrape_date = models.DateTimeField(
         null=True,
         blank=True,
