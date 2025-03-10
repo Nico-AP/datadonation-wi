@@ -1,3 +1,4 @@
+import itertools
 import sys
 
 from django.core.management.base import BaseCommand
@@ -52,13 +53,17 @@ class Command(BaseCommand):
         )
 
         if max_donations:
-            donations_queryset = donations_queryset[:max_donations]
+            donations_queryset = itertools.islice(donations_queryset.iterator(), max_donations)  # Efficient slicing
 
-        total_count = donations_queryset.count()
+        total_count = DataDonation.objects.filter(
+            blueprint=bp, consent=True, status='success'
+        ).count()
 
         pbar = tqdm(total=total_count, dynamic_ncols=True, position=0, leave=True, colour="magenta")
         for donation in donations_queryset.iterator():
-            self.extract_video_ids(donation)
+            participant_id = donation.participant.external_id
+            video_ids = self.extract_video_ids(donation)
+            self.bulk_insert_videos(video_ids, participant_id)
             pbar.update(1)
         pbar.update(1)
 
@@ -68,26 +73,18 @@ class Command(BaseCommand):
     def extract_video_ids(self, donation):
         data = donation.get_decrypted_data(
             self.project.secret, self.project.get_salt())
-        participant = donation.participant.external_id
 
-        video_ids = [item["Link"].rstrip("/").split("/")[-1] for item in data]
-        video_ids_clean = []
-        for video_id in video_ids:
-            try:
-                int(video_id)
-            except (ValueError, TypeError):
-                print(f'{video_id}: Could not be converted to integer.')
-                continue
+        video_ids = {item["Link"].rstrip("/").split("/")[-1] for item in data if "Link" in item}
 
-            video_ids_clean.append(video_id)
+        video_ids_clean = {video_id for video_id in video_ids if video_id.isdigit()}
+        return list(video_ids_clean)
 
-        unique_video_ids = set(video_ids_clean)
+    def bulk_insert_videos(self, video_ids, participant_id):
+        BATCH_SIZE = 1000
 
         # Prepare objects for bulk creation
-        new_videos = [TikTokVideo_B(video_id=video_id) for video_id in unique_video_ids]
-
-        # Insert data in batches
-        BATCH_SIZE = 10000
-        for i in range(0, len(new_videos), BATCH_SIZE):
-            print_to_console(f'[cyan]Processing {participant}: [yellow] Adding video ids {i}:{i + BATCH_SIZE}.')
+        for i in range(0, len(video_ids), BATCH_SIZE):
+            print_to_console(f'[cyan]Processing {participant_id}: [yellow] Adding video ids {i}:{i + BATCH_SIZE}.')
+            ids_to_insert = video_ids[i:i + BATCH_SIZE]
+            new_videos = [TikTokVideo_B(video_id=video_id) for video_id in ids_to_insert]
             TikTokVideo_B.objects.bulk_create(new_videos[i:i + BATCH_SIZE], ignore_conflicts=True)
