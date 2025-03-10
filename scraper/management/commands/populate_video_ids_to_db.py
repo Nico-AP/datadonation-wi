@@ -45,10 +45,12 @@ class Command(BaseCommand):
         # Get project.
         self.project = bp.project
 
+        print_to_console('[white]Get count of successful donations.')
         total_count = DataDonation.objects.filter(
             blueprint=bp, consent=True, status='success'
         ).count()
 
+        print_to_console('[white]Get donation queryset iterator.')
         # Get donation belonging to watch history blueprint.
         donations_queryset = DataDonation.objects.filter(
             blueprint=bp,
