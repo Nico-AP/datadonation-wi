@@ -82,7 +82,7 @@ def load_video_ids_from_db():
     video_ids = (
         TikTokVideo_B.objects
         .filter(scrape_date__isnull=True)
-        .order_by('-pk')  # Ensure deterministic results
+        .order_by('-scrape_priority', '-pk')
         .values_list('video_id', flat=True)[:BATCH_SIZE]
     )
     return video_ids
