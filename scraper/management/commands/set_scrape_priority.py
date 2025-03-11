@@ -1,8 +1,10 @@
 import itertools
 import sys
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from ddm.datadonation.models import DataDonation, DonationBlueprint
+from django.utils import timezone
 from rich.console import Console
 from scraper.models import TikTokVideo_B
 from tqdm import tqdm
@@ -46,8 +48,12 @@ class Command(BaseCommand):
         self.project = bp.project
 
         print_to_console('[white]Get count of successful donations.')
+        cutoff_date = datetime(2025, 2, 1, tzinfo=timezone.utc)
         total_count = DataDonation.objects.filter(
-            blueprint=bp, consent=True, status='success'
+            blueprint=bp,
+            consent=True,
+            status='success',
+            time_submitted__gt=cutoff_date
         ).count()
 
         print_to_console('[white]Get donation queryset iterator.')
@@ -55,7 +61,8 @@ class Command(BaseCommand):
         donations_queryset = DataDonation.objects.filter(
             blueprint=bp,
             consent=True,
-            status='success'
+            status='success',
+            time_submitted__gt=cutoff_date
         ).iterator(chunk_size=10)
 
         if max_donations:
@@ -69,7 +76,7 @@ class Command(BaseCommand):
             pbar.update(1)
         pbar.update(1)
 
-        console.print('[bold green]✅ All entries added to db.[/]')
+        console.print('[bold green]✅ All entries updated in db.[/]')
         return
 
     def extract_video_ids(self, donation, participant_id):
@@ -77,17 +84,20 @@ class Command(BaseCommand):
         data = donation.get_decrypted_data(
             self.project.secret, self.project.get_salt())
 
-        video_ids = {item["Link"].rstrip("/").split("/")[-1] for item in data if "Link" in item}
-
-        video_ids_clean = {video_id for video_id in video_ids if video_id.isdigit()}
+        video_ids_clean = {
+            item['Link'].rstrip('/').split('/')[-1]
+            for item in data
+            if 'Link' in item and 'Date' in item
+               and datetime.strptime(item['Date'], '%Y-%m-%d %H:%M:%S').year == 2025
+        }
         return list(video_ids_clean)
 
     def bulk_insert_videos(self, video_ids, participant_id):
-        BATCH_SIZE = 20000
+        BATCH_SIZE = 5000
 
         # Prepare objects for bulk creation
         for i in range(0, len(video_ids), BATCH_SIZE):
-            print_to_console(f'[cyan]Processing {participant_id}: [yellow] Adding video ids {i}:{i + BATCH_SIZE}.')
-            ids_to_insert = video_ids[i:i + BATCH_SIZE]
-            new_videos = [TikTokVideo_B(video_id=video_id) for video_id in ids_to_insert]
-            TikTokVideo_B.objects.bulk_create(new_videos, ignore_conflicts=True)
+            print_to_console(f'[cyan]Processing {participant_id}: [yellow] Updating video ids {i}:{i + BATCH_SIZE}.')
+            ids_to_update = video_ids[i:i + BATCH_SIZE]
+            TikTokVideo_B.objects.filter(
+                video_id__in=ids_to_update, scrape_priority=0).update(scrape_priority=1)
