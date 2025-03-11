@@ -424,7 +424,7 @@ def save_video_to_db(video_data, scrape_ts=None, logger=None):
                 video_id=video_data.get('id'),
                 video_description=video_data.get('video_description'),
                 create_time=get_datetime_from_unix_ts(video_data.get('create_time')),
-                username=tt_user,
+                author_id=tt_user,
                 comment_count=video_data.get('comment_count'),
                 like_count=video_data.get('like_count'),
                 share_count=video_data.get('share_count'),
