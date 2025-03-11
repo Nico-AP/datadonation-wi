@@ -15,23 +15,26 @@ logging.getLogger("django.db.backends").setLevel(logging.WARNING)
 
 def setup_logger(mode, existing_logger=None):
     """Setup logger for a specific scrape session or return existing logger."""
+
+    # If an existing logger is provided, return it
     if existing_logger:
         return existing_logger
-        
+
     # Create logs directory if it doesn't exist
     log_dir = os.path.join('scraper', 'logs')
     os.makedirs(log_dir, exist_ok=True)
 
-    # Create timestamp for the log file
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file = os.path.join(log_dir, f'scraper_B_{mode}_{timestamp}.log')
+    # Create a unique logger name for this mode
+    logger_name = f'scraper_B_logger_{mode}'
+    logger = logging.getLogger(logger_name)
 
-    # Create a new logger
-    logger = logging.getLogger(f'scraper_B_logger_{timestamp}')
-    
-    # Only add handlers if the logger doesn't already have handlers
-    if not logger.handlers:
+    # Prevent duplicate handlers
+    if not logger.hasHandlers():
         logger.setLevel(logging.INFO)
+
+        # Create timestamp for the log file
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = os.path.join(log_dir, f'scraper_B_{mode}_{timestamp}.log')
 
         # Create file handler
         file_handler = logging.FileHandler(log_file)
@@ -43,17 +46,21 @@ def setup_logger(mode, existing_logger=None):
 
         # Create formatter
         formatter = logging.Formatter(
-            '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+            '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
 
-        # Add handlers
+        # Add handlers only once
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
 
+        # Prevent log propagation to the root logger
+        logger.propagate = False
+
     return logger
+
 
 def get_datetime_from_ts(ts):
     """Convert timestamp to timezone-aware datetime.
@@ -75,7 +82,7 @@ def load_video_ids_from_db():
     video_ids = (
         TikTokVideo_B.objects
         .filter(scrape_date__isnull=True)
-        .order_by('pk')  # Ensure deterministic results
+        .order_by('-pk')  # Ensure deterministic results
         .values_list('video_id', flat=True)[:BATCH_SIZE]
     )
     return video_ids
@@ -269,7 +276,7 @@ def save_video_to_db(video_data, logger=None):
 
         video.scrape_success = True
         video.save()
-        logger.info(f"Successfully saved video {video_id}")
+        logger.info(f"Successfully saved video meta data to db: {video_id}")
         return None
 
     except Exception as e:
@@ -288,7 +295,7 @@ class TT_Scraper_DB_metadata(TT_Scraper):
     def scrape(self, id=None, scrape_content=False, download_metadata=False, download_content=False):
         """Override scrape method to handle metadata retrieval and database storage."""
         try:
-            metadata_package, success = super().scrape(id=id, scrape_content=False, download_metadata=False, download_content=False)
+            metadata_package, success = super().scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=scrape_content)
             if metadata_package:
                 msg = save_video_to_db(metadata_package, logger=self.log)
 
@@ -339,7 +346,7 @@ class TT_Scraper_DB_metadata(TT_Scraper):
                     continue
                     
                 # Scrape and save in one step
-                success = self.scrape(id=video_id, scrape_content=False)
+                success = self.scrape(id=video_id, scrape_content=scrape_content)
                 if not success:
                     self.log.error(f"Failed to process video {video_id}")
             except Exception as e:
@@ -353,7 +360,7 @@ class TT_Scraper_DB_metadata(TT_Scraper):
         return msg
 
 
-def collect_metadata_for_all(scraper=None, logger=None, test_mode=False):
+def collect_metadata_for_all(scraper=None, logger=None, test_mode=False, scrape_content=False):
     """Collect metadata for all videos in the database."""
     if logger is None:
         logger = setup_logger('collect_metadata')
@@ -380,7 +387,7 @@ def collect_metadata_for_all(scraper=None, logger=None, test_mode=False):
             sys.stdout = open(os.devnull, 'w')
 
             try:
-                scraper.scrape_list(video_ids, scrape_content=False)  # Don't download content, just metadata
+                scraper.scrape_list(video_ids, scrape_content=scrape_content)  # Don't download content, just metadata
             finally:
                 if test_mode:
                     break

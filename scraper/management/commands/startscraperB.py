@@ -21,9 +21,20 @@ class Command(BaseCommand):
             '''
         )
 
+        parser.add_argument(
+            '--download_files',
+            type=bool,
+            default=False,
+            help='''Download File:
+                False (default) - if true, scraper will also download and save video/slideshow files.
+            '''
+        )
+
     def handle(self, *args, **options):
         mode = options['mode']
         is_test = mode == 'test'
+
+        download_files = options['download_files']
 
         # Setup single logger for entire session
         logger = setup_logger(f'command_{mode}')
@@ -36,11 +47,11 @@ class Command(BaseCommand):
         try:
             if mode == 'production':
                 logger.info('Running complete scraping...')
-                collect_metadata_for_all(logger=logger, test_mode=False)
+                collect_metadata_for_all(logger=logger, test_mode=False, scrape_content=download_files)
             
             elif mode == 'test':
                 logger.info('Running test mode...')
-                collect_metadata_for_all(logger=logger, test_mode=True)
+                collect_metadata_for_all(logger=logger, test_mode=True, scrape_content=download_files)
             
             logger.info('Scraping completed successfully')
             self.stdout.write(self.style.SUCCESS('Scraping completed successfully'))
