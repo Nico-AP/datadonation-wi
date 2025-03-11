@@ -181,3 +181,7 @@ testdata/
 testfile.py
 _testfile.py
 _stresstest_locust.py
+data/
+scraper/data/
+scraper/logs/
+scraper/management/commands/local_*
