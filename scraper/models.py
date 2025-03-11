@@ -170,6 +170,8 @@ class TikTokVideo_B(models.Model):
     enable_audio_caption = models.BooleanField(null=True, default=None, blank=True)
     no_caption_reason = models.SmallIntegerField(null=True, blank=True)
 
+    # Scraping monitoring.
+    scrape_priority = models.IntegerField(default=0)
     scrape_success = models.BooleanField(default=False)
     scrape_status = models.TextField(null=True)
     scrape_date = models.DateTimeField(
