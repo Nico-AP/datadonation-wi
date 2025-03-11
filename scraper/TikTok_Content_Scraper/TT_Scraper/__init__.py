@@ -23,7 +23,6 @@ class TT_Scraper(HTML_Scraper):
     from ._exception_handler import _exception_handler
 
 
-    
     def scrape_list(self, ids : list = None, scrape_content : bool = True, batch_size : int = None, clear_console = True, total_videos=0, already_scraped_count=0, total_errors=0):
 
         # initialisation        
@@ -189,11 +188,10 @@ class TT_Scraper(HTML_Scraper):
         elif not download_metadata and download_content:
             metadata_package["content_binary"] = content_binary
             self._download_data(metadata_batch = [metadata_package], download_metadata=False)
-            return metadata_package
+            return metadata_package, None
         elif download_metadata and not download_content:
             metadata_package["content_binary"] = content_binary
             self._download_data(metadata_batch = [metadata_package], download_content=False)
-            return content_binary
+            return None, content_binary
         else:
             return metadata_package, content_binary
-
