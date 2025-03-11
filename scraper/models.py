@@ -16,7 +16,6 @@ class TikTokUser(models.Model):
         return self.name
 
 
-
 class TikTokUser_B(models.Model):
     # name = username in TikTokUser
     username = models.CharField(max_length=255)

@@ -40,7 +40,7 @@ def load_posts_data(needed_fields=None, video_ids=None):
             'create_time',
             'view_count',
             'like_count',
-            'username__name',
+            'author_id__name',
             'hashtags__name'
         ]
     else:
@@ -58,7 +58,7 @@ def load_posts_data(needed_fields=None, video_ids=None):
 
     df_posts = pd.DataFrame.from_records(videos)
     df_posts = df_posts.rename(columns={
-        'username__name': 'username',
+        'author_id__name': 'username',
         'hashtags__name': 'hashtags'
     })
 
