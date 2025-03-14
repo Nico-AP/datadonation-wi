@@ -170,6 +170,7 @@ class TikTokVideo_B(models.Model):
     no_caption_reason = models.SmallIntegerField(null=True, blank=True)
 
     # Scraping monitoring.
+    content_downloaded = models.BooleanField(default=False)
     scrape_priority = models.IntegerField(default=0)
     scrape_success = models.BooleanField(default=False)
     scrape_status = models.TextField(null=True)
