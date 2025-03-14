@@ -3,15 +3,18 @@ from datetime import datetime
 
 from django.utils.timezone import make_aware
 from http import HTTPStatus
+
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, permissions, status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from scraper.models import TikTokVideo
+from scraper.models import TikTokVideo, TikTokVideo_B
 from scraper.scraper import save_video_to_db
-from scraper.serializers import TikTokVideoSerializer
+from scraper.serializers import TikTokVideoSerializer, TikTokVideoBSerializer
 
 logger = logging.getLogger('api_logger')
 
@@ -99,6 +102,88 @@ class TikTokVideoListAPI(ListAPIView):
 
         username = self.request.query_params.get('username')
         if username is not None:
-            queryset = queryset.filter(username__name=username)
+            queryset = queryset.filter(author_id__name=username)
 
         return queryset
+
+
+class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
+    """
+    Endpoint to get (GET) or update (PATCH) single TikTokVideo_B instance.
+
+    Examples:
+        GET apis/video/<video_id>/
+
+        PATCH apis/video/<video_id>/
+        Content-Type: application/json
+        {
+            "video_description": "Updated description",
+            "like_count": 5000
+        }
+
+    """
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TikTokVideoBSerializer
+    queryset = TikTokVideo_B.objects.all()
+    lookup_field = 'video_id'
+
+    def update(self, request, *args, **kwargs):
+        """
+        Only allow updating videos where scrape_date = None, i.e., videos
+        that have not been scraped yet. The assumption is that the earlier
+        scrape attempts are more likely to have been successful.
+        """
+        # Only allow PATCH updates.
+        if request.method == "PUT":
+            return Response(
+                {"error": "Full updates (PUT) are not allowed. Use PATCH instead."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+
+        # Only allow updates of videos where scrape_date = None
+        instance = self.get_object()
+        if instance.scrape_date is not None:
+            return Response(
+                {"error": "The metadata for this video have already been scraped. Updates are only allowed for videos with scrape_date = None."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+
+class TikTokBResultsSetPagination(PageNumberPagination):
+    page_size = 500
+    page_size_query_param = 'page_size'
+    max_page_size = 2000
+
+
+class TikTokVideoBFilter(filters.FilterSet):
+    hashtags = filters.CharFilter(method='filter_hashtags')
+
+    def filter_hashtags(self, queryset, name, value):
+        """Filters videos by hashtags (comma-separated)."""
+        hashtag_list = value.split(',')
+        return queryset.filter(hashtags__name__in=hashtag_list).distinct()
+
+    class Meta:
+        model = TikTokVideo_B
+        exclude = [
+            'warn_info',
+            'effect_stickers',
+            'stickers_on_item',
+            'comments',
+            'diversification_labels',
+            'channel_tags',
+            'keyword_tags'
+        ]
+
+
+class TikTokVideoBListAPI(ListAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = TikTokVideo_B.objects.all().order_by('-create_time')
+    serializer_class = TikTokVideoBSerializer
+    pagination_class = TikTokBResultsSetPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TikTokVideoBFilter

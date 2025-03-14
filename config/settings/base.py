@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'cookie_consent',
     'django.contrib.humanize',
     'django_celery_results',
-    'ddm_custom'
+    'ddm_custom',
+    'django_filters'
 ]
 
 MIDDLEWARE = [

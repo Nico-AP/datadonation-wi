@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from scraper.models import TikTokVideo
+from scraper.models import TikTokVideo, TikTokVideo_B
 
 
 class TikTokVideoSerializer(serializers.ModelSerializer):
@@ -12,4 +12,10 @@ class TikTokVideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TikTokVideo
+        fields = '__all__'
+
+
+class TikTokVideoBSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TikTokVideo_B
         fields = '__all__'

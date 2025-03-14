@@ -2,16 +2,16 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.test import override_settings
+from django.test import override_settings, TestCase
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 from ddm.projects.models import ResearchProfile
 
-from scraper.models import TikTokVideo, Hashtag, TikTokUser
+from scraper.models import TikTokVideo, Hashtag, TikTokUser, TikTokVideo_B, TikTokUser_B
 
 User = get_user_model()
 
@@ -137,12 +137,12 @@ class TikTokVideoListAPITestCase(APITestCase):
         self.hashtag2 = Hashtag.objects.create(name='dance')
 
         # Create multiple TikTokVideo instances for pagination testing.
-        for i in range(148):
+        for i in range(1048):
             video = TikTokVideo.objects.create(
                 video_id=1000 + i,
                 video_description=f'Video {i}',
                 create_time=make_aware(datetime(2024, 2, 1, 12, 0, 0)),
-                username=self.tt_user1,
+                author_id=self.tt_user1,
                 comment_count=10 * i,
                 like_count=100 * i,
                 share_count=5 * i,
@@ -156,7 +156,7 @@ class TikTokVideoListAPITestCase(APITestCase):
             video_id=101,
             video_description=f'Video 101',
             create_time=make_aware(datetime(2024, 4, 1, 12, 0, 0)),
-            username=self.tt_user1,
+            author_id=self.tt_user1,
             comment_count=10 * i,
             like_count=100 * i,
             share_count=5 * i,
@@ -170,7 +170,7 @@ class TikTokVideoListAPITestCase(APITestCase):
             video_id=102,
             video_description=f'Video 102',
             create_time=make_aware(datetime(2024, 4, 1, 12, 0, 0)),
-            username=self.tt_user2,
+            author_id=self.tt_user2,
             comment_count=10 * i,
             like_count=100 * i,
             share_count=5 * i,
@@ -190,7 +190,7 @@ class TikTokVideoListAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('results', response.data)
-        self.assertEqual(len(response.data['results']), 100)
+        self.assertEqual(len(response.data['results']), 1000)
 
         # Ensure pagination is present
         self.assertIn('next', response.data)
@@ -237,7 +237,7 @@ class TikTokVideoListAPITestCase(APITestCase):
             'video_id',
             'video_description',
             'create_time',
-            'username',
+            'author_id',
             'comment_count',
             'like_count',
             'share_count',
@@ -266,3 +266,169 @@ class TikTokVideoListAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['video_id'], 102)
+
+
+class TikTokVideoBDetailViewTest(TestCase):
+    def setUp(self):
+        """Set up test data."""
+        self.client = APIClient()
+        self.tt_user = TikTokUser_B.objects.create(username='test')
+
+        # Video with `scrape_date=None` (Should allow updates)
+        self.video1 = TikTokVideo_B.objects.create(
+            video_id='123456',
+            video_description='Initial description',
+            like_count=1000,
+            scrape_date=None,  # Allows updates
+            author_id=self.tt_user
+        )
+
+        # Video with `scrape_date` set (Should block updates)
+        self.video2 = TikTokVideo_B.objects.create(
+            video_id='789101',
+            video_description='Locked video',
+            like_count=5000,
+            scrape_date='2023-01-01T00:00:00Z',
+            author_id=self.tt_user
+        )
+
+        # Add user to create auth token.
+        self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
+        self.user = User.objects.create_user(
+            **self.credentials, **{'email': 'owner@mail.com'})
+        ResearchProfile.objects.create(user=self.user)
+        self.token, _ = Token.objects.get_or_create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+    def test_get_video(self):
+        """Test retrieving a video by video_id."""
+        url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['video_id'], '123456')
+        self.assertEqual(response.data['video_description'], 'Initial description')
+
+    def test_patch_video_allowed(self):
+        """Test updating a video when scrape_date=None."""
+        url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
+        response = self.client.patch(
+            url,
+            {'video_description': 'Updated description'},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.video1.refresh_from_db()
+        self.assertEqual(self.video1.video_description, 'Updated description')
+
+    def test_patch_video_blocked(self):
+        """Test updating a video when scrape_date is set."""
+        url = reverse('video_b_detail_api', kwargs={'video_id': self.video2.video_id})
+        response = self.client.patch(
+            url,
+            {'video_description': 'Should not update'},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.video2.refresh_from_db()
+        self.assertEqual(self.video2.video_description, 'Locked video')  # Should remain unchanged
+
+    def test_put_video_not_allowed(self):
+        """Test that full updates (PUT) are blocked."""
+        url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
+        response = self.client.put(
+            url,
+            {'video_description': 'Full update attempt', 'like_count': 2000},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)  # If PUT is blocked
+
+
+# TODO: Check tests:
+class TikTokVideoBListAPITest(TestCase):
+    def setUp(self):
+        """Set up test data."""
+        self.client = APIClient()
+        self.tt_user = TikTokUser_B.objects.create(id=1, username='test_user')
+
+        # Create hashtags.
+        self.hashtag1 = Hashtag.objects.create(name='funny')
+        self.hashtag2 = Hashtag.objects.create(name='dance')
+
+        # Create videos.
+        self.video1 = TikTokVideo_B.objects.create(
+            video_id='123456',
+            video_description='Funny video',
+            create_time=make_aware(datetime(2024, 3, 10)),
+            scrape_date=None,
+            content_downloaded=True,
+            is_ad=False,
+            author_id=self.tt_user
+        )
+        self.video1.hashtags.add(self.hashtag1)  # Associate hashtag
+
+        self.video2 = TikTokVideo_B.objects.create(
+            video_id='789101',
+            video_description='Dance video',
+            create_time=make_aware(datetime(2024, 3, 5)),
+            scrape_date=make_aware(datetime(2024, 3, 6)),
+            content_downloaded=False,
+            is_ad=True,
+            author_id=self.tt_user
+        )
+        self.video2.hashtags.add(self.hashtag2)
+
+        # Add user to create auth token.
+        self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
+        self.user = User.objects.create_user(
+            **self.credentials, **{'email': 'owner@mail.com'})
+        ResearchProfile.objects.create(user=self.user)
+        self.token, _ = Token.objects.get_or_create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        self.api_url = reverse('video_b_list_api')
+
+    def test_get_video_list(self):
+        """Test retrieving the list of videos."""
+        response = self.client.get(self.api_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+
+    def test_filter_by_scrape_date(self):
+        """Test filtering videos by scrape_date."""
+        response = self.client.get(self.api_url + '?scrape_date=2024-03-06')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['video_id'], '789101')
+
+    def test_filter_by_content_downloaded(self):
+        """Test filtering videos by content_downloaded=True."""
+        response = self.client.get(self.api_url + '?content_downloaded=1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['video_id'], '123456')
+
+    def test_filter_by_is_ad(self):
+        """Test filtering videos by is_ad=True."""
+        response = self.client.get(self.api_url + '?is_ad=True')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['video_id'], '789101')
+
+    def test_filter_by_author_id(self):
+        """Test filtering videos by author_id."""
+        response = self.client.get(self.api_url + f'?author_id={self.user.id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+
+    def test_filter_by_hashtags(self):
+        """Test filtering videos by hashtags (funny)."""
+        response = self.client.get(self.api_url + '?hashtags=funny')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['video_id'], '123456')
+
+    def test_filter_by_multiple_hashtags(self):
+        """Test filtering videos by multiple hashtags (funny, dance)."""
+        response = self.client.get(self.api_url + '?hashtags=funny,dance')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)

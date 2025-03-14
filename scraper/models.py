@@ -61,7 +61,6 @@ class TikTokUser_B(models.Model):
         return str(self.author_id) if self.author_id else self.username
 
 
-
 class TikTokVideo(models.Model):
     video_id = models.BigIntegerField(unique=True)
     video_description = models.TextField(null=True, blank=True)
