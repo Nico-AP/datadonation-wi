@@ -12,7 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from scraper.models import TikTokVideo, TikTokVideo_B
+from scraper.models import TikTokVideo, TikTokVideo_B, TikTokUser_B, Hashtag
 from scraper.scraper import save_video_to_db
 from scraper.serializers import TikTokVideoSerializer, TikTokVideoBSerializer
 
@@ -149,7 +149,32 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        return super().update(request, *args, **kwargs)
+        # Extract data from request.
+        data = request.data
+        author_username = data.pop("author_id", None)
+        hashtags_list = data.pop("hashtags", [])
+
+        # Get or create TikTokUser_B
+        if author_username:
+            author, created = TikTokUser_B.objects.get_or_create(username=author_username)
+            instance.author_id = author  # Update author_id field
+
+        # Get or create hashtag objects
+        if hashtags_list:
+            hashtags = []
+            for tag_name in hashtags_list:
+                hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
+                hashtags.append(hashtag)
+
+            # Set the hashtags for the video
+            instance.hashtags.set(hashtags)
+
+        instance.save()
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 class TikTokBResultsSetPagination(PageNumberPagination):

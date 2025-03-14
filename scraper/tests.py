@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.test import override_settings, TestCase
 from django.urls import reverse
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -12,6 +12,7 @@ from rest_framework.authtoken.models import Token
 from ddm.projects.models import ResearchProfile
 
 from scraper.models import TikTokVideo, Hashtag, TikTokUser, TikTokVideo_B, TikTokUser_B
+
 
 User = get_user_model()
 
@@ -292,6 +293,11 @@ class TikTokVideoBDetailViewTest(TestCase):
             author_id=self.tt_user
         )
 
+        self.hashtag1 = Hashtag.objects.create(name='funny')
+        self.hashtag2 = Hashtag.objects.create(name='funnier')
+        self.video1.hashtags.add(self.hashtag1)
+        self.video1.hashtags.add(self.hashtag2)
+
         # Add user to create auth token.
         self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
         self.user = User.objects.create_user(
@@ -307,6 +313,8 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['video_id'], '123456')
         self.assertEqual(response.data['video_description'], 'Initial description')
+        self.assertEqual(response.data['author_id'], 'test')
+        self.assertEqual(response.data['hashtags'], ['funny', 'funnier'])
 
     def test_patch_video_allowed(self):
         """Test updating a video when scrape_date=None."""
@@ -343,7 +351,142 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)  # If PUT is blocked
 
 
-# TODO: Check tests:
+class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
+    def setUp(self):
+        """Set up test data."""
+        self.client = APIClient()
+
+        self.existing_user = TikTokUser_B.objects.create(username="existing_user")
+
+        self.hashtag1 = Hashtag.objects.create(name="funny")
+        self.hashtag2 = Hashtag.objects.create(name="dance")
+
+        self.video1 = TikTokVideo_B.objects.create(
+            video_id="123456",
+            video_description="Original description",
+            like_count=100,
+            author_id=self.existing_user,
+            scrape_date=None
+        )
+        self.video1.hashtags.set([self.hashtag1])
+
+        self.video2 = TikTokVideo_B.objects.create(
+            video_id="789101",
+            video_description="Locked video",
+            like_count=5000,
+            scrape_date=now()
+        )
+
+        # Add user to create auth token.
+        self.credentials = {'username': 'user', 'password': '<PASSWORD>'}
+        self.user = User.objects.create_user(
+            **self.credentials, **{'email': 'owner@mail.com'})
+        ResearchProfile.objects.create(user=self.user)
+        self.token, _ = Token.objects.get_or_create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+    def test_patch_updates_video_when_scrape_date_is_none(self):
+        """PATCH should update a video when `scrape_date = None`."""
+        data = {
+            "video_description": "Updated description",
+            "like_count": 5000,
+            "author_id": "new_user123",
+            "hashtags": ["trending", "viral"]
+        }
+
+        url = reverse("video_b_detail_api",
+                      kwargs={"video_id": self.video1.video_id})
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        old_user_pk = self.video1.author_id.pk
+        self.video1.refresh_from_db()
+
+        # Check that the fields are updated
+        self.assertEqual(self.video1.video_description, "Updated description")
+        self.assertEqual(self.video1.like_count, 5000)
+
+        # Check that the author has changed
+        self.assertEqual(self.video1.author_id.username, "new_user123")
+        self.assertNotEqual(self.video1.author_id.pk, old_user_pk)
+
+        # Check that new hashtags were created and assigned
+        hashtags = list(self.video1.hashtags.values_list("name", flat=True))
+        self.assertCountEqual(hashtags, ["trending", "viral"])
+
+    def test_patch_fails_when_scrape_date_is_set(self):
+        """PATCH should be blocked if `scrape_date` is not None."""
+        data = {
+            "video_description": "Should not update"
+        }
+
+        url = reverse("video_b_detail_api",
+                      kwargs={"video_id": self.video2.video_id})
+        response = self.client.patch(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.video2.refresh_from_db()
+        self.assertEqual(self.video2.video_description, "Locked video")
+
+    def test_patch_creates_new_author_if_not_exists(self):
+        """PATCH should create a new TikTokUser_B if author_id does not exist."""
+        data = {
+            "author_id": "new_author"
+        }
+
+        url = reverse("video_b_detail_api",
+                      kwargs={"video_id": self.video1.video_id})
+        response = self.client.patch(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        old_user_pk = self.video1.author_id.pk
+        self.video1.refresh_from_db()
+        self.assertEqual(self.video1.author_id.username, "new_author")
+        self.assertNotEqual(self.video1.author_id.pk, old_user_pk)
+
+        # Verify that a new user was actually created
+        self.assertTrue(TikTokUser_B.objects.filter(username="new_author").exists())
+
+    def test_patch_creates_new_hashtags_if_not_exists(self):
+        """PATCH should create new hashtags if they do not exist and assign them to the video."""
+        data = {
+            "hashtags": ["newtag1", "newtag2"]
+        }
+
+        url = reverse("video_b_detail_api",
+                      kwargs={"video_id": self.video1.video_id})
+        response = self.client.patch(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.video1.refresh_from_db()
+
+        # Verify that new hashtags were created
+        self.assertTrue(Hashtag.objects.filter(name="newtag1").exists())
+        self.assertTrue(Hashtag.objects.filter(name="newtag2").exists())
+
+        # Verify that the video has been updated with the new hashtags
+        hashtags = list(self.video1.hashtags.values_list("name", flat=True))
+        self.assertCountEqual(hashtags, ["newtag1", "newtag2"])
+
+    def test_patch_replaces_existing_hashtags(self):
+        """PATCH should replace existing hashtags with the new ones provided."""
+        data = {
+            "hashtags": ["replacedTag"]
+        }
+
+        url = reverse("video_b_detail_api",
+                      kwargs={"video_id": self.video1.video_id})
+        response = self.client.patch(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.video1.refresh_from_db()
+
+        # Verify that old hashtags are replaced
+        hashtags = list(self.video1.hashtags.values_list("name", flat=True))
+        self.assertCountEqual(hashtags, ["replacedTag"])
+
+
 class TikTokVideoBListAPITest(TestCase):
     def setUp(self):
         """Set up test data."""
@@ -364,7 +507,7 @@ class TikTokVideoBListAPITest(TestCase):
             is_ad=False,
             author_id=self.tt_user
         )
-        self.video1.hashtags.add(self.hashtag1)  # Associate hashtag
+        self.video1.hashtags.add(self.hashtag1)
 
         self.video2 = TikTokVideo_B.objects.create(
             video_id='789101',
