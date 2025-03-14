@@ -16,6 +16,11 @@ class TikTokVideoSerializer(serializers.ModelSerializer):
 
 
 class TikTokVideoBSerializer(serializers.ModelSerializer):
+    author_id = serializers.StringRelatedField()
+    hashtags = serializers.SlugRelatedField(
+        many=True, slug_field='name', read_only=True
+    )
+
     class Meta:
         model = TikTokVideo_B
         fields = '__all__'
