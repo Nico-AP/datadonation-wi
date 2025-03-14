@@ -273,7 +273,7 @@ class TikTokVideoBDetailViewTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.client = APIClient()
-        self.tt_user = TikTokUser_B.objects.create(username='test')
+        self.tt_user = TikTokUser_B.objects.create(author_id='123', username='test')
 
         # Video with `scrape_date=None` (Should allow updates)
         self.video1 = TikTokVideo_B.objects.create(
@@ -313,7 +313,8 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['video_id'], '123456')
         self.assertEqual(response.data['video_description'], 'Initial description')
-        self.assertEqual(response.data['author_id'], 'test')
+        self.assertEqual(response.data['author_id'], '123')
+        self.assertEqual(response.data['author_username'], 'test')
         self.assertEqual(response.data['hashtags'], ['funny', 'funnier'])
 
     def test_patch_video_allowed(self):
@@ -390,7 +391,7 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         data = {
             "video_description": "Updated description",
             "like_count": 5000,
-            "author_id": "new_user123",
+            "author_id": "123",
             "hashtags": ["trending", "viral"]
         }
 
@@ -408,7 +409,7 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         self.assertEqual(self.video1.like_count, 5000)
 
         # Check that the author has changed
-        self.assertEqual(self.video1.author_id.username, "new_user123")
+        self.assertEqual(self.video1.author_id.username, "<<placeholder until scraped>>")
         self.assertNotEqual(self.video1.author_id.pk, old_user_pk)
 
         # Check that new hashtags were created and assigned
@@ -432,7 +433,7 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
     def test_patch_creates_new_author_if_not_exists(self):
         """PATCH should create a new TikTokUser_B if author_id does not exist."""
         data = {
-            "author_id": "new_author"
+            "author_id": "123"
         }
 
         url = reverse("video_b_detail_api",
@@ -442,11 +443,11 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
 
         old_user_pk = self.video1.author_id.pk
         self.video1.refresh_from_db()
-        self.assertEqual(self.video1.author_id.username, "new_author")
+        self.assertEqual(self.video1.author_id.username, "<<placeholder until scraped>>")
         self.assertNotEqual(self.video1.author_id.pk, old_user_pk)
 
         # Verify that a new user was actually created
-        self.assertTrue(TikTokUser_B.objects.filter(username="new_author").exists())
+        self.assertTrue(TikTokUser_B.objects.filter(author_id="123").exists())
 
     def test_patch_creates_new_hashtags_if_not_exists(self):
         """PATCH should create new hashtags if they do not exist and assign them to the video."""

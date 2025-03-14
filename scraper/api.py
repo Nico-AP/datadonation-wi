@@ -151,12 +151,15 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
 
         # Extract data from request.
         data = request.data
-        author_username = data.pop("author_id", None)
+        author_id = data.pop("author_id", None)
         hashtags_list = data.pop("hashtags", [])
 
         # Get or create TikTokUser_B
-        if author_username:
-            author, created = TikTokUser_B.objects.get_or_create(username=author_username)
+        if author_id:
+            author, created = TikTokUser_B.objects.get_or_create(author_id=author_id)
+            if created:
+                author.username = '<<placeholder until scraped>>'
+                author.save()
             instance.author_id = author  # Update author_id field
 
         # Get or create hashtag objects
