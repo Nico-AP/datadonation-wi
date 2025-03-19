@@ -10,7 +10,6 @@ from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListAPIView
-from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -147,6 +146,87 @@ class TikTokVideoBRetrieveAPI(APIView):
 
 
 class TikTokVideoBUpdateAPI(APIView):
+    """
+    Endpoint to update (POST) single TikTokVideo_B instance.
+
+    Examples:
+        POST apis/video/<video_id>/update/
+        Content-Type: application/json
+        {
+            "video_description": "Updated description",
+            "like_count": 5000
+        }
+
+    """
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TikTokVideoBSerializer
+
+    def get_object(self):
+        """Retrieve a video object using `video_id` from the URL kwargs."""
+        video_id = self.kwargs.get('video_id')
+        if not video_id:
+            raise Http404('Missing video_id in URL')
+        try:
+            return TikTokVideo_B.objects.get(video_id=video_id)
+        except TikTokVideo_B.DoesNotExist:
+            return TikTokVideo_B.objects.create(video_id=video_id)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Only allow updating videos where scrape_date = None, i.e., videos
+        that have not been scraped yet. The assumption is that the earlier
+        scrape attempts are more likely to have been successful.
+        """
+        # Only allow POST of data belonging to existing objects.
+        instance = self.get_object()
+
+        # Only allow updates of videos where scrape_date = None
+        if instance.scrape_date is not None:
+            return Response(
+                {'error': 'The metadata for this video have already been scraped. Updates are only allowed for videos with scrape_date = None.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Extract data from request.
+        data = request.data.copy()
+
+        # Get or create TikTokUser_B
+        with transaction.atomic():
+            author_id = data.pop('author_id', None)
+            if author_id:
+                author, created = TikTokUser_B.objects.get_or_create(author_id=author_id)
+                if created:
+                    author.username = '<<placeholder until scraped>>'
+                    author.save()
+                instance.author_id = author  # Update author_id field
+
+            # Get or create hashtag objects
+            hashtags_list = data.pop('hashtags', [])
+            if hashtags_list:
+                hashtags = []
+                for tag_name in hashtags_list:
+                    hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
+                    hashtags.append(hashtag)
+
+                # Set the hashtags for the video
+                instance.hashtags.set(hashtags)
+
+            mentions_list = data.pop('mentions', [])
+            if mentions_list:
+                mentions = [TikTokUser_B.objects.get_or_create(author_id=user_id)[0] for user_id in mentions_list]
+                instance.mentions.set(mentions)
+
+            instance.save()
+
+            serializer = self.serializer_class(instance, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        return Response(serializer.data)
+
+
+class TikTokVideoBSetPrioAPI(APIView):
     """
     Endpoint to update (POST) single TikTokVideo_B instance.
 
