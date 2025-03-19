@@ -125,7 +125,7 @@ class TikTokVideo_B(models.Model):
 
     schedule_time = models.IntegerField(null=True, blank=True)
     is_ad = models.BooleanField(default=False)
-    suggested_words = models.CharField(max_length=255, null=True, blank=True)
+    suggested_words = models.CharField(max_length=4096, null=True, blank=True)
     diggcount = models.IntegerField(null=True, blank=True)
     collectcount = models.IntegerField(null=True, blank=True)
     repostcount = models.IntegerField(null=True, blank=True)
