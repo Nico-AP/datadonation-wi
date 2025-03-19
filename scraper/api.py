@@ -9,7 +9,8 @@ from http import HTTPStatus
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, permissions, status
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -109,7 +110,7 @@ class TikTokVideoListAPI(ListAPIView):
         return queryset
 
 
-class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView):
+class TikTokVideoBRetrieveUpdateAPI(APIView):
     """
     Endpoint to get (GET) or update (POST) single TikTokVideo_B instance.
 
@@ -129,6 +130,22 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView):
     serializer_class = TikTokVideoBSerializer
     queryset = TikTokVideo_B.objects.all()
     lookup_field = 'video_id'
+
+    def get(self, request, *args, **kwargs):
+        """Retrieve a TikTokVideo_B instance."""
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def get_object(self):
+        """Retrieve a video object using `video_id` from the URL kwargs."""
+        video_id = self.kwargs.get('video_id')  # ✅ Get `video_id` from URL kwargs
+        if not video_id:
+            raise Http404("Missing video_id in URL")  # Handle cases where it's missing
+        try:
+            return TikTokVideo_B.objects.get(video_id=video_id)
+        except TikTokVideo_B.DoesNotExist:
+            raise Http404("Video not found")
 
     def post(self, request, *args, **kwargs):
         """
@@ -177,7 +194,7 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView):
 
             instance.save()
 
-            serializer = self.get_serializer(instance, data=data, partial=True)
+            serializer = self.serializer_class(instance, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 

@@ -317,10 +317,10 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.data['author_username'], 'test')
         self.assertEqual(response.data['hashtags'], ['funny', 'funnier'])
 
-    def test_patch_video_allowed(self):
+    def test_update_video_allowed(self):
         """Test updating a video when scrape_date=None."""
         url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
-        response = self.client.patch(
+        response = self.client.post(
             url,
             {'video_description': 'Updated description'},
             format='json'
@@ -329,10 +329,10 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.video1.refresh_from_db()
         self.assertEqual(self.video1.video_description, 'Updated description')
 
-    def test_patch_video_blocked(self):
+    def test_update_video_blocked(self):
         """Test updating a video when scrape_date is set."""
         url = reverse('video_b_detail_api', kwargs={'video_id': self.video2.video_id})
-        response = self.client.patch(
+        response = self.client.post(
             url,
             {'video_description': 'Should not update'},
             format='json'
