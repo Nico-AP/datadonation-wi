@@ -40,48 +40,48 @@ class TT_Scraper(HTML_Scraper):
         # scrape batches of data
         batch_of_metadata = []
         for self.iterations, id in enumerate(ids, start=1):
-                # logging
-                start = time.time()
-                self._logging_queue_progress()
+            # logging
+            start = time.time()
+            self._logging_queue_progress()
 
-                # scraping
-                self.log.info(f"-> id {id}")
-                metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
-                metadata_package["content_binary"] = content_binary
-                self.repeated_error = 0  
+            # scraping
+            self.log.info(f"-> id {id}")
+            metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
+            metadata_package["content_binary"] = content_binary
+            self.repeated_error = 0
 
-                # save data in memory until stored
-                batch_of_metadata.append(metadata_package)
-                
-                #with open(f"test_batch.json", "w", encoding="utf-8") as f:
-                #    json.dump(batch_of_metadata, f, ensure_ascii=False, indent=4)
-                
-                # stored batch of data
-                if len(batch_of_metadata) >= batch_size:
-                    # upsert metadata and write mp4s to output dir
-                    self.log.info("\nstoring data batch...\n")
-                    self._download_data(metadata_batch = batch_of_metadata)
-                    
-                    # clean up
-                    batch_of_metadata = []
+            # save data in memory until stored
+            batch_of_metadata.append(metadata_package)
 
-                # measure time and set wait time
-                stop = time.time()
-                self.ITER_TIME = stop - start
-                wait_time_left = max(0, self.WAIT_TIME - self.ITER_TIME)
-                time.sleep(wait_time_left)
-                self.ITER_TIME = self.ITER_TIME + wait_time_left
+            #with open(f"test_batch.json", "w", encoding="utf-8") as f:
+            #    json.dump(batch_of_metadata, f, ensure_ascii=False, indent=4)
 
-                # interrupt if too many errors in a row
-                if self.repeated_error > self.ALLOW_REPEATED_ERRORS:
-                    self.log.ERROR("Too many Errors in a row!")
-                    self.log.ERROR(traceback.format_exc())
-                    self.log.ERROR("Stopping program...")
-                    sys.exit(0)
-                
-                # end of loop
-                if clear_console:
-                    self._clear_console()
+            # stored batch of data
+            if len(batch_of_metadata) >= batch_size:
+                # upsert metadata and write mp4s to output dir
+                self.log.info("\nstoring data batch...\n")
+                self._download_data(metadata_batch = batch_of_metadata)
+
+                # clean up
+                batch_of_metadata = []
+
+            # measure time and set wait time
+            stop = time.time()
+            self.ITER_TIME = stop - start
+            wait_time_left = max(0, self.WAIT_TIME - self.ITER_TIME)
+            time.sleep(wait_time_left)
+            self.ITER_TIME = self.ITER_TIME + wait_time_left
+
+            # interrupt if too many errors in a row
+            if self.repeated_error > self.ALLOW_REPEATED_ERRORS:
+                self.log.ERROR("Too many Errors in a row!")
+                self.log.ERROR(traceback.format_exc())
+                self.log.ERROR("Stopping program...")
+                sys.exit(0)
+
+            # end of loop
+            if clear_console:
+                self._clear_console()
 
         self._logging_queue_progress()
         if batch_of_metadata:
@@ -160,19 +160,18 @@ class TT_Scraper(HTML_Scraper):
             video_binary = None
             slide_pictures = None
         except RetryLaterError:
-            #retry 
+            # skip retry because it leads to long random timeouts.
             self.repeated_error += 1
             self.log.warning("-> retrying video due to error in package download...")
-            time.sleep(self.repeated_error * 3)
+            time.sleep(10)
             self._init_request_headers()
             video_binary = None
             slide_pictures = None
-            metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
-            if self.repeated_error > self.ALLOW_REPEATED_ERRORS:
-                self.log.ERROR("too many errors in a row")
-                sys.quit(1)
-        
-        
+            # metadata_package, content_binary = self.scrape(id=id, scrape_content=scrape_content, download_metadata=False, download_content=False)
+            # if self.repeated_error > self.ALLOW_REPEATED_ERRORS:
+            #    self.log.ERROR("too many errors in a row")
+            #    sys.quit(1)
+
         # create array of binary content (videos, pictures, music) 
         if video_binary:
             content_binary = {"type": "video", "mp4_binary": video_binary}

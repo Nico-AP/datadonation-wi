@@ -336,7 +336,6 @@ class TT_Scraper_DB_metadata(TT_Scraper):
     def scrape_list(self, ids, scrape_content=False, batch_size=None, clear_console=True, total_videos=0, already_scraped_count=0, total_errors=0):
         """Override scrape_list to handle multiple videos."""
         self.log.info(f"Starting to scrape {len(ids)} videos")
-        # self.log.info(f"Video IDs: {ids}")
         
         for video_id in ids:
             try:
@@ -387,7 +386,7 @@ def collect_metadata_for_all(scraper=None, logger=None, test_mode=False, scrape_
             sys.stdout = open(os.devnull, 'w')
 
             try:
-                scraper.scrape_list(video_ids, scrape_content=scrape_content)  # Don't download content, just metadata
+                scraper.scrape_list(video_ids, scrape_content=scrape_content)
             finally:
                 if test_mode:
                     break
