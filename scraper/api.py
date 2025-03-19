@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from django.db import transaction
 from django.http import Http404
 from django.utils.timezone import make_aware
 from http import HTTPStatus
@@ -108,7 +109,7 @@ class TikTokVideoListAPI(ListAPIView):
         return queryset
 
 
-class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView, APIView):
+class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView):
     """
     Endpoint to get (GET) or update (POST) single TikTokVideo_B instance.
 
@@ -136,10 +137,7 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView, APIView):
         scrape attempts are more likely to have been successful.
         """
         # Only allow POST of data belonging to existing objects.
-        try:
-            instance = self.get_object()
-        except Http404:
-            return Response({'error': 'The video you tried to update does not exist.'}, status=404)
+        instance = self.get_object()
 
         # Only allow updates of videos where scrape_date = None
         if instance.scrape_date is not None:
@@ -152,38 +150,36 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView, APIView):
         data = request.data.copy()
 
         # Get or create TikTokUser_B
-        author_id = data.pop('author_id', None)
-        if author_id:
-            author, created = TikTokUser_B.objects.get_or_create(author_id=author_id)
-            if created:
-                author.username = '<<placeholder until scraped>>'
-                author.save()
-            instance.author_id = author  # Update author_id field
+        with transaction.atomic():
+            author_id = data.pop('author_id', None)
+            if author_id:
+                author, created = TikTokUser_B.objects.get_or_create(author_id=author_id)
+                if created:
+                    author.username = '<<placeholder until scraped>>'
+                    author.save()
+                instance.author_id = author  # Update author_id field
 
-        # Get or create hashtag objects
-        hashtags_list = data.pop('hashtags', [])
-        if hashtags_list:
-            hashtags = []
-            for tag_name in hashtags_list:
-                hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
-                hashtags.append(hashtag)
+            # Get or create hashtag objects
+            hashtags_list = data.pop('hashtags', [])
+            if hashtags_list:
+                hashtags = []
+                for tag_name in hashtags_list:
+                    hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
+                    hashtags.append(hashtag)
 
-            # Set the hashtags for the video
-            instance.hashtags.set(hashtags)
+                # Set the hashtags for the video
+                instance.hashtags.set(hashtags)
 
-        mentions_list = data.pop('mentions', [])
-        if mentions_list:
-            mentions = [TikTokUser_B.objects.get_or_create(author_id=user_id)[0] for user_id in mentions_list]
-            instance.mentions.set(mentions)
+            mentions_list = data.pop('mentions', [])
+            if mentions_list:
+                mentions = [TikTokUser_B.objects.get_or_create(author_id=user_id)[0] for user_id in mentions_list]
+                instance.mentions.set(mentions)
 
-        instance.save()
+            instance.save()
 
-        serializer = self.get_serializer(instance, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
-
-        for attr, value in serializer.validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+            serializer = self.get_serializer(instance, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
 
         return Response(serializer.data)
 
