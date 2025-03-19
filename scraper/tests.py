@@ -317,42 +317,8 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.data['author_username'], 'test')
         self.assertEqual(response.data['hashtags'], ['funny', 'funnier'])
 
-    def test_update_video_allowed(self):
-        """Test updating a video when scrape_date=None."""
-        url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
-        response = self.client.post(
-            url,
-            {'video_description': 'Updated description'},
-            format='json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.video1.refresh_from_db()
-        self.assertEqual(self.video1.video_description, 'Updated description')
 
-    def test_update_video_blocked(self):
-        """Test updating a video when scrape_date is set."""
-        url = reverse('video_b_detail_api', kwargs={'video_id': self.video2.video_id})
-        response = self.client.post(
-            url,
-            {'video_description': 'Should not update'},
-            format='json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.video2.refresh_from_db()
-        self.assertEqual(self.video2.video_description, 'Locked video')  # Should remain unchanged
-
-    def test_put_video_not_allowed(self):
-        """Test that full updates (PUT) are blocked."""
-        url = reverse('video_b_detail_api', kwargs={'video_id': self.video1.video_id})
-        response = self.client.put(
-            url,
-            {'video_description': 'Full update attempt', 'like_count': 2000},
-            format='json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)  # If PUT is blocked
-
-
-class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
+class TikTokVideoBUpdateAPIPostTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.client = APIClient()
@@ -449,7 +415,7 @@ class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
             'hashtags': ['foryou', 'liveshow', 'guilty'], 'mentions': []
         }
 
-        url = reverse("video_b_detail_api",
+        url = reverse("video_b_update_api",
                       kwargs={"video_id": self.video1.video_id})
         response = self.client.post(url, data, format="json")
 
@@ -476,7 +442,7 @@ class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
             "video_description": "Should not update"
         }
 
-        url = reverse("video_b_detail_api",
+        url = reverse("video_b_update_api",
                       kwargs={"video_id": self.video2.video_id})
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -490,7 +456,7 @@ class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
             "author_id": "123"
         }
 
-        url = reverse("video_b_detail_api",
+        url = reverse("video_b_update_api",
                       kwargs={"video_id": self.video1.video_id})
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -509,7 +475,7 @@ class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
             "hashtags": ["newtag1", "newtag2"]
         }
 
-        url = reverse("video_b_detail_api",
+        url = reverse("video_b_update_api",
                       kwargs={"video_id": self.video1.video_id})
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -530,7 +496,7 @@ class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
             "hashtags": ["replacedTag"]
         }
 
-        url = reverse("video_b_detail_api",
+        url = reverse("video_b_update_api",
                       kwargs={"video_id": self.video1.video_id})
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

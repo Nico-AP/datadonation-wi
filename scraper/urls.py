@@ -1,5 +1,8 @@
 from django.urls import path
-from .api import ScraperPostAPI, TikTokVideoListAPI, TikTokVideoBRetrieveUpdateAPI, TikTokVideoBListAPI
+from .api import (
+    ScraperPostAPI, TikTokVideoListAPI,TikTokVideoBListAPI,
+    TikTokVideoBRetrieveAPI, TikTokVideoBUpdateAPI
+)
 
 urlpatterns = [
     path(
@@ -14,8 +17,13 @@ urlpatterns = [
     ),
     path(
         'api/video/<str:video_id>/',
-        TikTokVideoBRetrieveUpdateAPI.as_view(),
+        TikTokVideoBRetrieveAPI.as_view(),
         name='video_b_detail_api'
+    ),
+    path(
+        'api/video/<str:video_id>/update/',
+        TikTokVideoBUpdateAPI.as_view(),
+        name='video_b_update_api'
     ),
     path(
         'api/list/videos/',

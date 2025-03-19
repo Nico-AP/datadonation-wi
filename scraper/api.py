@@ -110,7 +110,7 @@ class TikTokVideoListAPI(ListAPIView):
         return queryset
 
 
-class TikTokVideoBRetrieveUpdateAPI(APIView):
+class TikTokVideoBRetrieveAPI(APIView):
     """
     Endpoint to get (GET) or update (POST) single TikTokVideo_B instance.
 
@@ -128,8 +128,6 @@ class TikTokVideoBRetrieveUpdateAPI(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TikTokVideoBSerializer
-    queryset = TikTokVideo_B.objects.all()
-    lookup_field = 'video_id'
 
     def get(self, request, *args, **kwargs):
         """Retrieve a TikTokVideo_B instance."""
@@ -139,13 +137,41 @@ class TikTokVideoBRetrieveUpdateAPI(APIView):
 
     def get_object(self):
         """Retrieve a video object using `video_id` from the URL kwargs."""
-        video_id = self.kwargs.get('video_id')  # ✅ Get `video_id` from URL kwargs
+        video_id = self.kwargs.get('video_id')
         if not video_id:
-            raise Http404("Missing video_id in URL")  # Handle cases where it's missing
+            raise Http404('Missing video_id in URL')
         try:
             return TikTokVideo_B.objects.get(video_id=video_id)
         except TikTokVideo_B.DoesNotExist:
-            raise Http404("Video not found")
+            raise Http404('Video not found')
+
+
+class TikTokVideoBUpdateAPI(APIView):
+    """
+    Endpoint to update (POST) single TikTokVideo_B instance.
+
+    Examples:
+        POST apis/video/<video_id>/update/
+        Content-Type: application/json
+        {
+            "video_description": "Updated description",
+            "like_count": 5000
+        }
+
+    """
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TikTokVideoBSerializer
+
+    def get_object(self):
+        """Retrieve a video object using `video_id` from the URL kwargs."""
+        video_id = self.kwargs.get('video_id')
+        if not video_id:
+            raise Http404('Missing video_id in URL')
+        try:
+            return TikTokVideo_B.objects.get(video_id=video_id)
+        except TikTokVideo_B.DoesNotExist:
+            raise Http404('Video not found')
 
     def post(self, request, *args, **kwargs):
         """
