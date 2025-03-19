@@ -8,7 +8,7 @@ from http import HTTPStatus
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, permissions, status
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -108,7 +108,7 @@ class TikTokVideoListAPI(ListAPIView):
         return queryset
 
 
-class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
+class TikTokVideoBRetrieveUpdateAPI(RetrieveAPIView, APIView):
     """
     Endpoint to get (GET) or update (POST) single TikTokVideo_B instance.
 
@@ -139,21 +139,20 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
         try:
             instance = self.get_object()
         except Http404:
-            return Response({"error": "The video you tried to update does not exist."}, status=404)
+            return Response({'error': 'The video you tried to update does not exist.'}, status=404)
 
         # Only allow updates of videos where scrape_date = None
         if instance.scrape_date is not None:
             return Response(
-                {"error": "The metadata for this video have already been scraped. Updates are only allowed for videos with scrape_date = None."},
+                {'error': 'The metadata for this video have already been scraped. Updates are only allowed for videos with scrape_date = None.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
         # Extract data from request.
-        data = request.data
-        author_id = data.pop("author_id", None)
-        hashtags_list = data.pop("hashtags", [])
+        data = request.data.copy()
 
         # Get or create TikTokUser_B
+        author_id = data.pop('author_id', None)
         if author_id:
             author, created = TikTokUser_B.objects.get_or_create(author_id=author_id)
             if created:
@@ -162,6 +161,7 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
             instance.author_id = author  # Update author_id field
 
         # Get or create hashtag objects
+        hashtags_list = data.pop('hashtags', [])
         if hashtags_list:
             hashtags = []
             for tag_name in hashtags_list:
@@ -171,11 +171,20 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
             # Set the hashtags for the video
             instance.hashtags.set(hashtags)
 
+        mentions_list = data.pop('mentions', [])
+        if mentions_list:
+            mentions = [TikTokUser_B.objects.get_or_create(author_id=user_id)[0] for user_id in mentions_list]
+            instance.mentions.set(mentions)
+
         instance.save()
 
         serializer = self.get_serializer(instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+
+        for attr, value in serializer.validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
         return Response(serializer.data)
 
 
