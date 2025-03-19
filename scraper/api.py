@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from django.http import Http404
 from django.utils.timezone import make_aware
 from http import HTTPStatus
 
@@ -109,12 +110,12 @@ class TikTokVideoListAPI(ListAPIView):
 
 class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
     """
-    Endpoint to get (GET) or update (PATCH) single TikTokVideo_B instance.
+    Endpoint to get (GET) or update (POST) single TikTokVideo_B instance.
 
     Examples:
         GET apis/video/<video_id>/
 
-        PATCH apis/video/<video_id>/
+        POST apis/video/<video_id>/
         Content-Type: application/json
         {
             "video_description": "Updated description",
@@ -128,21 +129,19 @@ class TikTokVideoBRetrieveUpdateAPI(RetrieveUpdateAPIView):
     queryset = TikTokVideo_B.objects.all()
     lookup_field = 'video_id'
 
-    def update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """
         Only allow updating videos where scrape_date = None, i.e., videos
         that have not been scraped yet. The assumption is that the earlier
         scrape attempts are more likely to have been successful.
         """
-        # Only allow PATCH updates.
-        if request.method == "PUT":
-            return Response(
-                {"error": "Full updates (PUT) are not allowed. Use PATCH instead."},
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
-            )
+        # Only allow POST of data belonging to existing objects.
+        try:
+            instance = self.get_object()
+        except Http404:
+            return Response({"error": "The video you tried to update does not exist."}, status=404)
 
         # Only allow updates of videos where scrape_date = None
-        instance = self.get_object()
         if instance.scrape_date is not None:
             return Response(
                 {"error": "The metadata for this video have already been scraped. Updates are only allowed for videos with scrape_date = None."},

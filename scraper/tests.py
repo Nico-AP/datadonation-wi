@@ -352,7 +352,7 @@ class TikTokVideoBDetailViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)  # If PUT is blocked
 
 
-class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
+class TikTokVideoBRetrieveUpdateAPIPostTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.client = APIClient()
@@ -386,18 +386,72 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         self.token, _ = Token.objects.get_or_create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
-    def test_patch_updates_video_when_scrape_date_is_none(self):
-        """PATCH should update a video when `scrape_date = None`."""
+    def test_update_video_when_scrape_date_is_none(self):
+        """POST should update a video when `scrape_date = None`."""
         data = {
-            "video_description": "Updated description",
-            "like_count": 5000,
-            "author_id": "123",
-            "hashtags": ["trending", "viral"]
+            'video_description': 'these arms are for cake throwing 🎂 #guilty #foryou #liveshow ',
+            'create_time': '2024-08-22T00:22:01+02:00',
+            'author_id': '89645703060140032',
+            'comment_count': 1998,
+            'like_count': 1000000,
+            'share_count': 23300,
+            'view_count': 6200000,
+            'music_id': 7402649657337318175,
+            'region_code': 'US',
+            'schedule_time': 0,
+            'is_ad': False,
+            'suggested_words': '[]',
+            'diggcount': 1000000,
+            'collectcount': 33249,
+            'repostcount': 0,
+            'poi_name': None,
+            'poi_address': None,
+            'poi_city': None,
+            'warn_info': [],
+            'original_item': False,
+            'offical_item': False,
+            'secret': False,
+            'for_friend': False,
+            'digged': False,
+            'item_comment_status': 0,
+            'take_down': 0,
+            'effect_stickers': None,
+            'private_item': False,
+            'duet_enabled': True,
+            'stitch_enabled': True,
+            'stickers_on_item': [{'stickerText': ['When i’m being chased by the police and overhear them say “the suspect has luscious long hair and great throwing arms”'], 'stickerType': 4}],
+            'share_enabled': True,
+            'comments': None,
+            'duet_display': 0,
+            'stitch_display': None,
+            'index_enabled': True,
+            'diversification_labels': ['Comedy', 'Performance'],
+            'diversification_id': 10003,
+            'channel_tags': [],
+            'keyword_tags': [{'pageType': 0, 'keyword': 'devon-aoki-sekarang'}, {'pageType': 0, 'keyword': 'devon-aoki-speaking-french'}, {'pageType': 0, 'keyword': 'devon-aoki-hijos'}, {'pageType': 0, 'keyword': 'devon-aoki-car'}, {'pageType': 0, 'keyword': 'steve-aoki-married-2024'}, {'pageType': 0, 'keyword': 'devon-aoki-today'}, {'pageType': 0, 'keyword': 'devon-aoki-lenny-kravitz'}, {'pageType': 0, 'keyword': 'devon-aoki-2025'}, {'pageType': 0, 'keyword': 'devon-aoki-downsyndrome'}, {'pageType': 0, 'keyword': 'devon-aoki-tiktok'}],
+            'is_ai_gc': False,
+            'ai_gc_description': None,
+            'filepath': 'data/tiktok_7405721540819537194_*',
+            'duration': 14,
+            'height': 1024,
+            'width': 576,
+            'ratio': 540,
+            'volume_loudness': -24.9,
+            'volume_peak': 0.26915,
+            'has_original_audio': False,
+            'enable_audio_caption': True,
+            'no_caption_reason': 3,
+            'content_downloaded': False,
+            'scrape_priority': 0,
+            'scrape_success': False,
+            'scrape_status': None,
+            'scrape_date': '2025-03-10T10:10:18.883833+01:00',
+            'hashtags': ['foryou', 'liveshow', 'guilty'], 'mentions': []
         }
 
         url = reverse("video_b_detail_api",
                       kwargs={"video_id": self.video1.video_id})
-        response = self.client.patch(url, data, format="json")
+        response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -405,8 +459,8 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         self.video1.refresh_from_db()
 
         # Check that the fields are updated
-        self.assertEqual(self.video1.video_description, "Updated description")
-        self.assertEqual(self.video1.like_count, 5000)
+        self.assertEqual(self.video1.video_description, 'these arms are for cake throwing 🎂 #guilty #foryou #liveshow')
+        self.assertEqual(self.video1.like_count, 1000000)
 
         # Check that the author has changed
         self.assertEqual(self.video1.author_id.username, "<<placeholder until scraped>>")
@@ -414,31 +468,31 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
 
         # Check that new hashtags were created and assigned
         hashtags = list(self.video1.hashtags.values_list("name", flat=True))
-        self.assertCountEqual(hashtags, ["trending", "viral"])
+        self.assertCountEqual(hashtags, ['foryou', 'liveshow', 'guilty'])
 
-    def test_patch_fails_when_scrape_date_is_set(self):
-        """PATCH should be blocked if `scrape_date` is not None."""
+    def test_update_fails_when_scrape_date_is_set(self):
+        """POST should be blocked if `scrape_date` is not None."""
         data = {
             "video_description": "Should not update"
         }
 
         url = reverse("video_b_detail_api",
                       kwargs={"video_id": self.video2.video_id})
-        response = self.client.patch(url, data, format="json")
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.video2.refresh_from_db()
         self.assertEqual(self.video2.video_description, "Locked video")
 
-    def test_patch_creates_new_author_if_not_exists(self):
-        """PATCH should create a new TikTokUser_B if author_id does not exist."""
+    def test_update_creates_new_author_if_not_exists(self):
+        """POST should create a new TikTokUser_B if author_id does not exist."""
         data = {
             "author_id": "123"
         }
 
         url = reverse("video_b_detail_api",
                       kwargs={"video_id": self.video1.video_id})
-        response = self.client.patch(url, data, format="json")
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         old_user_pk = self.video1.author_id.pk
@@ -449,15 +503,15 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         # Verify that a new user was actually created
         self.assertTrue(TikTokUser_B.objects.filter(author_id="123").exists())
 
-    def test_patch_creates_new_hashtags_if_not_exists(self):
-        """PATCH should create new hashtags if they do not exist and assign them to the video."""
+    def test_update_creates_new_hashtags_if_not_exists(self):
+        """POST should create new hashtags if they do not exist and assign them to the video."""
         data = {
             "hashtags": ["newtag1", "newtag2"]
         }
 
         url = reverse("video_b_detail_api",
                       kwargs={"video_id": self.video1.video_id})
-        response = self.client.patch(url, data, format="json")
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.video1.refresh_from_db()
@@ -470,15 +524,15 @@ class TikTokVideoBRetrieveUpdateAPIPatchTest(TestCase):
         hashtags = list(self.video1.hashtags.values_list("name", flat=True))
         self.assertCountEqual(hashtags, ["newtag1", "newtag2"])
 
-    def test_patch_replaces_existing_hashtags(self):
-        """PATCH should replace existing hashtags with the new ones provided."""
+    def test_update_replaces_existing_hashtags(self):
+        """POST should replace existing hashtags with the new ones provided."""
         data = {
             "hashtags": ["replacedTag"]
         }
 
         url = reverse("video_b_detail_api",
                       kwargs={"video_id": self.video1.video_id})
-        response = self.client.patch(url, data, format="json")
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.video1.refresh_from_db()
