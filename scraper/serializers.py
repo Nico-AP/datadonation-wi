@@ -5,14 +5,18 @@ from scraper.models import TikTokVideo, TikTokVideo_B
 
 class TikTokVideoSerializer(serializers.ModelSerializer):
     """ Serializer for TikTokVideo model. """
-    username = serializers.StringRelatedField()
+    author_id = serializers.StringRelatedField()
+    username = serializers.CharField(source='author_id.username', read_only=True)
     hashtags = serializers.SlugRelatedField(
         many=True, slug_field='name', read_only=True
     )
 
     class Meta:
         model = TikTokVideo
-        fields = '__all__'
+        fields = [
+            field.name for field in TikTokVideo._meta.get_fields()
+        ]
+        fields += ['username']
 
 
 class TikTokVideoBSerializer(serializers.ModelSerializer):
