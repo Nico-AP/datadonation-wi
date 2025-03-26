@@ -6,7 +6,7 @@ from scraper.models import TikTokVideo, TikTokVideo_B
 class TikTokVideoSerializer(serializers.ModelSerializer):
     """ Serializer for TikTokVideo model. """
     author_id = serializers.StringRelatedField()
-    username = serializers.CharField(source='author_id.username', read_only=True)
+    username = serializers.CharField(source='author_id.name', read_only=True)
     hashtags = serializers.SlugRelatedField(
         many=True, slug_field='name', read_only=True
     )
