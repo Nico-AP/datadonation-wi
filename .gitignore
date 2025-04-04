@@ -185,3 +185,4 @@ data/
 scraper/data/
 scraper/logs/
 scraper/management/commands/local_*
+dumps/
