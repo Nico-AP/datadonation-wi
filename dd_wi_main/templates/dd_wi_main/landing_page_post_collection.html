@@ -121,12 +121,10 @@
 
     <!-- Additional Visualizations -->
     <div class="main-section intro-text text-center mt-5 pt-5">
-        <div>
-            <h3 class="ps-1 pe-1 pb-3 fw-500 fs-4 fs-md-3">Weitere Visualisierungen der Daten:</h3>
-            
+        <div>            
             {% if party_distribution_treemap %}
             <div class="text-center pb-4 mb-4">
-                <h4 class="fw-bold mb-3">Video-Verteilung nach Parteien</h4>
+                <h4 class="fw-bold mb-3">Anzahl an Videos nach Parteien</h4>
                 <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
                       style="background: #313131">
                     {{ party_distribution_treemap.html|safe }}
