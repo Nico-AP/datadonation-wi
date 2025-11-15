@@ -1362,3 +1362,452 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
         'html': create_plot_html(fig_party, config=PLOT_CONFIG),
     }
     return result
+
+
+# Dark versions of public plots
+
+def create_party_distribution_all_accounts_dark(df_posts):
+    """ Create treemap chart showing video count distribution by party (dark version). """
+    # Filter out non-party accounts and prepare data
+    df_filtered = df_posts[
+        df_posts['partei'].notna()
+        & (df_posts['partei'] != 'Keine Partei')].copy()
+
+    # Calculate video counts per party.
+    party_metrics = []
+    for party in df_filtered['partei'].unique():
+        party_data = df_filtered[df_filtered['partei'] == party]
+        party_metrics.append({
+            'party': party,
+            'Videos': len(party_data)
+        })
+
+    # Sort by video count.
+    party_metrics = sorted(party_metrics, key=lambda x: x['Videos'],
+                           reverse=True)
+
+    # Convert hex colors to rgba with opacity.
+    def hex_to_rgba(hex_color, opacity=0.9):
+        hex_color = hex_color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return f'rgba({r},{g},{b},{opacity})'
+
+    # Create treemap.
+    fig = go.Figure(go.Treemap(
+        labels=[m['party'] for m in party_metrics],
+        parents=[''] * len(party_metrics),
+        values=[m['Videos'] for m in party_metrics],
+        textinfo='label+value',
+        textfont=dict(
+            size=28,
+            family='Rubik, Arial, sans-serif',
+            color='white',
+        ),
+        marker=dict(
+            colors=[
+                hex_to_rgba(party_colors[party], 0.9)
+                for party
+                in [m['party'] for m in party_metrics]
+            ],
+            line=dict(width=0, color='white')
+        ),
+        hovertemplate='<b>%{label}</b><br>Videos: %{value}<extra></extra>',
+    ))
+
+    # Update layout with dark theme.
+    fig.update_layout(
+        dragmode=False,
+        margin=dict(t=0, l=0, r=0, b=0),
+        font=dict(
+            size=25,
+            color='white',
+            family='Rubik, Arial, sans-serif'
+        ),
+        paper_bgcolor='#313131',
+        plot_bgcolor='#313131',
+        height=450,
+    )
+
+    # Find party with most videos.
+    max_party = max(party_metrics, key=lambda x: x['Videos'])
+
+    return {
+        'html': create_plot_html(fig),
+        'data': {
+            'party': max_party['party'],
+            'value': int(max_party['Videos']),
+            'color': party_colors[max_party['party']]
+        }
+    }
+
+
+def create_views_bars_all_accounts_dark(df_posts):
+    """
+    Create bar charts showing total views and views per video side by side (dark version).
+    """
+    # Filter out non-party accounts and prepare data.
+    df_filtered = df_posts[
+        df_posts['partei'].notna() &
+        (df_posts['partei'] != 'Keine Partei')].copy()
+
+    # Create figure with subplots side by side.
+    fig = make_subplots(
+        rows=2, cols=1,
+        subplot_titles=['Views insgesamt', 'Views pro Video'],
+        horizontal_spacing=0.15,
+        vertical_spacing=0.2,
+    )
+
+    # Calculate total views.
+    total_views = []
+    for party in df_filtered['partei'].unique():
+        party_data = df_filtered[df_filtered['partei'] == party]
+        total_views.append({
+            'party': party,
+            'total': party_data['view_count'].sum(),
+            'per_video': party_data['view_count'].mean()
+        })
+
+    # Sort data.
+    total_sorted = sorted(total_views, key=lambda x: x['total'],
+                          reverse=False)
+    per_video_sorted = sorted(total_views, key=lambda x: x['per_video'],
+                              reverse=False)
+
+    # Convert hex colors to rgba with opacity.
+    def make_transparent(hex_color, opacity=0.9):
+        hex_color = hex_color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return f'rgba({r},{g},{b},{opacity})'
+
+    # Add total views bar.
+    fig.add_trace(
+        go.Bar(
+            y=[m['party'] for m in total_sorted],
+            x=[m['total'] for m in total_sorted],
+            orientation='h',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in total_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>'
+            ),
+            marker=dict(
+                line=dict(width=0),
+            ),
+            width=0.6,
+            showlegend=False,
+        ),
+        row=1, col=1
+    )
+
+    # Add per-video views bar.
+    fig.add_trace(
+        go.Bar(
+            y=[m['party'] for m in per_video_sorted],
+            x=[m['per_video'] for m in per_video_sorted],
+            orientation='h',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in per_video_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>'
+            ),
+            marker=dict(
+                line=dict(width=0),
+            ),
+            width=0.6,
+            showlegend=False,
+        ),
+        row=2, col=1
+    )
+
+    # Use dark theme settings.
+    fig.update_layout(
+        dragmode=False,
+        height=600,
+        title_font=dict(size=20, color='white'),
+        plot_bgcolor='#313131',
+        paper_bgcolor='#313131',
+        font=dict(
+            size=25,
+            color='white',
+            family='Rubik, Arial, sans-serif'
+        ),
+        margin=dict(r=0, t=50, l=0, b=0),
+    )
+
+    # Adjust subplot title font sizes
+    for annotation in fig.layout.annotations:
+        annotation.font.size = 22
+        annotation.font.weight = 500
+        annotation.font.family = 'Rubik, sans-serif'
+        annotation.font.color = 'white'
+
+    # Update axes with dark theme.
+    for i in [1, 2]:
+        fig.update_xaxes(
+            title_text='Anzahl',
+            title_font=dict(size=20, color='white'),
+            tickfont=dict(size=20, color='white'),
+            showticklabels=True,
+            row=i, col=1,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='gray',
+            zeroline=True,
+            zerolinecolor='gray',
+            zerolinewidth=1
+        )
+        fig.update_yaxes(
+            tickangle=0,
+            tickfont=dict(size=20, color='white'),
+            row=i, col=1,
+            showgrid=False,
+            ticksuffix="  ",
+            zeroline=False,
+            mirror=False,
+            showline=False,
+            linecolor='rgba(0,0,0,0)',
+        )
+
+    # Find party with most total views and most views per video.
+    max_total = max(total_sorted, key=lambda x: x['total'])
+    max_per_video = max(per_video_sorted, key=lambda x: x['per_video'])
+
+    return {
+        'html': create_plot_html(fig, config=PLOT_CONFIG),
+        'data': {
+            'total': {
+                'party': max_total['party'],
+                'value': int(max_total['total']),
+                'color': party_colors[max_total['party']]
+            },
+            'per_video': {
+                'party': max_per_video['party'],
+                'value': int(max_per_video['per_video']),
+                'color': party_colors[max_per_video['party']]
+            }
+        }
+    }
+
+
+def create_likes_bars_all_accounts_dark(df_posts):
+    """
+    Create bar charts showing total likes and likes per video side by side (dark version).
+    """
+    # Filter out non-party accounts and prepare data.
+    df_filtered = df_posts[
+        df_posts['partei'].notna() &
+        (df_posts['partei'] != 'Keine Partei')].copy()
+
+    # Create figure with subplots side by side.
+    fig = make_subplots(
+        rows=2, cols=1,
+        subplot_titles=['Likes insgesamt', 'Likes pro Video'],
+        horizontal_spacing=0.15,
+        vertical_spacing=0.2
+    )
+
+    # Calculate total likes.
+    total_likes = []
+    for party in df_filtered['partei'].unique():
+        party_data = df_filtered[df_filtered['partei'] == party]
+        total_likes.append({
+            'party': party,
+            'total': party_data['like_count'].sum(),
+            'per_video': party_data['like_count'].mean()
+        })
+
+    # Sort data.
+    total_sorted = sorted(total_likes, key=lambda x: x['total'],
+                          reverse=False)
+    per_video_sorted = sorted(total_likes, key=lambda x: x['per_video'],
+                              reverse=False)
+
+    # Convert hex colors to rgba with opacity.
+    def make_transparent(hex_color, opacity=0.9):
+        hex_color = hex_color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return f'rgba({r},{g},{b},{opacity})'
+
+    # Add total likes bar.
+    fig.add_trace(
+        go.Bar(
+            y=[m['party'] for m in total_sorted],
+            x=[m['total'] for m in total_sorted],
+            orientation='h',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in total_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>'
+            ),
+            marker=dict(
+                line=dict(width=0),
+            ),
+            width=0.6,
+            showlegend=False
+        ),
+        row=1, col=1
+    )
+
+    # Add per-video likes bar.
+    fig.add_trace(
+        go.Bar(
+            y=[m['party'] for m in per_video_sorted],
+            x=[m['per_video'] for m in per_video_sorted],
+            orientation='h',
+            marker_color=[
+                make_transparent(party_colors[p])
+                for p
+                in [m['party'] for m in per_video_sorted]
+            ],
+            hovertemplate=(
+                '<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>'
+            ),
+            marker=dict(
+                line=dict(width=0),
+            ),
+            width=0.6,
+            showlegend=False
+        ),
+        row=2, col=1
+    )
+
+    # Use dark theme settings.
+    fig.update_layout(
+        dragmode=False,
+        height=600,
+        title_font=dict(size=20, color='white'),
+        plot_bgcolor='#313131',
+        paper_bgcolor='#313131',
+        font=dict(
+            size=25,
+            color='white',
+            family='Rubik, Arial, sans-serif'
+        ),
+        margin=dict(r=0, t=50, l=0, b=0),
+    )
+
+    # Adjust subplot title font sizes
+    for annotation in fig.layout.annotations:
+        annotation.font.size = 22
+        annotation.font.weight = 500
+        annotation.font.family = 'Rubik, sans-serif'
+        annotation.font.color = 'white'
+
+    # Update axes with dark theme.
+    for i in [1, 2]:
+        fig.update_xaxes(
+            title_text='Anzahl',
+            title_font=dict(size=20, color='white'),
+            tickfont=dict(size=20, color='white'),
+            showticklabels=True,
+            row=i, col=1,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='gray',
+            zeroline=True,
+            zerolinecolor='gray',
+            zerolinewidth=1
+        )
+        fig.update_yaxes(
+            tickangle=0,
+            tickfont=dict(size=20, color='white'),
+            row=i, col=1,
+            showgrid=False,
+            ticksuffix="  ",
+            zeroline=False,
+            mirror=False,
+            showline=False,
+            linecolor='rgba(0,0,0,0)',
+        )
+
+    # Find party with most total likes and most likes per video.
+    max_total = max(total_sorted, key=lambda x: x['total'])
+    max_per_video = max(per_video_sorted, key=lambda x: x['per_video'])
+
+    return {
+        'html': create_plot_html(fig, config=PLOT_CONFIG),
+        'data': {
+            'total': {
+                'party': max_total['party'],
+                'value': int(max_total['total']),
+                'color': party_colors[max_total['party']]
+            },
+            'per_video': {
+                'party': max_per_video['party'],
+                'value': int(max_per_video['per_video']),
+                'color': party_colors[max_per_video['party']]
+            }
+        }
+    }
+
+
+def create_hashtag_cloud_germany_dark(df_posts):
+    """ Create wordcloud for all political videos in TikTok Germany (dark version). """
+    def get_hashtags(hashtag_col):
+        all_hashtags = []
+
+        def remove_emojis(tag):
+            """Remove emojis and special characters, keep only regular text"""
+            return ''.join(char for char in tag if ord(char) < 127).lower()
+
+        for hashtag_list in hashtag_col:
+            if hashtag_list:
+                filtered_tags = [
+                    tag for tag in hashtag_list
+                    if tag.lower() not in {
+                        'fyp', 'foryou', 'viral', 'trending',
+                        'fy', 'fürdich', 'capcut'
+                    }
+                ]
+                processed_tags = []
+                for tag in filtered_tags:
+                    text_only = remove_emojis(tag)
+                    if text_only:
+                        processed_tags.append(text_only)
+                all_hashtags.extend(processed_tags)
+        return Counter(all_hashtags)
+
+    # Get frequencies for all posts.
+    all_freq = get_hashtags(df_posts['hashtags'])
+
+    # Create color function that maps word frequency to color intensity (brighter for dark bg)
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        freq = all_freq[word] / max(all_freq.values())
+        # Use brighter colors for dark background
+        return f'rgb({int(135 + 120 * freq)}, {int(255 - 65 * freq)}, {int(229 - 79 * freq)})'
+
+    # Create wordcloud with emoji support and custom coloring
+    all_cloud = WordCloud(
+        font_path='dd_wi_main/static/dd_wi_main/fonts/rubik/Rubik-VariableFont_wght.ttf',
+        width=800,
+        height=600,
+        background_color='#313131',  # Dark background
+        color_func=color_func,
+        max_words=100,
+        prefer_horizontal=0.7,
+        min_font_size=10,
+        max_font_size=100,
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
+    ).generate_from_frequencies(all_freq)
+    all_cloud_svg = all_cloud.to_svg(embed_font=True)
+
+    return {
+        'html': f'<div class="wordcloud-container">{all_cloud_svg}</div>',
+    }
