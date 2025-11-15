@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 'video_id',
                 'create_time',
                 'view_count',
-                'username__name',
+                'author_id__name',
                 'hashtags__name',
                 'like_count',
                 'comment_count',
