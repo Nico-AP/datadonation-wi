@@ -1,0 +1,126 @@
+{% extends "dd_wi_main/base.html" %}
+
+{% load static %}
+
+{% block site_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'reports/css/base.css' %}">
+{% endblock site_css %}
+
+{% block main_content %}
+<div class="landing-content">
+    <div class="main-section intro-text text-center">
+        <div>
+
+            <!-- Project Completion Message -->
+            <div class="text-center pb-3 pb-md-5">
+                <h3 class="ps-1 pe-1 pt-1 pt-md-3 fw-500 fs-4 fs-md-3">Am 23.
+                    Februar 2025
+                    hat die
+                    Bundestagswahl stattgefunden.</h3>
+                <h3 class="ps-1 pe-1 pb-2 pb-md-3 fw-500 fs-4 fs-md-3">Die <span
+                          class="highlight-second fw-500 fs-4 fs-md-3">Parteien</span>
+                    haben
+                    dazu
+                    t&auml;glich auf TikTok geposted...</h3>
+                {% if party_distribution_plot %}
+                <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
+                      style="background: #313131">
+                    {{ party_distribution_plot.html|safe }}
+                </div>
+                {% endif %}
+            </div>
+
+            <h3 class="ps-1 pe-1 pb-1 pb-md-3 fw-500 fs-4 fs-md-3">
+                Für das Projekt <span
+                      class="stats-value fw-500 fs-4 fs-md-3">"Dein Feed, Deine Wahl"</span>
+                haben wir mit euch Daten gesammelt.
+            </h3>
+
+            <div class="mt-4 pt-3">
+                <h4 class="fw-bolder mb-3">Veröffentlichungen im Rahmen des Projekts "Dein Feed, Deine Wahl":</h4>
+                
+                <div class="text-start ps-3 ps-md-5">
+                    <h5 class="fw-bold mt-3 mb-2">Medienberichterstattung:</h5>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-3">
+                            <a href="https://www.stuttgarter-zeitung.de/dein-feed-deine-wahl" target="_blank" rel="noopener noreferrer">
+                                Stuttgarter Zeitung
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            Bayerischer Rundfunk
+                        </li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-3 mb-2">Konferenzpräsentationen:</h5>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-3">
+                            <div>
+                                <strong>Simon Koenigsdorff, Nico Pfiffner, und Alina Hanss:</strong><br>
+                                <a href="https://25.scicar.de/scicar25/schedule/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Politik auf TikTok: Ein interdisziplinäres Datenspende-Projekt zur Bundestagswahl
+                                </a><br>
+                                <small class="text-muted">(SciCar2025)</small>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div>
+                                <strong>Jakob Ohme:</strong><br>
+                                <a href="https://www.uibk.ac.at/de/congress/ecreapolcomm25/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Unraveling TikTok's Role in the 2025 Federal German Elections with the Help of Data Donation
+                                </a><br>
+                                <small class="text-muted">(ECREA PolCom 2025)</small>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div>
+                                <strong>Lion Wedel:</strong><br>
+                                <a href="https://www.conftool.org/aoir2025/sessions.php" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Dein-Feed-Deine-Wahl [your-feed-your-choice/election] - What do TikTok users actually see?
+                                </a><br>
+                                <small class="text-muted">(AoIR 2025)</small>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-3 mb-2">Wissenschaftliche Publikationen:</h5>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2">
+                            <em>In Kürze verfügbar</em>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="mt-5">
+                Dies ist ein Gemeinschaftsprojekt des Weizenbaum Instituts
+                Berlin und der Universität Zürich.
+                Journalistinnen und Journalisten des Bayerischen Rundfunks und
+                der Stuttgarter Zeitung/ Stuttgarter Nachrichten werten die
+                Daten zusammen mit den Forschungseinrichtungen aus.
+                Zusammen finden wir heraus, welche politischen Posts und
+                wie viele davon dich auf Tiktok erreichen.
+            </p>
+
+            <p class="fw-bolder mb-0 pt-3">
+                Wir danken allen Teilnehmenden für ihre Unterstützung!
+            </p>
+
+            <div class="mt-4 pt-3">
+                <p class="mb-2">
+                    <strong>Kontakt:</strong>
+                </p>
+                <p class="mb-0">
+                    Bei Fragen zum Projekt wenden Sie sich bitte an:
+                </p>
+                <p>
+                    <a href="{% url 'contact' %}">Kontaktseite</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock main_content %}
+
