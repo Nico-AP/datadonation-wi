@@ -1,4 +1,6 @@
 import pandas as pd
+from datetime import datetime
+from django.utils.timezone import make_aware
 from scraper.models import TikTokVideo
 
 
@@ -46,15 +48,21 @@ def load_posts_data(needed_fields=None, video_ids=None):
     else:
         fields = needed_fields
 
+    # Filter to only include videos until (inclusive) February 28, 2025
+    cutoff_date = make_aware(datetime(2025, 2, 28, 23, 59, 59))
+    
     if video_ids is None:
-        videos = TikTokVideo.objects.all().values(*fields)
+        videos = TikTokVideo.objects.filter(create_time__lte=cutoff_date).values(*fields)
     else:
         videos = TikTokVideo.objects.none()
         BATCH_SIZE = 5000
         for i in range(0, len(video_ids), BATCH_SIZE):
             batch = video_ids[i:(i + BATCH_SIZE)]
             videos = videos | \
-                TikTokVideo.objects.filter(video_id__in=batch).values(*fields)
+                TikTokVideo.objects.filter(
+                    video_id__in=batch,
+                    create_time__lte=cutoff_date
+                ).values(*fields)
 
     df_posts = pd.DataFrame.from_records(videos)
     df_posts = df_posts.rename(columns={
