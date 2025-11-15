@@ -5,7 +5,7 @@ from reports.utils.constants import PUBLIC_TEMPORAL_PLOT_DARK_KEY
 
 
 class LandingView(TemplateView):
-    template_name = 'dd_wi_main/landing_page.html'
+    template_name = 'dd_wi_main/landing_page_post_collection.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
