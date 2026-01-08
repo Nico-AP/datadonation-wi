@@ -7,7 +7,12 @@ from reports.utils.constants import (
     PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY,
     PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY,
     PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY,
-    PUBLIC_HT_WORDCLOUD_DARK_KEY
+    PUBLIC_HT_WORDCLOUD_DARK_KEY,
+    PUBLIC_TEMPORAL_PLOT_DARK_KEY_EN,
+    PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY_EN,
+    PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY_EN,
+    PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY_EN,
+    PUBLIC_HT_WORDCLOUD_DARK_KEY_EN
 )
 
 
@@ -43,17 +48,17 @@ class LandingViewEn(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get cached distribution plots (dark versions).
+        # Get cached distribution plots (dark versions) - English
         context['party_distribution_plot'] = cache.get(
-            PUBLIC_TEMPORAL_PLOT_DARK_KEY)
+            PUBLIC_TEMPORAL_PLOT_DARK_KEY_EN)
         context['party_distribution_treemap'] = cache.get(
-            PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY)
+            PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY_EN)
         context['views_bars_plot'] = cache.get(
-            PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY)
+            PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY_EN)
         context['likes_bars_plot'] = cache.get(
-            PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY)
+            PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY_EN)
         context['hashtag_wordcloud'] = cache.get(
-            PUBLIC_HT_WORDCLOUD_DARK_KEY)
+            PUBLIC_HT_WORDCLOUD_DARK_KEY_EN)
         return context
 
 

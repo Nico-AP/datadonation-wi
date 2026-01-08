@@ -9,3 +9,10 @@ PUBLIC_LIKES_BARS_ALL_ACCOUNTS_KEY = 'public_likes_bars_all_accounts'
 PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY = 'public_likes_bars_all_accounts_dark'
 PUBLIC_HT_WORDCLOUD_KEY = 'public_ht_wordcloud'
 PUBLIC_HT_WORDCLOUD_DARK_KEY = 'public_ht_wordcloud_dark'
+
+# English cache keys
+PUBLIC_TEMPORAL_PLOT_DARK_KEY_EN = 'public_party_distribution_temporal_all_accounts_dark_en'
+PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY_EN = 'public_party_distribution_all_accounts_dark_en'
+PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY_EN = 'public_views_bars_all_accounts_dark_en'
+PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY_EN = 'public_likes_bars_all_accounts_dark_en'
+PUBLIC_HT_WORDCLOUD_DARK_KEY_EN = 'public_ht_wordcloud_dark_en'

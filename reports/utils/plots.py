@@ -10,6 +10,42 @@ from django.conf import settings
 matplotlib.use('Agg')  # Set the backend before importing pyplot.
 from plotly.subplots import make_subplots
 
+# Translation dictionary for plot labels
+PLOT_TRANSLATIONS = {
+    'de': {
+        'date': 'Datum',
+        'videos_cumulative': 'Anzahl Videos (kumuliert)',
+        'videos': 'Videos',
+        'views_total': 'Views insgesamt',
+        'views_per_video': 'Views pro Video',
+        'likes_total': 'Likes insgesamt',
+        'likes_per_video': 'Likes pro Video',
+        'count': 'Anzahl',
+        'hover_videos': 'Videos',
+        'hover_views_total': 'Views insgesamt',
+        'hover_views_per_video': 'Views pro Video',
+        'hover_likes_total': 'Likes insgesamt',
+        'hover_likes_per_video': 'Likes pro Video',
+        'hover_videos_label': 'Videos: %{value}',
+    },
+    'en': {
+        'date': 'Date',
+        'videos_cumulative': 'Number of Videos (cumulative)',
+        'videos': 'Videos',
+        'views_total': 'Total Views',
+        'views_per_video': 'Views per Video',
+        'likes_total': 'Total Likes',
+        'likes_per_video': 'Likes per Video',
+        'count': 'Count',
+        'hover_videos': 'Videos',
+        'hover_views_total': 'Total Views',
+        'hover_views_per_video': 'Views per Video',
+        'hover_likes_total': 'Total Likes',
+        'hover_likes_per_video': 'Likes per Video',
+        'hover_videos_label': 'Videos: %{value}',
+    }
+}
+
 # Common plot settings.
 PLOT_CONFIG = {
     'responsive': True,
@@ -1213,8 +1249,11 @@ def create_likes_bars_all_accounts(df_posts):
     }
 
 
-def create_temporal_party_distribution_all_accounts_dark(df_posts):
+def create_temporal_party_distribution_all_accounts_dark(df_posts, lang='de'):
     """ Create temporal party distribution plot for all accounts. """
+    # Get translations
+    t = PLOT_TRANSLATIONS.get(lang, PLOT_TRANSLATIONS['de'])
+    
     # Convert timestamp to datetime.
     df_posts['date'] = pd.to_datetime(df_posts['create_time'], unit='s')
 
@@ -1264,7 +1303,7 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
             stackgroup='one',
             fillcolor=rgba_color,
             # Update hover template to only show number.
-            hovertemplate='%{y} Videos<extra></extra>',
+            hovertemplate=f'%{{y}} {t["hover_videos"]}<extra></extra>',
             hoverlabel=dict(
                 bgcolor='white',
                 font_size=16,
@@ -1278,8 +1317,8 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
 
     # After all traces are added, update the layout.
     fig_party.update_layout(
-        xaxis_title='Datum',
-        yaxis_title='Anzahl Videos (kumuliert)',
+        xaxis_title=t['date'],
+        yaxis_title=t['videos_cumulative'],
         dragmode=False,
         showlegend=True,
         legend=dict(
@@ -1366,8 +1405,11 @@ def create_temporal_party_distribution_all_accounts_dark(df_posts):
 
 # Dark versions of public plots
 
-def create_party_distribution_all_accounts_dark(df_posts):
+def create_party_distribution_all_accounts_dark(df_posts, lang='de'):
     """ Create treemap chart showing video count distribution by party (dark version). """
+    # Get translations
+    t = PLOT_TRANSLATIONS.get(lang, PLOT_TRANSLATIONS['de'])
+    
     # Filter out non-party accounts and prepare data
     df_filtered = df_posts[
         df_posts['partei'].notna()
@@ -1413,7 +1455,7 @@ def create_party_distribution_all_accounts_dark(df_posts):
             ],
             line=dict(width=0, color='white')
         ),
-        hovertemplate='<b>%{label}</b><br>Videos: %{value}<extra></extra>',
+        hovertemplate=f'<b>%{{label}}</b><br>{t["hover_videos_label"]}<extra></extra>',
     ))
 
     # Update layout with dark theme.
@@ -1443,10 +1485,13 @@ def create_party_distribution_all_accounts_dark(df_posts):
     }
 
 
-def create_views_bars_all_accounts_dark(df_posts):
+def create_views_bars_all_accounts_dark(df_posts, lang='de'):
     """
     Create bar charts showing total views and views per video side by side (dark version).
     """
+    # Get translations
+    t = PLOT_TRANSLATIONS.get(lang, PLOT_TRANSLATIONS['de'])
+    
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
@@ -1455,7 +1500,7 @@ def create_views_bars_all_accounts_dark(df_posts):
     # Create figure with subplots side by side.
     fig = make_subplots(
         rows=2, cols=1,
-        subplot_titles=['Views insgesamt', 'Views pro Video'],
+        subplot_titles=[t['views_total'], t['views_per_video']],
         horizontal_spacing=0.15,
         vertical_spacing=0.2,
     )
@@ -1496,7 +1541,7 @@ def create_views_bars_all_accounts_dark(df_posts):
                 in [m['party'] for m in total_sorted]
             ],
             hovertemplate=(
-                '<b>%{y}</b><br>Views insgesamt: %{x:,.0f}<br><extra></extra>'
+                f'<b>%{{y}}</b><br>{t["hover_views_total"]}: %{{x:,.0f}}<br><extra></extra>'
             ),
             marker=dict(
                 line=dict(width=0),
@@ -1519,7 +1564,7 @@ def create_views_bars_all_accounts_dark(df_posts):
                 in [m['party'] for m in per_video_sorted]
             ],
             hovertemplate=(
-                '<b>%{y}</b><br>Views pro Video: %{x:,.0f}<br><extra></extra>'
+                f'<b>%{{y}}</b><br>{t["hover_views_per_video"]}: %{{x:,.0f}}<br><extra></extra>'
             ),
             marker=dict(
                 line=dict(width=0),
@@ -1555,7 +1600,7 @@ def create_views_bars_all_accounts_dark(df_posts):
     # Update axes with dark theme.
     for i in [1, 2]:
         fig.update_xaxes(
-            title_text='Anzahl',
+            title_text=t['count'],
             title_font=dict(size=20, color='white'),
             tickfont=dict(size=20, color='white'),
             showticklabels=True,
@@ -1600,10 +1645,13 @@ def create_views_bars_all_accounts_dark(df_posts):
     }
 
 
-def create_likes_bars_all_accounts_dark(df_posts):
+def create_likes_bars_all_accounts_dark(df_posts, lang='de'):
     """
     Create bar charts showing total likes and likes per video side by side (dark version).
     """
+    # Get translations
+    t = PLOT_TRANSLATIONS.get(lang, PLOT_TRANSLATIONS['de'])
+    
     # Filter out non-party accounts and prepare data.
     df_filtered = df_posts[
         df_posts['partei'].notna() &
@@ -1612,7 +1660,7 @@ def create_likes_bars_all_accounts_dark(df_posts):
     # Create figure with subplots side by side.
     fig = make_subplots(
         rows=2, cols=1,
-        subplot_titles=['Likes insgesamt', 'Likes pro Video'],
+        subplot_titles=[t['likes_total'], t['likes_per_video']],
         horizontal_spacing=0.15,
         vertical_spacing=0.2
     )
@@ -1653,7 +1701,7 @@ def create_likes_bars_all_accounts_dark(df_posts):
                 in [m['party'] for m in total_sorted]
             ],
             hovertemplate=(
-                '<b>%{y}</b><br>Likes insgesamt: %{x:,.0f}<br><extra></extra>'
+                f'<b>%{{y}}</b><br>{t["hover_likes_total"]}: %{{x:,.0f}}<br><extra></extra>'
             ),
             marker=dict(
                 line=dict(width=0),
@@ -1676,7 +1724,7 @@ def create_likes_bars_all_accounts_dark(df_posts):
                 in [m['party'] for m in per_video_sorted]
             ],
             hovertemplate=(
-                '<b>%{y}</b><br>Likes pro Video: %{x:,.0f}<br><extra></extra>'
+                f'<b>%{{y}}</b><br>{t["hover_likes_per_video"]}: %{{x:,.0f}}<br><extra></extra>'
             ),
             marker=dict(
                 line=dict(width=0),
@@ -1712,7 +1760,7 @@ def create_likes_bars_all_accounts_dark(df_posts):
     # Update axes with dark theme.
     for i in [1, 2]:
         fig.update_xaxes(
-            title_text='Anzahl',
+            title_text=t['count'],
             title_font=dict(size=20, color='white'),
             tickfont=dict(size=20, color='white'),
             showticklabels=True,
