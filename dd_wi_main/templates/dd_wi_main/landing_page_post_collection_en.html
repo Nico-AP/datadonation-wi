@@ -1,0 +1,158 @@
+{% extends "dd_wi_main/base.html" %}
+
+{% load static %}
+
+{% block site_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'reports/css/base.css' %}">
+{% endblock site_css %}
+
+{% block main_content %}
+<div class="landing-content">
+    <div class="main-section intro-text text-center">
+        <div>
+
+            <!-- Project Completion Message -->
+            <div class="text-center pb-3 pb-md-5">
+                <h3 class="ps-1 pe-1 pt-1 pt-md-3 fw-500 fs-4 fs-md-3">On February 23,
+                    2025,
+                    the
+                    federal election took place.</h3>
+                <h3 class="ps-1 pe-1 pb-2 pb-md-3 fw-500 fs-4 fs-md-3">The <span
+                      class="highlight-second fw-500 fs-4 fs-md-3">parties</span>
+                    posted
+                    daily
+                    on TikTok...</h3>
+                {% if party_distribution_plot %}
+                <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
+                      style="background: #313131">
+                    {{ party_distribution_plot.html|safe }}
+                </div>
+                {% endif %}
+            </div>
+
+            <h3 class="ps-1 pe-1 pb-1 pb-md-3 fw-500 fs-4 fs-md-3">
+                For the project <span
+                      class="stats-value fw-500 fs-4 fs-md-3">"Dein Feed, Deine Wahl"</span>
+                we collected data with you.
+            </h3>
+
+            <div class="mt-4 pt-3">                
+                <div class="text-start ps-3 ps-md-5">
+                    <h5 class="fw-bold mt-3 mb-2">Media Coverage:</h5>
+                    <ul class="mb-4">
+                        <li class="mb-3">
+                            <a href="https://www.stuttgarter-zeitung.de/dein-feed-deine-wahl" target="_blank" rel="noopener noreferrer">
+                                Collection of all articles from Stuttgarter Zeitung on the project "Dein Feed, Deine Wahl"
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="https://www.br.de/nachrichten/netzwelt/mitmachprojekt-wie-beeinflusst-tiktok-die-wahlentscheidung,Uczub34" target="_blank" rel="noopener noreferrer">
+                                Participatory Project: How does TikTok influence voting decisions? (BR)
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="https://www.br.de/nachrichten/netzwelt/wahlkampf-im-netz-wie-forscher-mehr-transparenz-schaffen-wollen,UdcRo9K" target="_blank" rel="noopener noreferrer">
+                                Election Campaign Online: How researchers want to create more transparency (BR)
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="https://www.br.de/nachrichten/netzwelt/tiktok-wahlkampf-zur-bundestagswahl-linke-und-afd-punkten-politische-raender-gewinnen-die-jugend,Udj4ei2" target="_blank" rel="noopener noreferrer">
+                                TikTok Election Campaign: The political fringes are winning over the youth (BR)
+                            </a>
+                        </li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-3 mb-2">Conference Presentations:</h5>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-3">
+                            <div>
+                                <strong>Simon Koenigsdorff, Nico Pfiffner, and Alina Hanss:</strong><br>
+                                <a href="https://25.scicar.de/scicar25/schedule/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Politics on TikTok: An Interdisciplinary Data Donation Project on the Federal Election
+                                </a><br>
+                                <small class="text-muted">(SciCar2025)</small>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div>
+                                <strong>Jakob Ohme:</strong><br>
+                                <a href="https://www.uibk.ac.at/de/congress/ecreapolcomm25/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Unraveling TikTok's Role in the 2025 Federal German Elections with the Help of Data Donation
+                                </a><br>
+                                <small class="text-muted">(ECREA PolCom 2025)</small>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div>
+                                <strong>Lion Wedel:</strong><br>
+                                <a href="https://www.conftool.org/aoir2025/sessions.php" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    Dein-Feed-Deine-Wahl [your-feed-your-choice/election] - What do TikTok users actually see?
+                                </a><br>
+                                <small class="text-muted">(AoIR 2025)</small>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-3 mb-2">Scientific Publications:</h5>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2">
+                            <em>Coming soon</em>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="mt-5">
+                This is a joint project of the Weizenbaum Institute
+                Berlin and the University of Zurich.
+                Journalists from Bayerischer Rundfunk and
+                Stuttgarter Zeitung/ Stuttgarter Nachrichten analyze
+                the data together with the research institutions.
+                Together we find out which political posts and
+                how many of them reach you on TikTok.
+            </p>
+
+            <p class="fw-bolder mb-0 pt-3">
+                We thank all participants for their support!
+            </p>
+        </div>
+    </div>
+
+    <!-- Additional Visualizations -->
+    <div class="main-section intro-text text-center mt-5 pt-5">
+        <div>            
+            {% if party_distribution_treemap %}
+            <div class="text-center pb-4 mb-4">
+                <h4 class="fw-bold mb-3">Number of Videos by Party</h4>
+                <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
+                      style="background: #313131">
+                    {{ party_distribution_treemap.html|safe }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if views_bars_plot %}
+            <div class="text-center pb-4 mb-4">
+                <h4 class="fw-bold mb-3">Views by Party</h4>
+                <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
+                      style="background: #313131">
+                    {{ views_bars_plot.html|safe }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if likes_bars_plot %}
+            <div class="text-center pb-4 mb-4">
+                <h4 class="fw-bold mb-3">Likes by Party</h4>
+                <div class="plot-wrapper p-1 pe-2 p-md-4 pe-md-5 rounded-md-2"
+                      style="background: #313131">
+                    {{ likes_bars_plot.html|safe }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock main_content %}

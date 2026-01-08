@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.shortcuts import render
+from django.utils import translation
 from django.views.generic import TemplateView
 from reports.utils.constants import (
     PUBLIC_TEMPORAL_PLOT_DARK_KEY,
@@ -12,6 +13,32 @@ from reports.utils.constants import (
 
 class LandingView(TemplateView):
     template_name = 'dd_wi_main/landing_page_post_collection.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get cached distribution plots (dark versions).
+        context['party_distribution_plot'] = cache.get(
+            PUBLIC_TEMPORAL_PLOT_DARK_KEY)
+        context['party_distribution_treemap'] = cache.get(
+            PUBLIC_PARTY_DISTRIBUTION_ALL_ACCOUNTS_DARK_KEY)
+        context['views_bars_plot'] = cache.get(
+            PUBLIC_VIEWS_BARS_ALL_ACCOUNTS_DARK_KEY)
+        context['likes_bars_plot'] = cache.get(
+            PUBLIC_LIKES_BARS_ALL_ACCOUNTS_DARK_KEY)
+        context['hashtag_wordcloud'] = cache.get(
+            PUBLIC_HT_WORDCLOUD_DARK_KEY)
+        return context
+
+
+class LandingViewEn(TemplateView):
+    template_name = 'dd_wi_main/landing_page_post_collection_en.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Activate English language for this view
+        translation.activate('en')
+        response = super().dispatch(request, *args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
