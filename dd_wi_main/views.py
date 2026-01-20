@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import render
 from django.utils import translation
@@ -42,7 +43,13 @@ class LandingViewEn(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         # Activate English language for this view
         translation.activate('en')
+        # Set language in request so LocaleMiddleware respects it
+        request.LANGUAGE_CODE = 'en'
         response = super().dispatch(request, *args, **kwargs)
+        # Ensure language cookie is set so it persists (Django default cookie name is 'django_language')
+        language_cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+        language_cookie_age = getattr(settings, 'LANGUAGE_COOKIE_AGE', 365*24*60*60)
+        response.set_cookie(language_cookie_name, 'en', max_age=language_cookie_age)
         return response
 
     def get_context_data(self, **kwargs):
