@@ -6,6 +6,10 @@ const pages = {
         entry: './CustomUploaderApp/src/uploader.js',
         chunks: ['chunk-vendors']
     },
+    'ddm_uploader_frontend': {
+        entry: './CustomUploaderApp/src/uploader.js',
+        chunks: ['chunk-vendors']
+    },
 }
 
 module.exports = {
