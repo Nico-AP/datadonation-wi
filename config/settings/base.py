@@ -143,6 +143,13 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm_custom/vue/webpack-stats.json'),
         'POLL_INTERVAL': 0.1,
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    },
+    'DDM_UPLOADER': {
+        'CACHE': True,
+        'BUNDLE_DIR_NAME': 'ddm_custom/vue/',
+        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm_custom/vue/webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     }
 }
 DDM_SETTINGS = {
